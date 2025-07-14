@@ -85,4 +85,4 @@ export interface GameState {
   timeOfDay: 'dawn' | 'day' | 'dusk' | 'night';
 }
 
-export type GameMode = 'menu' | 'sailing' | 'combat' | 'trading';
+export type GameMode = 'menu' | 'map' | 'sailing' | 'combat' | 'trading';

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 
 function Menu() {
-  const { startGame } = usePirateGame();
+  const { startGame, setGameState } = usePirateGame();
 
   const handleStartGame = () => {
     console.log("Set Sail button clicked!");
@@ -38,6 +38,21 @@ function Menu() {
           </div>
           
           <div className="space-y-3">
+            <button
+              onClick={() => setGameState('map')}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg py-3 cursor-pointer z-10 relative rounded-md transition-colors duration-200"
+              type="button"
+              style={{ 
+                border: 'none',
+                outline: 'none',
+                position: 'relative',
+                zIndex: 100,
+                pointerEvents: 'auto'
+              }}
+            >
+              Caribbean Map
+            </button>
+            
             <button
               onClick={handleStartGame}
               className="w-full bg-amber-600 hover:bg-amber-500 text-black font-bold text-lg py-3 cursor-pointer z-10 relative rounded-md transition-colors duration-200"
