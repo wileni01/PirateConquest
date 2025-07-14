@@ -15,17 +15,17 @@ const MAP_BOUNDS = {
 };
 
 // Convert real lat/lon to map coordinates with better scaling
-const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 800, mapHeight: number = 600) => {
+const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 1200, mapHeight: number = 800) => {
   // Add padding and adjust bounds to better center the Caribbean
-  const padding = 40; // pixels of padding
+  const padding = 60; // pixels of padding
   const effectiveWidth = mapWidth - (2 * padding);
   const effectiveHeight = mapHeight - (2 * padding);
   
-  // Adjust bounds for better Caribbean centering
+  // Adjust bounds for better Caribbean centering with Mexico included
   const adjustedBounds = {
     north: 33,
-    south: 8,
-    west: -98,
+    south: 7,
+    west: -100,
     east: -58
   };
   
@@ -87,7 +87,7 @@ const PIRATE_LOCATIONS = [
   { id: 'acapulco', name: 'Acapulco', lat: 16.86, lon: -99.88, size: 'medium', type: 'treasure_port', faction: 'spanish' },
 ].map(location => ({
   ...location,
-  ...latLonToMapCoords(location.lat, location.lon)
+  ...latLonToMapCoords(location.lat, location.lon, 1200, 800)
 }));
 
 // Land masses for visual representation with accurate geography
@@ -169,6 +169,24 @@ const LAND_MASSES = [
     { lat: 12.0, lon: -72.2 }, { lat: 12.5, lon: -72.0 }
   ]},
   
+  // Mainland Mexico (Gulf Coast)
+  { name: 'Mexico', points: [
+    { lat: 26.0, lon: -97.2 }, { lat: 25.5, lon: -97.3 }, { lat: 25.0, lon: -97.4 },
+    { lat: 24.5, lon: -97.5 }, { lat: 24.0, lon: -97.6 }, { lat: 23.5, lon: -97.7 },
+    { lat: 23.0, lon: -97.8 }, { lat: 22.5, lon: -97.85 }, { lat: 22.0, lon: -97.9 },
+    { lat: 21.5, lon: -97.5 }, { lat: 21.0, lon: -97.3 }, { lat: 20.5, lon: -97.2 },
+    { lat: 20.0, lon: -96.9 }, { lat: 19.5, lon: -96.5 }, { lat: 19.0, lon: -96.1 },
+    { lat: 18.7, lon: -95.5 }, { lat: 18.5, lon: -95.0 }, { lat: 18.3, lon: -94.5 },
+    { lat: 18.2, lon: -94.0 }, { lat: 18.1, lon: -93.5 }, { lat: 18.0, lon: -93.0 },
+    { lat: 18.0, lon: -92.5 }, { lat: 18.2, lon: -92.0 }, { lat: 18.4, lon: -91.5 },
+    { lat: 18.6, lon: -91.0 }, { lat: 18.8, lon: -90.5 }, { lat: 19.0, lon: -90.7 },
+    { lat: 19.5, lon: -90.8 }, { lat: 20.0, lon: -90.6 }, { lat: 20.5, lon: -90.5 },
+    { lat: 21.0, lon: -90.4 }, { lat: 21.6, lon: -90.5 }, { lat: 21.6, lon: -97.0 },
+    { lat: 22.0, lon: -97.2 }, { lat: 22.5, lon: -97.4 }, { lat: 23.0, lon: -97.5 },
+    { lat: 23.5, lon: -97.4 }, { lat: 24.0, lon: -97.3 }, { lat: 24.5, lon: -97.2 },
+    { lat: 25.0, lon: -97.15 }, { lat: 25.5, lon: -97.1 }, { lat: 26.0, lon: -97.2 }
+  ]},
+  
   // Mexico - Yucatan Peninsula (more accurate shape)
   { name: 'Yucatan', points: [
     { lat: 21.6, lon: -90.5 }, { lat: 21.6, lon: -89.0 }, { lat: 21.5, lon: -88.0 },
@@ -215,7 +233,7 @@ const LAND_MASSES = [
 // Convert land masses to map coordinates
 const RENDERED_LAND_MASSES = LAND_MASSES.map(landMass => ({
   ...landMass,
-  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon))
+  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon, 1200, 800))
 }));
 
 function MapView() {
@@ -261,7 +279,7 @@ function MapView() {
     // Reverse the latLonTo3D conversion
     const lon = (worldPos[0] / 20) - 77.5;
     const lat = 20 - (worldPos[2] / 20);
-    return latLonToMapCoords(lat, lon);
+    return latLonToMapCoords(lat, lon, 1200, 800);
   };
 
   // Update player position on map based on 3D world position
@@ -374,26 +392,26 @@ function MapView() {
                 {/* Grid lines for navigation */}
                 <svg className="absolute inset-0 w-full h-full opacity-20" style={{ pointerEvents: 'none' }}>
                   {/* Vertical lines (longitude) */}
-                  {Array.from({ length: 10 }, (_, i) => (
+                  {Array.from({ length: 15 }, (_, i) => (
                     <line
                       key={`v-${i}`}
                       x1={i * 80}
                       y1="0"
                       x2={i * 80}
-                      y2="600"
+                      y2="800"
                       stroke="#94a3b8"
                       strokeWidth="0.5"
                       strokeDasharray="2,2"
                     />
                   ))}
                   {/* Horizontal lines (latitude) */}
-                  {Array.from({ length: 8 }, (_, i) => (
+                  {Array.from({ length: 10 }, (_, i) => (
                     <line
                       key={`h-${i}`}
                       x1="0"
-                      y1={i * 75}
-                      x2="800"
-                      y2={i * 75}
+                      y1={i * 80}
+                      x2="1200"
+                      y2={i * 80}
                       stroke="#94a3b8"
                       strokeWidth="0.5"
                       strokeDasharray="2,2"
@@ -425,11 +443,15 @@ function MapView() {
                       location.faction === 'danish' ? 'border-cyan-400 bg-cyan-600' :
                       'border-gray-400 bg-gray-600'
                     } ${
-                      location.size === 'large' ? 'w-6 h-6' :
-                      location.size === 'medium' ? 'w-4 h-4' :
-                      'w-3 h-3'
+                      location.size === 'large' ? 'w-10 h-10' :
+                      location.size === 'medium' ? 'w-8 h-8' :
+                      'w-6 h-6'
                     } flex items-center justify-center shadow-lg`}>
-                      <span className="text-white text-xs">
+                      <span className={`text-white ${
+                        location.size === 'large' ? 'text-lg' :
+                        location.size === 'medium' ? 'text-base' :
+                        'text-sm'
+                      }`}>
                         {location.type === 'major_port' ? '🏛️' :
                          location.type === 'pirate_haven' ? '🏴‍☠️' :
                          location.type === 'treasure_port' ? '💰' :
@@ -438,7 +460,7 @@ function MapView() {
                          '🏘️'}
                       </span>
                     </div>
-                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs text-amber-200 whitespace-nowrap bg-black/50 px-1 rounded">
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-sm text-amber-200 whitespace-nowrap bg-black/70 px-2 py-1 rounded font-semibold">
                       {location.name}
                     </div>
                   </div>
