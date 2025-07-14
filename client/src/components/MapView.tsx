@@ -27,8 +27,10 @@ const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 100, map
   // Use calculated bounds centered on port locations
   const { north, south, west, east } = mapBounds;
   
-  const x = ((lon - west) / (east - west)) * mapWidth;
-  const y = ((north - lat) / (north - south)) * mapHeight;
+  // Add 5% margin to prevent ports from being at the very edge
+  const margin = 0.05;
+  const x = margin * mapWidth + ((lon - west) / (east - west)) * mapWidth * (1 - 2 * margin);
+  const y = margin * mapHeight + ((north - lat) / (north - south)) * mapHeight * (1 - 2 * margin);
   
   return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
 };
@@ -87,18 +89,24 @@ const CARIBBEAN_LOCATIONS = [
 
 // Calculate the centroid and optimal bounds after locations are defined
 const calculateCentroid = () => {
-  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat);
-  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon);
+  // Focus on core Caribbean locations (exclude far outliers)
+  const coreLocations = CARIBBEAN_LOCATIONS.filter(loc => {
+    // Exclude far north (Charleston, Savannah) and far west (Acapulco)
+    return loc.lat < 30 && loc.lon > -95;
+  });
+  
+  const lats = coreLocations.map(loc => loc.lat);
+  const lons = coreLocations.map(loc => loc.lon);
   
   const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
   const avgLon = lons.reduce((a, b) => a + b, 0) / lons.length;
   
-  // Calculate the range needed with padding
+  // Calculate the range needed with minimal padding
   const latRange = Math.max(...lats) - Math.min(...lats);
   const lonRange = Math.max(...lons) - Math.min(...lons);
   
-  // Add 15% padding
-  const padding = 0.15;
+  // Very minimal padding for maximum zoom
+  const padding = 0.02;
   
   return {
     center: { lat: avgLat, lon: avgLon },
@@ -122,43 +130,86 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
     ...location,
     ...latLonToMapCoords(location.lat, location.lon),
     labelOffsetX: 0,
-    labelOffsetY: 5
+    labelOffsetY: 5,
+    useLeaderLine: false
   }));
 
   // Sort by Y position to process from top to bottom
   locationsWithCoords.sort((a, b) => a.y - b.y);
 
-  // Simple collision detection and adjustment
+  // Enhanced collision detection with multiple passes
+  const labelRadius = 15; // Further increased detection radius for larger icons
+  
+  // Group nearby locations into clusters
+  const clusters = [];
+  const processed = new Set();
+  
   for (let i = 0; i < locationsWithCoords.length; i++) {
+    if (processed.has(i)) continue;
+    
+    const cluster = [i];
+    processed.add(i);
+    
+    // Find all locations within cluster radius
     for (let j = i + 1; j < locationsWithCoords.length; j++) {
+      if (processed.has(j)) continue;
+      
+      const dx = Math.abs(locationsWithCoords[i].x - locationsWithCoords[j].x);
+      const dy = Math.abs(locationsWithCoords[i].y - locationsWithCoords[j].y);
+      
+      if (dx < labelRadius && dy < labelRadius * 0.8) {
+        cluster.push(j);
+        processed.add(j);
+      }
+    }
+    
+    if (cluster.length > 1) {
+      clusters.push(cluster);
+    }
+  }
+  
+  // Process each cluster
+  for (const cluster of clusters) {
+    if (cluster.length === 2) {
+      // Two locations - simple offset
+      const [i, j] = cluster;
       const loc1 = locationsWithCoords[i];
       const loc2 = locationsWithCoords[j];
+      const dx = loc2.x - loc1.x;
+      const dy = loc2.y - loc1.y;
       
-      // Calculate distance between icons
-      const dx = Math.abs(loc1.x - loc2.x);
-      const dy = Math.abs(loc1.y - loc2.y);
-      
-      // If icons are close
-      if (dx < 8 && dy < 6) {
-        // Adjust based on relative positions
-        if (dx < 2) {
-          // Vertically aligned - push labels horizontally
-          loc1.labelOffsetX = -40;
-          loc2.labelOffsetX = 40;
-          loc1.labelOffsetY = 0;
-          loc2.labelOffsetY = 0;
-        } else if (dy < 2) {
-          // Horizontally aligned - push labels vertically
-          loc1.labelOffsetY = -15;
-          loc2.labelOffsetY = 15;
-        } else if (loc1.x < loc2.x) {
-          // Diagonal adjustment
-          loc1.labelOffsetX = -30;
-          loc1.labelOffsetY = -10;
-          loc2.labelOffsetX = 30;
-          loc2.labelOffsetY = 10;
-        }
+      if (Math.abs(dx) < 3) {
+        // Vertically aligned
+        loc1.labelOffsetX = -50;
+        loc2.labelOffsetX = 50;
+        loc1.labelOffsetY = 0;
+        loc2.labelOffsetY = 0;
+      } else if (Math.abs(dy) < 3) {
+        // Horizontally aligned
+        loc1.labelOffsetX = 0;
+        loc1.labelOffsetY = -20;
+        loc2.labelOffsetX = 0;
+        loc2.labelOffsetY = 20;
+      } else {
+        // Diagonal
+        const angle = Math.atan2(dy, dx);
+        loc1.labelOffsetX = -Math.cos(angle) * 40;
+        loc1.labelOffsetY = -Math.sin(angle) * 20;
+        loc2.labelOffsetX = Math.cos(angle) * 40;
+        loc2.labelOffsetY = Math.sin(angle) * 20;
       }
+    } else if (cluster.length > 2) {
+      // Multiple locations - arrange in a circle
+      const centerX = cluster.reduce((sum, i) => sum + locationsWithCoords[i].x, 0) / cluster.length;
+      const centerY = cluster.reduce((sum, i) => sum + locationsWithCoords[i].y, 0) / cluster.length;
+      
+      cluster.forEach((i, index) => {
+        const angle = (index / cluster.length) * Math.PI * 2 - Math.PI / 2;
+        const radius = 70 + (cluster.length - 3) * 15;
+        locationsWithCoords[i].labelOffsetX = Math.cos(angle) * radius;
+        locationsWithCoords[i].labelOffsetY = Math.sin(angle) * radius * 0.7;
+        locationsWithCoords[i].useLeaderLine = true;
+      });
     }
   }
   
@@ -545,14 +596,14 @@ function MapView() {
                       location.faction === 'danish' ? 'border-cyan-400 bg-cyan-600' :
                       'border-gray-400 bg-gray-600'
                     } ${
-                      location.size === 'large' ? 'w-10 h-10' :
-                      location.size === 'medium' ? 'w-8 h-8' :
-                      'w-6 h-6'
+                      location.size === 'large' ? 'w-16 h-16' :
+                      location.size === 'medium' ? 'w-12 h-12' :
+                      'w-10 h-10'
                     } flex items-center justify-center shadow-lg`}>
                       <span className={`text-white ${
-                        location.size === 'large' ? 'text-lg' :
-                        location.size === 'medium' ? 'text-base' :
-                        'text-sm'
+                        location.size === 'large' ? 'text-2xl' :
+                        location.size === 'medium' ? 'text-xl' :
+                        'text-lg'
                       }`}>
                         {location.type === 'major_port' ? '🏛️' :
                          location.type === 'pirate_haven' ? '🏴‍☠️' :
@@ -563,12 +614,37 @@ function MapView() {
                       </span>
                     </div>
                     
+                    {/* Leader line for crowded labels */}
+                    {(location as any).useLeaderLine && (
+                      <svg 
+                        className="absolute inset-0 pointer-events-none" 
+                        style={{ 
+                          width: '200px', 
+                          height: '200px',
+                          left: '-100px',
+                          top: '-100px'
+                        }}
+                      >
+                        <line
+                          x1="100"
+                          y1="100"
+                          x2={100 + ((location as any).labelOffsetX || 0)}
+                          y2={100 + 60 + ((location as any).labelOffsetY || 0)}
+                          stroke="#d4af37"
+                          strokeWidth="1"
+                          opacity="0.4"
+                          strokeDasharray="2,2"
+                        />
+                      </svg>
+                    )}
+                    
                     <div 
-                      className="absolute text-sm text-amber-200 whitespace-nowrap bg-black/80 px-2 py-1 rounded font-semibold pointer-events-none shadow-lg"
+                      className="absolute text-amber-200 whitespace-nowrap bg-black/90 px-3 py-1.5 rounded-md font-semibold pointer-events-none shadow-xl border border-amber-600/30"
                       style={{
                         left: '50%',
-                        top: `${40 + ((location as any).labelOffsetY || 5)}px`,
-                        transform: `translateX(calc(-50% + ${(location as any).labelOffsetX || 0}px))`
+                        top: `${60 + ((location as any).labelOffsetY || 5)}px`,
+                        transform: `translateX(calc(-50% + ${(location as any).labelOffsetX || 0}px))`,
+                        fontSize: '14px'
                       }}
                     >
                       {location.name}
