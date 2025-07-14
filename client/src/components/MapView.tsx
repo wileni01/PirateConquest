@@ -89,24 +89,19 @@ const CARIBBEAN_LOCATIONS = [
 
 // Calculate the centroid and optimal bounds after locations are defined
 const calculateCentroid = () => {
-  // Focus on core Caribbean locations (exclude far outliers)
-  const coreLocations = CARIBBEAN_LOCATIONS.filter(loc => {
-    // Exclude far north (Charleston, Savannah) and far west (Acapulco)
-    return loc.lat < 30 && loc.lon > -95;
-  });
-  
-  const lats = coreLocations.map(loc => loc.lat);
-  const lons = coreLocations.map(loc => loc.lon);
+  // Include all locations for proper coverage
+  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat);
+  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon);
   
   const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
   const avgLon = lons.reduce((a, b) => a + b, 0) / lons.length;
   
-  // Calculate the range needed with minimal padding
+  // Calculate the range needed with moderate padding
   const latRange = Math.max(...lats) - Math.min(...lats);
   const lonRange = Math.max(...lons) - Math.min(...lons);
   
-  // Very minimal padding for maximum zoom
-  const padding = 0.02;
+  // Moderate padding to show all ports with some breathing room
+  const padding = 0.08;
   
   return {
     center: { lat: avgLat, lon: avgLon },
@@ -138,7 +133,7 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
   locationsWithCoords.sort((a, b) => a.y - b.y);
 
   // Enhanced collision detection with multiple passes
-  const labelRadius = 15; // Further increased detection radius for larger icons
+  const labelRadius = 10; // Adjusted detection radius for smaller icons
   
   // Group nearby locations into clusters
   const clusters = [];
@@ -596,14 +591,14 @@ function MapView() {
                       location.faction === 'danish' ? 'border-cyan-400 bg-cyan-600' :
                       'border-gray-400 bg-gray-600'
                     } ${
-                      location.size === 'large' ? 'w-16 h-16' :
-                      location.size === 'medium' ? 'w-12 h-12' :
-                      'w-10 h-10'
+                      location.size === 'large' ? 'w-12 h-12' :
+                      location.size === 'medium' ? 'w-10 h-10' :
+                      'w-8 h-8'
                     } flex items-center justify-center shadow-lg`}>
                       <span className={`text-white ${
-                        location.size === 'large' ? 'text-2xl' :
-                        location.size === 'medium' ? 'text-xl' :
-                        'text-lg'
+                        location.size === 'large' ? 'text-xl' :
+                        location.size === 'medium' ? 'text-lg' :
+                        'text-base'
                       }`}>
                         {location.type === 'major_port' ? '🏛️' :
                          location.type === 'pirate_haven' ? '🏴‍☠️' :
@@ -629,7 +624,7 @@ function MapView() {
                           x1="100"
                           y1="100"
                           x2={100 + ((location as any).labelOffsetX || 0)}
-                          y2={100 + 60 + ((location as any).labelOffsetY || 0)}
+                          y2={100 + 45 + ((location as any).labelOffsetY || 0)}
                           stroke="#d4af37"
                           strokeWidth="1"
                           opacity="0.4"
@@ -642,9 +637,10 @@ function MapView() {
                       className="absolute text-amber-200 whitespace-nowrap bg-black/90 px-3 py-1.5 rounded-md font-semibold pointer-events-none shadow-xl border border-amber-600/30"
                       style={{
                         left: '50%',
-                        top: `${60 + ((location as any).labelOffsetY || 5)}px`,
+                        top: `${45 + ((location as any).labelOffsetY || 5)}px`,
                         transform: `translateX(calc(-50% + ${(location as any).labelOffsetX || 0}px))`,
-                        fontSize: '14px'
+                        fontSize: '12px',
+                        zIndex: 20
                       }}
                     >
                       {location.name}
