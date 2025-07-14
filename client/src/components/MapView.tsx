@@ -14,10 +14,24 @@ const MAP_BOUNDS = {
   east: -55     // Lesser Antilles
 };
 
-// Convert real lat/lon to map coordinates
+// Convert real lat/lon to map coordinates with better scaling
 const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 800, mapHeight: number = 600) => {
-  const x = ((lon - MAP_BOUNDS.west) / (MAP_BOUNDS.east - MAP_BOUNDS.west)) * mapWidth;
-  const y = ((MAP_BOUNDS.north - lat) / (MAP_BOUNDS.north - MAP_BOUNDS.south)) * mapHeight;
+  // Add padding and adjust bounds to better center the Caribbean
+  const padding = 40; // pixels of padding
+  const effectiveWidth = mapWidth - (2 * padding);
+  const effectiveHeight = mapHeight - (2 * padding);
+  
+  // Adjust bounds for better Caribbean centering
+  const adjustedBounds = {
+    north: 33,
+    south: 8,
+    west: -98,
+    east: -58
+  };
+  
+  const x = padding + ((lon - adjustedBounds.west) / (adjustedBounds.east - adjustedBounds.west)) * effectiveWidth;
+  const y = padding + ((adjustedBounds.north - lat) / (adjustedBounds.north - adjustedBounds.south)) * effectiveHeight;
+  
   return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
 };
 
@@ -76,53 +90,125 @@ const PIRATE_LOCATIONS = [
   ...latLonToMapCoords(location.lat, location.lon)
 }));
 
-// Land masses for visual representation
+// Land masses for visual representation with accurate geography
 const LAND_MASSES = [
-  // North America - Florida
+  // North America - Florida (more detailed coastline)
   { name: 'Florida', points: [
-    { lat: 31.0, lon: -81.5 }, { lat: 30.4, lon: -82.2 }, { lat: 29.2, lon: -83.1 },
-    { lat: 28.0, lon: -83.0 }, { lat: 26.4, lon: -82.0 }, { lat: 25.8, lon: -81.2 },
-    { lat: 24.5, lon: -81.8 }, { lat: 25.3, lon: -80.9 }, { lat: 26.9, lon: -80.1 },
-    { lat: 27.8, lon: -80.6 }, { lat: 29.0, lon: -80.9 }, { lat: 30.4, lon: -81.4 }
+    { lat: 31.0, lon: -81.5 }, { lat: 30.5, lon: -81.4 }, { lat: 30.0, lon: -81.3 },
+    { lat: 29.5, lon: -81.2 }, { lat: 29.0, lon: -81.0 }, { lat: 28.0, lon: -80.5 },
+    { lat: 27.0, lon: -80.1 }, { lat: 26.0, lon: -80.1 }, { lat: 25.5, lon: -80.2 },
+    { lat: 25.1, lon: -80.4 }, { lat: 24.7, lon: -81.0 }, { lat: 24.5, lon: -81.8 },
+    { lat: 24.7, lon: -82.2 }, { lat: 25.0, lon: -82.0 }, { lat: 25.5, lon: -81.8 },
+    { lat: 26.0, lon: -81.9 }, { lat: 26.7, lon: -82.1 }, { lat: 27.5, lon: -82.5 },
+    { lat: 28.0, lon: -82.6 }, { lat: 28.5, lon: -82.8 }, { lat: 29.0, lon: -83.2 },
+    { lat: 29.5, lon: -83.7 }, { lat: 30.0, lon: -84.3 }, { lat: 30.3, lon: -85.0 },
+    { lat: 30.3, lon: -86.0 }, { lat: 30.4, lon: -87.0 }, { lat: 30.3, lon: -87.5 },
+    { lat: 30.2, lon: -87.3 }, { lat: 30.2, lon: -85.5 }, { lat: 30.5, lon: -84.0 },
+    { lat: 30.7, lon: -82.5 }, { lat: 31.0, lon: -81.5 }
   ]},
   
-  // Cuba
+  // Cuba (more accurate elongated shape)
   { name: 'Cuba', points: [
-    { lat: 23.2, lon: -84.9 }, { lat: 23.1, lon: -82.4 }, { lat: 22.4, lon: -78.3 },
-    { lat: 21.6, lon: -77.8 }, { lat: 20.2, lon: -74.8 }, { lat: 19.9, lon: -75.2 },
-    { lat: 20.0, lon: -77.0 }, { lat: 20.2, lon: -78.3 }, { lat: 21.4, lon: -82.6 },
-    { lat: 22.0, lon: -84.3 }, { lat: 23.1, lon: -84.9 }
+    { lat: 23.2, lon: -82.4 }, { lat: 23.1, lon: -83.0 }, { lat: 22.9, lon: -83.7 },
+    { lat: 22.6, lon: -84.0 }, { lat: 22.2, lon: -84.5 }, { lat: 21.8, lon: -84.95 },
+    { lat: 21.5, lon: -84.8 }, { lat: 21.0, lon: -84.5 }, { lat: 20.5, lon: -84.0 },
+    { lat: 20.2, lon: -82.0 }, { lat: 20.0, lon: -79.0 }, { lat: 19.9, lon: -77.0 },
+    { lat: 19.8, lon: -75.5 }, { lat: 19.8, lon: -74.2 }, { lat: 20.2, lon: -74.13 },
+    { lat: 20.7, lon: -75.0 }, { lat: 21.2, lon: -76.0 }, { lat: 21.5, lon: -77.0 },
+    { lat: 21.8, lon: -77.5 }, { lat: 22.1, lon: -78.3 }, { lat: 22.4, lon: -79.0 },
+    { lat: 22.7, lon: -79.8 }, { lat: 23.0, lon: -80.5 }, { lat: 23.2, lon: -81.3 },
+    { lat: 23.2, lon: -82.0 }
   ]},
   
-  // Jamaica
+  // Jamaica (correct oval shape)
   { name: 'Jamaica', points: [
-    { lat: 18.5, lon: -78.4 }, { lat: 18.5, lon: -76.2 }, { lat: 17.7, lon: -76.2 },
-    { lat: 17.7, lon: -78.4 }
+    { lat: 18.52, lon: -78.4 }, { lat: 18.4, lon: -78.2 }, { lat: 18.2, lon: -77.8 },
+    { lat: 18.0, lon: -77.4 }, { lat: 17.8, lon: -77.0 }, { lat: 17.7, lon: -76.5 },
+    { lat: 17.7, lon: -76.2 }, { lat: 17.85, lon: -76.2 }, { lat: 18.0, lon: -76.3 },
+    { lat: 18.2, lon: -76.5 }, { lat: 18.35, lon: -76.8 }, { lat: 18.45, lon: -77.2 },
+    { lat: 18.5, lon: -77.6 }, { lat: 18.52, lon: -78.0 }, { lat: 18.52, lon: -78.4 }
   ]},
   
-  // Hispaniola
+  // Hispaniola (more detailed shape for Haiti & Dominican Republic)
   { name: 'Hispaniola', points: [
-    { lat: 19.9, lon: -74.5 }, { lat: 19.9, lon: -68.3 }, { lat: 18.0, lon: -68.3 },
-    { lat: 17.6, lon: -71.8 }, { lat: 18.0, lon: -74.5 }
+    { lat: 20.0, lon: -72.0 }, { lat: 19.95, lon: -71.7 }, { lat: 19.9, lon: -71.2 },
+    { lat: 19.85, lon: -70.7 }, { lat: 19.7, lon: -70.2 }, { lat: 19.5, lon: -69.7 },
+    { lat: 19.2, lon: -69.3 }, { lat: 18.9, lon: -69.0 }, { lat: 18.6, lon: -68.7 },
+    { lat: 18.3, lon: -68.5 }, { lat: 18.0, lon: -68.4 }, { lat: 17.7, lon: -68.5 },
+    { lat: 17.6, lon: -68.8 }, { lat: 17.6, lon: -69.5 }, { lat: 17.7, lon: -70.2 },
+    { lat: 17.8, lon: -71.0 }, { lat: 17.9, lon: -71.4 }, { lat: 18.0, lon: -71.7 },
+    { lat: 18.2, lon: -72.0 }, { lat: 18.4, lon: -72.4 }, { lat: 18.6, lon: -72.8 },
+    { lat: 18.8, lon: -73.2 }, { lat: 19.0, lon: -73.4 }, { lat: 19.3, lon: -73.2 },
+    { lat: 19.5, lon: -72.9 }, { lat: 19.7, lon: -72.6 }, { lat: 19.85, lon: -72.3 },
+    { lat: 20.0, lon: -72.0 }
   ]},
   
-  // Puerto Rico
+  // Puerto Rico (more accurate rectangular shape)
   { name: 'Puerto Rico', points: [
-    { lat: 18.5, lon: -67.3 }, { lat: 18.5, lon: -65.2 }, { lat: 17.9, lon: -65.2 },
-    { lat: 17.9, lon: -67.3 }
+    { lat: 18.52, lon: -67.3 }, { lat: 18.45, lon: -67.2 }, { lat: 18.3, lon: -67.1 },
+    { lat: 18.1, lon: -67.0 }, { lat: 18.0, lon: -66.8 }, { lat: 17.95, lon: -66.5 },
+    { lat: 17.93, lon: -66.0 }, { lat: 17.95, lon: -65.6 }, { lat: 18.0, lon: -65.3 },
+    { lat: 18.1, lon: -65.3 }, { lat: 18.25, lon: -65.4 }, { lat: 18.4, lon: -65.6 },
+    { lat: 18.5, lon: -65.9 }, { lat: 18.52, lon: -66.3 }, { lat: 18.52, lon: -66.8 },
+    { lat: 18.52, lon: -67.3 }
   ]},
   
-  // Venezuela coastline
-  { name: 'Venezuela', points: [
-    { lat: 12.2, lon: -72.0 }, { lat: 11.8, lon: -71.0 }, { lat: 10.8, lon: -68.0 },
-    { lat: 10.4, lon: -66.0 }, { lat: 10.0, lon: -62.0 }, { lat: 8.6, lon: -62.0 },
-    { lat: 8.0, lon: -66.0 }, { lat: 8.4, lon: -72.0 }
+  // Venezuela/Colombia coastline (more detailed)
+  { name: 'South America', points: [
+    { lat: 12.5, lon: -72.0 }, { lat: 12.2, lon: -71.5 }, { lat: 11.8, lon: -71.0 },
+    { lat: 11.5, lon: -70.5 }, { lat: 11.2, lon: -70.0 }, { lat: 10.9, lon: -69.5 },
+    { lat: 10.7, lon: -69.0 }, { lat: 10.8, lon: -68.5 }, { lat: 10.8, lon: -68.0 },
+    { lat: 10.7, lon: -67.0 }, { lat: 10.6, lon: -66.0 }, { lat: 10.5, lon: -65.0 },
+    { lat: 10.4, lon: -64.0 }, { lat: 10.3, lon: -63.0 }, { lat: 10.2, lon: -62.0 },
+    { lat: 10.1, lon: -61.5 }, { lat: 10.0, lon: -61.0 }, { lat: 9.8, lon: -60.5 },
+    { lat: 9.5, lon: -60.0 }, { lat: 9.0, lon: -59.8 }, { lat: 8.5, lon: -60.0 },
+    { lat: 8.0, lon: -61.0 }, { lat: 8.0, lon: -62.0 }, { lat: 8.2, lon: -63.0 },
+    { lat: 8.5, lon: -65.0 }, { lat: 8.8, lon: -67.0 }, { lat: 9.0, lon: -69.0 },
+    { lat: 9.3, lon: -71.0 }, { lat: 9.7, lon: -72.0 }, { lat: 10.0, lon: -72.5 },
+    { lat: 10.5, lon: -73.0 }, { lat: 11.0, lon: -72.8 }, { lat: 11.5, lon: -72.5 },
+    { lat: 12.0, lon: -72.2 }, { lat: 12.5, lon: -72.0 }
   ]},
   
-  // Mexico - Yucatan Peninsula
+  // Mexico - Yucatan Peninsula (more accurate shape)
   { name: 'Yucatan', points: [
-    { lat: 21.6, lon: -90.5 }, { lat: 21.6, lon: -86.8 }, { lat: 20.9, lon: -86.8 },
-    { lat: 18.5, lon: -88.3 }, { lat: 18.5, lon: -90.5 }
+    { lat: 21.6, lon: -90.5 }, { lat: 21.6, lon: -89.0 }, { lat: 21.5, lon: -88.0 },
+    { lat: 21.4, lon: -87.5 }, { lat: 21.2, lon: -87.0 }, { lat: 20.9, lon: -86.8 },
+    { lat: 20.5, lon: -86.9 }, { lat: 20.0, lon: -87.0 }, { lat: 19.5, lon: -87.3 },
+    { lat: 19.0, lon: -87.6 }, { lat: 18.5, lon: -88.0 }, { lat: 18.2, lon: -88.3 },
+    { lat: 18.0, lon: -88.5 }, { lat: 18.0, lon: -89.0 }, { lat: 18.2, lon: -89.5 },
+    { lat: 18.5, lon: -90.0 }, { lat: 18.8, lon: -90.4 }, { lat: 19.2, lon: -90.6 },
+    { lat: 19.7, lon: -90.7 }, { lat: 20.2, lon: -90.6 }, { lat: 20.7, lon: -90.5 },
+    { lat: 21.2, lon: -90.4 }, { lat: 21.6, lon: -90.5 }
+  ]},
+  
+  // Central America (Belize, Guatemala, Honduras, Nicaragua, Costa Rica, Panama)
+  { name: 'Central America', points: [
+    { lat: 18.0, lon: -88.5 }, { lat: 17.5, lon: -88.2 }, { lat: 16.5, lon: -88.3 },
+    { lat: 15.8, lon: -88.0 }, { lat: 15.0, lon: -87.5 }, { lat: 14.5, lon: -87.3 },
+    { lat: 14.0, lon: -87.0 }, { lat: 13.5, lon: -87.2 }, { lat: 13.0, lon: -87.5 },
+    { lat: 12.5, lon: -87.2 }, { lat: 12.0, lon: -86.8 }, { lat: 11.5, lon: -86.2 },
+    { lat: 11.0, lon: -85.7 }, { lat: 10.5, lon: -85.2 }, { lat: 10.0, lon: -84.5 },
+    { lat: 9.7, lon: -84.0 }, { lat: 9.5, lon: -83.5 }, { lat: 9.0, lon: -83.0 },
+    { lat: 8.5, lon: -82.5 }, { lat: 8.3, lon: -82.0 }, { lat: 8.0, lon: -81.5 },
+    { lat: 7.8, lon: -81.0 }, { lat: 7.5, lon: -80.5 }, { lat: 7.3, lon: -80.0 },
+    { lat: 7.5, lon: -79.5 }, { lat: 8.0, lon: -79.0 }, { lat: 8.5, lon: -78.5 },
+    { lat: 9.0, lon: -78.0 }, { lat: 9.3, lon: -77.5 }, { lat: 9.5, lon: -78.0 },
+    { lat: 9.3, lon: -78.5 }, { lat: 9.0, lon: -79.0 }, { lat: 8.7, lon: -79.5 },
+    { lat: 8.5, lon: -80.0 }, { lat: 8.7, lon: -80.5 }, { lat: 9.0, lon: -81.0 },
+    { lat: 9.5, lon: -82.0 }, { lat: 10.0, lon: -82.8 }, { lat: 10.5, lon: -83.5 },
+    { lat: 11.0, lon: -84.0 }, { lat: 11.5, lon: -84.5 }, { lat: 12.0, lon: -85.0 },
+    { lat: 12.5, lon: -85.5 }, { lat: 13.0, lon: -86.0 }, { lat: 13.5, lon: -86.5 },
+    { lat: 14.0, lon: -87.0 }, { lat: 14.5, lon: -87.5 }, { lat: 15.0, lon: -88.0 },
+    { lat: 15.5, lon: -88.2 }, { lat: 16.0, lon: -88.3 }, { lat: 16.5, lon: -88.4 },
+    { lat: 17.0, lon: -88.4 }, { lat: 17.5, lon: -88.3 }, { lat: 18.0, lon: -88.5 }
+  ]},
+  
+  // Trinidad
+  { name: 'Trinidad', points: [
+    { lat: 10.8, lon: -61.9 }, { lat: 10.7, lon: -61.5 }, { lat: 10.5, lon: -61.0 },
+    { lat: 10.2, lon: -60.9 }, { lat: 10.1, lon: -61.0 }, { lat: 10.1, lon: -61.4 },
+    { lat: 10.2, lon: -61.7 }, { lat: 10.4, lon: -61.9 }, { lat: 10.7, lon: -61.95 },
+    { lat: 10.8, lon: -61.9 }
   ]},
 ];
 
