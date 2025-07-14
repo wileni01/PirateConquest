@@ -20,6 +20,10 @@ interface PirateGameState extends GameState {
   sellTreasure: (amount: number) => void;
   updateAI: (deltaTime: number) => void;
   restartGame: () => void;
+  boardEnemyShip: (shipId: string) => void;
+  buryTreasure: (amount: number) => void;
+  updateWeather: () => void;
+  updateTimeOfDay: () => void;
 }
 
 const initialState: GameState = {
@@ -27,17 +31,22 @@ const initialState: GameState = {
     ship: createPlayerShip(),
     gold: 1000,
     reputation: 0,
+    infamy: 0,
     supplies: {
       food: 50,
       rum: 30,
       ammunition: 100,
     },
     fleet: [],
+    capturedShips: [],
+    buriedTreasure: [],
   },
   ships: [],
   ports: generateInitialPorts(),
   cannonballs: [],
   currentPort: undefined,
+  weather: 'clear',
+  timeOfDay: 'day',
 };
 
 export const usePirateGame = create<PirateGameState>()(
@@ -193,15 +202,23 @@ export const usePirateGame = create<PirateGameState>()(
                 cannonballs: state.cannonballs.filter(b => b.id !== ball.id),
               }));
               
-              // Add gold and reputation for destroying enemy ships
+              // Add gold, reputation, and infamy for destroying enemy ships
               if (ball.shooterId === state.player.ship.id && ship.isEnemy) {
+                const loot = ship.cargo;
                 set((state) => ({
                   player: {
                     ...state.player,
                     gold: state.player.gold + 200,
                     reputation: state.player.reputation + 10,
+                    infamy: state.player.infamy + 5,
+                    supplies: {
+                      food: state.player.supplies.food + loot.food,
+                      rum: state.player.supplies.rum + loot.rum,
+                      ammunition: state.player.supplies.ammunition + loot.ammunition,
+                    },
                   },
                 }));
+                console.log(`Enemy ship destroyed! Looted: ${loot.food} food, ${loot.rum} rum, ${loot.ammunition} ammo`);
               }
             }
           }
@@ -320,6 +337,97 @@ export const usePirateGame = create<PirateGameState>()(
           return ship;
         }),
       }));
+    },
+
+    boardEnemyShip: (shipId: string) => {
+      const state = get();
+      const enemyShip = state.ships.find(s => s.id === shipId);
+      if (!enemyShip) return;
+
+      const playerShip = state.player.ship;
+      const distance = Math.sqrt(
+        (playerShip.position[0] - enemyShip.position[0]) ** 2 +
+        (playerShip.position[2] - enemyShip.position[2]) ** 2
+      );
+
+      if (distance < 3) {
+        // Boarding combat simulation
+        const playerCombatPower = playerShip.crew * (playerShip.morale / 100);
+        const enemyCombatPower = enemyShip.crew * (enemyShip.morale / 100);
+        
+        if (playerCombatPower > enemyCombatPower) {
+          // Victory! Capture the ship
+          const capturedShip = { ...enemyShip, isEnemy: false };
+          
+          set((state) => ({
+            ships: state.ships.filter(s => s.id !== shipId),
+            player: {
+              ...state.player,
+              capturedShips: [...state.player.capturedShips, capturedShip],
+              gold: state.player.gold + 100,
+              reputation: state.player.reputation + 15,
+              infamy: state.player.infamy + 10,
+              supplies: {
+                food: state.player.supplies.food + enemyShip.cargo.food,
+                rum: state.player.supplies.rum + enemyShip.cargo.rum,
+                ammunition: state.player.supplies.ammunition + enemyShip.cargo.ammunition,
+              },
+            },
+          }));
+          
+          console.log(`Ship captured! Added to your fleet.`);
+        } else {
+          // Defeat - lose some crew
+          set((state) => ({
+            player: {
+              ...state.player,
+              ship: {
+                ...state.player.ship,
+                crew: Math.max(1, state.player.ship.crew - 5),
+                morale: Math.max(10, state.player.ship.morale - 20),
+              },
+            },
+          }));
+          
+          console.log(`Boarding failed! Lost crew and morale.`);
+        }
+      }
+    },
+
+    buryTreasure: (amount: number) => {
+      const state = get();
+      if (state.player.gold >= amount) {
+        const treasureSpot = {
+          id: `treasure_${Date.now()}`,
+          position: [...state.player.ship.position] as [number, number, number],
+          gold: amount,
+          buried: new Date(),
+        };
+
+        set((state) => ({
+          player: {
+            ...state.player,
+            gold: state.player.gold - amount,
+            buriedTreasure: [...state.player.buriedTreasure, treasureSpot],
+          },
+        }));
+
+        console.log(`Buried ${amount} gold at current location`);
+      }
+    },
+
+    updateWeather: () => {
+      const weatherTypes = ['clear', 'storm', 'fog'] as const;
+      const newWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+      set({ weather: newWeather });
+    },
+
+    updateTimeOfDay: () => {
+      const times = ['dawn', 'day', 'dusk', 'night'] as const;
+      const state = get();
+      const currentIndex = times.indexOf(state.timeOfDay);
+      const nextIndex = (currentIndex + 1) % times.length;
+      set({ timeOfDay: times[nextIndex] });
     },
   }))
 );

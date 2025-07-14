@@ -18,6 +18,7 @@ const controls = [
   { name: "fire", keys: ["Space"] },
   { name: "board", keys: ["KeyE"] },
   { name: "escape", keys: ["Escape"] },
+  { name: "bury", keys: ["KeyB"] },
 ];
 
 function App() {

@@ -8,6 +8,7 @@ import Ocean from "./Ocean";
 import Ship from "./Ship";
 import Port from "./Port";
 import Cannonball from "./Cannonball";
+import TreasureMarker from "./TreasureMarker";
 import * as THREE from "three";
 
 function Game() {
@@ -17,12 +18,18 @@ function Game() {
     ships,
     ports,
     cannonballs,
+    weather,
+    timeOfDay,
     updatePlayerPosition,
     fireCannonball,
     updateCannonballs,
     checkCollisions,
     enterPort,
     updateAI,
+    boardEnemyShip,
+    updateWeather,
+    updateTimeOfDay,
+    buryTreasure,
   } = usePirateGame();
   
   const { playHit } = useAudio();
@@ -82,8 +89,9 @@ function Game() {
       playHit();
     }
 
-    // Check for nearby ports
+    // Check for nearby ports and enemy ships for boarding
     if (keys.board) {
+      // Check for nearby ports
       ports.forEach(port => {
         const distance = Math.sqrt(
           (newPosition[0] - port.position[0]) ** 2 +
@@ -91,6 +99,19 @@ function Game() {
         );
         if (distance < 5) {
           enterPort(port.id);
+        }
+      });
+      
+      // Check for nearby enemy ships to board
+      ships.forEach(ship => {
+        if (ship.isEnemy) {
+          const distance = Math.sqrt(
+            (newPosition[0] - ship.position[0]) ** 2 +
+            (newPosition[2] - ship.position[2]) ** 2
+          );
+          if (distance < 3) {
+            boardEnemyShip(ship.id);
+          }
         }
       });
     }
@@ -106,6 +127,15 @@ function Game() {
     updateCannonballs(deltaTime);
     updateAI(deltaTime);
     checkCollisions();
+    
+    // Update weather and time periodically
+    if (Math.random() < 0.001) updateWeather();
+    if (Math.random() < 0.0005) updateTimeOfDay();
+
+    // Bury treasure
+    if (keys.bury && player.gold >= 100) {
+      buryTreasure(100);
+    }
 
     // Log movement for debugging
     if (keys.forward || keys.backward || keys.leftward || keys.rightward) {
@@ -145,6 +175,15 @@ function Game() {
         <Cannonball
           key={ball.id}
           cannonball={ball}
+        />
+      ))}
+      
+      {/* Buried Treasure */}
+      {player.buriedTreasure.map(treasure => (
+        <TreasureMarker
+          key={treasure.id}
+          position={treasure.position}
+          gold={treasure.gold}
         />
       ))}
     </>

@@ -15,6 +15,15 @@ export function createPlayerShip(): Ship {
     type: 'sloop',
     isEnemy: false,
     lastFired: 0,
+    morale: 80,
+    maxMorale: 100,
+    cargo: {
+      food: 0,
+      rum: 0,
+      ammunition: 0,
+      treasure: 0,
+    },
+    maxCargo: 100,
   };
 }
 
@@ -33,28 +42,45 @@ export function createEnemyShip(position: [number, number, number]): Ship {
     type: 'sloop',
     isEnemy: true,
     lastFired: 0,
+    morale: 60,
+    maxMorale: 100,
+    cargo: {
+      food: 10 + Math.floor(Math.random() * 20),
+      rum: 5 + Math.floor(Math.random() * 10),
+      ammunition: 20 + Math.floor(Math.random() * 30),
+      treasure: Math.floor(Math.random() * 15),
+    },
+    maxCargo: 80,
   };
 }
 
 export function generateInitialPorts(): Port[] {
-  const portNames = [
-    "Port Royal", "Tortuga", "Nassau", "Havana", "Cartagena",
-    "Santo Domingo", "Kingston", "Bridgetown", "Port-au-Prince", "Campeche"
+  const portData = [
+    { name: "Port Royal", faction: 'english', governor: "Sir William Beeston" },
+    { name: "Tortuga", faction: 'pirate', governor: "Captain Bellamy" },
+    { name: "Nassau", faction: 'pirate', governor: "Blackbeard" },
+    { name: "Havana", faction: 'spanish', governor: "Don Carlos Menendez" },
+    { name: "Cartagena", faction: 'spanish', governor: "Capitán Rodriguez" },
+    { name: "Santo Domingo", faction: 'spanish', governor: "Almirante Santos" },
+    { name: "Kingston", faction: 'english', governor: "Lord Pemberton" },
+    { name: "Bridgetown", faction: 'english', governor: "Admiral Clarke" },
+    { name: "Port-au-Prince", faction: 'french', governor: "Capitaine Dubois" },
+    { name: "Campeche", faction: 'neutral', governor: "Señor Vásquez" }
   ];
 
-  return portNames.map((name, index) => {
-    const angle = (index / portNames.length) * Math.PI * 2;
+  return portData.map((port, index) => {
+    const angle = (index / portData.length) * Math.PI * 2;
     const radius = 60 + Math.random() * 40;
     
     return {
       id: `port_${index}`,
-      name,
+      name: port.name,
       position: [
         Math.cos(angle) * radius,
         0,
         Math.sin(angle) * radius
       ] as [number, number, number],
-      faction: ['neutral', 'spanish', 'english', 'french', 'pirate'][Math.floor(Math.random() * 5)] as any,
+      faction: port.faction as any,
       supplies: {
         food: 50 + Math.floor(Math.random() * 100),
         rum: 30 + Math.floor(Math.random() * 50),
@@ -66,6 +92,13 @@ export function generateInitialPorts(): Port[] {
         rum: 5 + Math.floor(Math.random() * 5),
         ammunition: 3 + Math.floor(Math.random() * 4),
       },
+      governor: {
+        name: port.governor,
+        attitude: ['friendly', 'neutral', 'hostile'][Math.floor(Math.random() * 3)] as any,
+        bribes: Math.floor(Math.random() * 500),
+      },
+      fortification: 1 + Math.floor(Math.random() * 5),
+      garrison: 50 + Math.floor(Math.random() * 200),
     };
   });
 }

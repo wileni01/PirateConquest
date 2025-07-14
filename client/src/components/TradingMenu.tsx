@@ -35,9 +35,25 @@ function TradingMenu() {
           <p className="text-lg text-amber-200 capitalize">
             {selectedPort.faction} Port
           </p>
-          <p className="text-lg text-green-400">
-            Your Gold: {player.gold}
-          </p>
+          <div className="space-y-1 text-sm">
+            <p className="text-lg text-green-400">
+              Your Gold: {player.gold}
+            </p>
+            <p className="text-gray-300">
+              Governor: {selectedPort.governor.name}
+            </p>
+            <p className="text-gray-300">
+              Attitude: <span className={`${
+                selectedPort.governor.attitude === 'friendly' ? 'text-green-400' :
+                selectedPort.governor.attitude === 'hostile' ? 'text-red-400' : 'text-yellow-400'
+              }`}>
+                {selectedPort.governor.attitude}
+              </span>
+            </p>
+            <p className="text-gray-300">
+              Fortification: {selectedPort.fortification}/5
+            </p>
+          </div>
         </CardHeader>
         
         <CardContent className="space-y-6">
@@ -168,8 +184,33 @@ function TradingMenu() {
             </div>
           </div>
 
+          {/* Pirate Fleet Status */}
+          {player.capturedShips.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-xl font-bold text-amber-400 mb-3">Your Fleet</h3>
+              <Card className="bg-gray-800/50 border-gray-600">
+                <CardContent className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>🏴‍☠️ Captured Ships:</span>
+                      <span>{player.capturedShips.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>💀 Your Infamy:</span>
+                      <span className="text-red-400">{player.infamy}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>⚰️ Buried Treasure:</span>
+                      <span>{player.buriedTreasure.length} locations</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Exit port */}
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-6">
             <Button
               onClick={exitPort}
               className="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-3 text-lg"

@@ -12,6 +12,15 @@ export interface Ship {
   type: 'sloop' | 'frigate' | 'galleon' | 'merchant';
   isEnemy: boolean;
   lastFired: number;
+  morale: number;
+  maxMorale: number;
+  cargo: {
+    food: number;
+    rum: number;
+    ammunition: number;
+    treasure: number;
+  };
+  maxCargo: number;
 }
 
 export interface Port {
@@ -30,6 +39,13 @@ export interface Port {
     rum: number;
     ammunition: number;
   };
+  governor: {
+    name: string;
+    attitude: 'friendly' | 'neutral' | 'hostile';
+    bribes: number;
+  };
+  fortification: number;
+  garrison: number;
 }
 
 export interface Cannonball {
@@ -46,17 +62,27 @@ export interface GameState {
     ship: Ship;
     gold: number;
     reputation: number;
+    infamy: number;
     supplies: {
       food: number;
       rum: number;
       ammunition: number;
     };
     fleet: Ship[];
+    capturedShips: Ship[];
+    buriedTreasure: Array<{
+      id: string;
+      position: [number, number, number];
+      gold: number;
+      buried: Date;
+    }>;
   };
   ships: Ship[];
   ports: Port[];
   cannonballs: Cannonball[];
   currentPort?: Port;
+  weather: 'clear' | 'storm' | 'fog';
+  timeOfDay: 'dawn' | 'day' | 'dusk' | 'night';
 }
 
 export type GameMode = 'menu' | 'sailing' | 'combat' | 'trading';

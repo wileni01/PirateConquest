@@ -2,7 +2,20 @@
 
 ## Overview
 
-Cutthroats is a 3D pirate adventure game inspired by the 90s classic, built with React Three Fiber and Express.js. The application features a full-stack architecture with a React frontend for the 3D game interface and an Express backend for data management. The game includes naval combat, trading mechanics, port interactions, and resource management in an immersive 3D ocean environment.
+Cutthroats is a 3D pirate adventure game inspired by the 90s classic "Cutthroats: Terror on the High Seas", built with React Three Fiber and Express.js. The application features a full-stack architecture with a React frontend for the 3D game interface and an Express backend for data management. The game includes naval combat, ship boarding mechanics, trading systems, port interactions, weather effects, treasure hunting, and comprehensive resource management in an immersive 3D Caribbean environment.
+
+## Recent Changes (January 2025)
+
+### Enhanced Pirate Game Features
+- **Ship Boarding System**: Players can now board and capture enemy ships using the E key when close to enemy vessels
+- **Treasure Mechanics**: Added treasure burying system (B key) and buried treasure markers throughout the world
+- **Fleet Management**: Captured ships are added to player's fleet and displayed in trading menus
+- **Reputation & Infamy System**: Dual reputation system tracking both fame and infamy for pirate actions
+- **Weather System**: Dynamic weather changes (clear, storm, fog) affecting ocean appearance and gameplay
+- **Time of Day**: Day/night cycle with dawn, day, dusk, and night phases affecting ocean colors
+- **Enhanced Trading**: Improved port trading with governor information, faction attitudes, and fleet status
+- **Enhanced UI**: Added morale tracking, weather display, and comprehensive pirate statistics
+- **Historical Authenticity**: Added 10 authentic Caribbean ports with historically accurate governors and factions
 
 ## User Preferences
 
@@ -36,21 +49,27 @@ Preferred communication style: Simple, everyday language.
 
 ### Game Engine Components
 - **Game Loop**: Frame-based update system using React Three Fiber's useFrame
-- **Ship System**: Player and AI-controlled ships with physics and combat
-- **Ocean Rendering**: Animated water surface with texture mapping
-- **Combat System**: Cannonball physics and collision detection
-- **Trading System**: Port-based economy with supply/demand mechanics
+- **Ship System**: Player and AI-controlled ships with physics, combat, and boarding mechanics
+- **Ocean Rendering**: Dynamic animated water surface with weather and time-based color changes
+- **Combat System**: Cannonball physics, collision detection, and ship boarding combat
+- **Trading System**: Port-based economy with supply/demand mechanics and governor interactions
+- **Weather System**: Dynamic weather effects influencing ocean appearance and wave behavior
+- **Treasure System**: Treasure burying mechanics with persistent world markers
+- **Fleet Management**: Captured ship management and display systems
 
 ### UI System
-- **Menu System**: Main menu, trading interfaces, and game HUD
-- **3D Interface**: Integrated UI overlays within the 3D canvas
+- **Menu System**: Main menu, enhanced trading interfaces, and comprehensive game HUD
+- **3D Interface**: Integrated UI overlays within the 3D canvas with weather and time display
 - **Audio Management**: Background music and sound effects with mute controls
-- **Keyboard Controls**: WASD movement, space for combat, E for interactions
+- **Keyboard Controls**: WASD movement, space for combat, E for interactions/boarding, B for treasure burying
+- **Status Display**: Ship health, crew morale, reputation, infamy, and fleet management
 
 ### State Management
-- **Game State**: Zustand store managing player progress, ships, and world state
+- **Game State**: Zustand store managing player progress, ships, fleet, treasure, and world state
 - **Audio State**: Separate audio management system for music and sound effects
 - **Persistent Data**: Local storage integration for game saves
+- **Weather State**: Dynamic weather and time management system
+- **Fleet State**: Captured ship management and crew morale tracking
 
 ## Data Flow
 

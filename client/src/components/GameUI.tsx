@@ -4,7 +4,7 @@ import { Progress } from "./ui/progress";
 import { Button } from "./ui/button";
 
 function GameUI() {
-  const { player, gameState, setGameState, restartGame } = usePirateGame();
+  const { player, gameState, setGameState, restartGame, weather, timeOfDay } = usePirateGame();
   const ship = player.ship;
   
   if (gameState !== 'sailing' && gameState !== 'combat') return null;
@@ -40,6 +40,17 @@ function GameUI() {
             />
           </div>
           
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span>Morale:</span>
+              <span>{ship.morale}/{ship.maxMorale}</span>
+            </div>
+            <Progress 
+              value={(ship.morale / ship.maxMorale) * 100} 
+              className="h-2 bg-red-900"
+            />
+          </div>
+          
           <div className="text-sm">
             <div>Cannons: {ship.cannons}</div>
           </div>
@@ -68,8 +79,19 @@ function GameUI() {
             </div>
           </div>
           
-          <div className="text-sm">
-            <div>⭐ Reputation: {player.reputation}</div>
+          <div className="text-sm space-y-1">
+            <div className="flex justify-between">
+              <span>⭐ Reputation:</span>
+              <span>{player.reputation}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>💀 Infamy:</span>
+              <span>{player.infamy}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>🏴‍☠️ Fleet:</span>
+              <span>{player.capturedShips.length}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -80,13 +102,24 @@ function GameUI() {
           <div className="flex space-x-4 text-sm">
             <div>WASD: Move</div>
             <div>Space: Fire</div>
-            <div>E: Enter Port</div>
+            <div>E: Enter Port / Board Ship</div>
+            <div>B: Bury Treasure (100g)</div>
             <Button
               onClick={() => setGameState('menu')}
               className="bg-red-600 hover:bg-red-500 text-white px-3 py-1 text-xs"
             >
               Menu (ESC)
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Top center - Weather and time */}
+      <Card className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/80 border-amber-600 text-white pointer-events-auto">
+        <CardContent className="p-2">
+          <div className="flex space-x-4 text-sm">
+            <div>🌤️ {weather.charAt(0).toUpperCase() + weather.slice(1)}</div>
+            <div>🕐 {timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1)}</div>
           </div>
         </CardContent>
       </Card>
