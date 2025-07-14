@@ -1,9 +1,16 @@
 import { Ship, Port } from "./types";
 
+// Convert lat/lon to 3D world coordinates (matching the one in usePirateGame)
+function latLonTo3D(lat: number, lon: number): [number, number, number] {
+  const x = ((lon + 77.5) * 20);
+  const z = ((20 - lat) * 20);
+  return [x, 0, z];
+}
+
 export function createPlayerShip(): Ship {
   return {
     id: 'player',
-    position: [0, 0, 0],
+    position: latLonTo3D(17.93, -76.84), // Start at Port Royal with real coordinates
     rotation: 0,
     health: 100,
     maxHealth: 100,

@@ -172,9 +172,9 @@ function MapView() {
 
   // Convert 3D world position to map coordinates
   const worldToMap = (worldPos: [number, number, number]) => {
-    // Map world coordinates to latitude/longitude approximation
-    const lat = 18 + (worldPos[2] / 50); // Approximate Caribbean latitude
-    const lon = -75 + (worldPos[0] / 50); // Approximate Caribbean longitude
+    // Reverse the latLonTo3D conversion
+    const lon = (worldPos[0] / 20) - 77.5;
+    const lat = 20 - (worldPos[2] / 20);
     return latLonToMapCoords(lat, lon);
   };
 

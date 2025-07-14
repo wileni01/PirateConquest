@@ -455,57 +455,11 @@ export const usePirateGame = create<PirateGameState>()(
       const state = get();
       const currentPos = state.player.ship.position;
       
-      // Find destination position (convert from map coordinates to world coordinates)
-      const WORLD_POSITIONS: { [key: string]: [number, number, number] } = {
-        'port_royal': [280, 0, 320],
-        'tortuga': [320, 0, 280],
-        'nassau': [360, 0, 240],
-        'havana': [220, 0, 260],
-        'port_au_prince': [330, 0, 290],
-        'santo_domingo': [350, 0, 290],
-        'san_juan': [420, 0, 270],
-        'ile_a_vache': [300, 0, 320],
-        'martinique': [460, 0, 340],
-        'barbados': [500, 0, 360],
-        'trinidad': [480, 0, 420],
-        'curacao': [440, 0, 400],
-        'dominica': [450, 0, 350],
-        'st_lucia': [470, 0, 360],
-        'antigua': [440, 0, 320],
-        'guadeloupe': [430, 0, 330],
-        'st_thomas': [410, 0, 270],
-        'new_orleans': [100, 0, 160],
-        'mobile': [140, 0, 170],
-        'pensacola': [160, 0, 180],
-        'veracruz': [60, 0, 240],
-        'campeche': [80, 0, 220],
-        'tampico': [70, 0, 200],
-        'galveston': [60, 0, 180],
-        'barataria': [110, 0, 170],
-        'biloxi': [130, 0, 175],
-        'charleston': [200, 0, 120],
-        'st_augustine': [220, 0, 160],
-        'key_west': [240, 0, 240],
-        'miami': [250, 0, 220],
-        'tampa': [230, 0, 200],
-        'savannah': [210, 0, 130],
-        'wilmington': [190, 0, 110],
-        'cape_hatteras': [180, 0, 100],
-        'cartagena': [380, 0, 440],
-        'panama_city': [340, 0, 480],
-        'portobelo': [350, 0, 480],
-        'santa_marta': [390, 0, 430],
-        'maracaibo': [410, 0, 440],
-        'caracas': [430, 0, 440],
-        'la_guaira': [425, 0, 435],
-        'belize_city': [90, 0, 260],
-        'acapulco': [20, 0, 280],
-        'merida': [70, 0, 210],
-        'cozumel': [95, 0, 230],
-      };
-      
       const destPos = WORLD_POSITIONS[islandId];
-      if (!destPos) return;
+      if (!destPos) {
+        console.warn(`No world position found for location: ${islandId}`);
+        return;
+      }
       
       // Calculate distance and sailing time
       const currentLocation = getCurrentLocationId(currentPos);
@@ -595,39 +549,92 @@ export const usePirateGame = create<PirateGameState>()(
   }))
 );
 
+// Convert lat/lon to 3D world coordinates
+function latLonTo3D(lat: number, lon: number): [number, number, number] {
+  // Map latitude and longitude to 3D world space
+  // Caribbean roughly spans 8°N to 32°N, -100°W to -55°W
+  const x = ((lon + 77.5) * 20); // Center around -77.5°W (Caribbean center)
+  const z = ((20 - lat) * 20); // Invert and center around 20°N
+  return [x, 0, z];
+}
+
+// World positions based on real geographic coordinates
+const WORLD_POSITIONS: { [key: string]: [number, number, number] } = {
+  // Major Caribbean Pirate Havens
+  'port_royal': latLonTo3D(17.93, -76.84),
+  'tortuga': latLonTo3D(20.05, -72.78),
+  'nassau': latLonTo3D(25.06, -77.35),
+  'havana': latLonTo3D(23.13, -82.38),
+  'port_au_prince': latLonTo3D(18.54, -72.34),
+  'santo_domingo': latLonTo3D(18.47, -69.90),
+  'san_juan': latLonTo3D(18.47, -66.11),
+  'ile_a_vache': latLonTo3D(18.08, -73.69),
+  
+  // Lesser Antilles
+  'martinique': latLonTo3D(14.60, -61.08),
+  'barbados': latLonTo3D(13.10, -59.62),
+  'trinidad': latLonTo3D(10.69, -61.22),
+  'curacao': latLonTo3D(12.17, -69.00),
+  'dominica': latLonTo3D(15.41, -61.37),
+  'st_lucia': latLonTo3D(13.91, -60.98),
+  'antigua': latLonTo3D(17.13, -61.85),
+  'guadeloupe': latLonTo3D(16.24, -61.58),
+  'st_thomas': latLonTo3D(18.34, -64.93),
+  
+  // Gulf of Mexico
+  'new_orleans': latLonTo3D(29.95, -90.07),
+  'mobile': latLonTo3D(30.69, -88.04),
+  'pensacola': latLonTo3D(30.42, -87.22),
+  'veracruz': latLonTo3D(19.20, -96.13),
+  'campeche': latLonTo3D(19.85, -90.53),
+  'tampico': latLonTo3D(22.23, -97.86),
+  'galveston': latLonTo3D(29.30, -94.80),
+  'barataria': latLonTo3D(29.67, -90.12),
+  
+  // North American Coast
+  'charleston': latLonTo3D(32.78, -79.93),
+  'st_augustine': latLonTo3D(29.90, -81.31),
+  'key_west': latLonTo3D(24.56, -81.78),
+  'tampa': latLonTo3D(27.95, -82.46),
+  'savannah': latLonTo3D(32.08, -81.09),
+  
+  // Central American Coast
+  'cartagena': latLonTo3D(10.39, -75.51),
+  'panama_city': latLonTo3D(8.98, -79.52),
+  'portobelo': latLonTo3D(9.55, -79.65),
+  'santa_marta': latLonTo3D(11.24, -74.20),
+  'maracaibo': latLonTo3D(10.67, -71.64),
+  'belize_city': latLonTo3D(17.50, -88.20),
+  
+  // Central America Pacific
+  'acapulco': latLonTo3D(16.86, -99.88),
+  
+  // Additional locations from map
+  'miami': latLonTo3D(25.76, -80.19),
+  'la_guaira': latLonTo3D(10.60, -66.93),
+  'caracas': latLonTo3D(10.48, -66.90),
+  'merida': latLonTo3D(20.97, -89.62),
+  'cozumel': latLonTo3D(20.51, -86.95),
+  'biloxi': latLonTo3D(30.40, -88.89),
+  'wilmington': latLonTo3D(34.23, -77.95),
+  'cape_hatteras': latLonTo3D(35.22, -75.52),
+  'st_vincent': latLonTo3D(13.25, -61.19),
+};
+
 // Helper function to find current location based on position
 function getCurrentLocationId(position: [number, number, number]): string {
-  const locations = [
-    { id: 'port_royal', pos: [280, 0, 320] },
-    { id: 'tortuga', pos: [320, 0, 280] },
-    { id: 'nassau', pos: [360, 0, 240] },
-    { id: 'havana', pos: [220, 0, 260] },
-    { id: 'port_au_prince', pos: [330, 0, 290] },
-    { id: 'santo_domingo', pos: [350, 0, 290] },
-    { id: 'san_juan', pos: [420, 0, 270] },
-    { id: 'ile_a_vache', pos: [300, 0, 320] },
-    { id: 'martinique', pos: [460, 0, 340] },
-    { id: 'barbados', pos: [500, 0, 360] },
-    { id: 'trinidad', pos: [480, 0, 420] },
-    { id: 'curacao', pos: [440, 0, 400] },
-    { id: 'new_orleans', pos: [100, 0, 160] },
-    { id: 'veracruz', pos: [60, 0, 240] },
-    { id: 'charleston', pos: [200, 0, 120] },
-    { id: 'cartagena', pos: [380, 0, 440] },
-  ];
-  
   let closestLocation = 'port_royal';
   let closestDistance = Infinity;
   
-  for (const location of locations) {
+  for (const [locationId, worldPos] of Object.entries(WORLD_POSITIONS)) {
     const distance = Math.sqrt(
-      Math.pow(position[0] - location.pos[0], 2) +
-      Math.pow(position[2] - location.pos[2], 2)
+      Math.pow(position[0] - worldPos[0], 2) +
+      Math.pow(position[2] - worldPos[2], 2)
     );
     
     if (distance < closestDistance) {
       closestDistance = distance;
-      closestLocation = location.id;
+      closestLocation = locationId;
     }
   }
   
