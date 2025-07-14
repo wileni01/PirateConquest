@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
+import { formatDate, getWindDescription } from "../lib/windSystem";
 
 // Caribbean islands and their approximate positions
 const CARIBBEAN_ISLANDS = [
@@ -28,6 +29,14 @@ function MapView() {
     setGameState, 
     weather, 
     timeOfDay,
+    currentDate,
+    currentWinds,
+    isSailing,
+    sailingProgress,
+    sailingDuration,
+    sailingDestination,
+    sailToIsland,
+    updateSailing,
     updateAI,
     checkCollisions,
     updateCannonballs
@@ -37,6 +46,17 @@ function MapView() {
   const [playerMapPosition, setPlayerMapPosition] = useState({ x: 250, y: 300 });
   const [encounterShips, setEncounterShips] = useState<typeof ships>([]);
   const [showEncounter, setShowEncounter] = useState(false);
+  
+  // Update sailing progress
+  useEffect(() => {
+    if (isSailing) {
+      const interval = setInterval(() => {
+        updateSailing(0.1); // Update every 100ms
+      }, 100);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isSailing, updateSailing]);
 
   // Convert 3D world position to map coordinates
   const worldToMap = (worldPos: [number, number, number]) => {
@@ -71,16 +91,10 @@ function MapView() {
   }, [ships]);
 
   const handleSailTo = (island: typeof CARIBBEAN_ISLANDS[0]) => {
-    // Find associated port
-    const port = ports.find(p => 
-      p.name.toLowerCase().includes(island.name.toLowerCase()) ||
-      island.name.toLowerCase().includes(p.name.toLowerCase())
-    );
+    if (isSailing) return; // Prevent sailing while already sailing
     
-    if (port) {
-      setGameState('sailing');
-      // You could add a sailing animation/transition here
-    }
+    console.log(`Sailing to ${island.name} (${island.id})`);
+    sailToIsland(island.id);
   };
 
   const handleEngageCombat = () => {
@@ -124,11 +138,15 @@ function MapView() {
             <CardTitle className="text-center text-3xl font-bold text-amber-400">
               Caribbean Sea - Captain's Chart
             </CardTitle>
-            <div className="flex justify-center space-x-8 text-sm">
-              <div>Weather: {weather.charAt(0).toUpperCase() + weather.slice(1)}</div>
-              <div>Time: {timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1)}</div>
-              <div>Gold: {player.gold}</div>
-              <div>Fleet: {player.capturedShips.length} ships</div>
+            <div className="flex justify-center space-x-6 text-sm">
+              <div>📅 {formatDate(currentDate)}</div>
+              <div>🌤️ {weather.charAt(0).toUpperCase() + weather.slice(1)}</div>
+              <div>🕐 {timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1)}</div>
+              <div>💨 {getWindDescription(currentWinds)}</div>
+            </div>
+            <div className="flex justify-center space-x-8 text-sm mt-2">
+              <div>💰 {player.gold} gold</div>
+              <div>🏴‍☠️ {player.capturedShips.length} ships</div>
             </div>
           </CardHeader>
         </Card>
@@ -173,14 +191,40 @@ function MapView() {
 
                 {/* Player ship */}
                 <div
-                  className="absolute w-6 h-6 bg-red-600 rounded-full border-2 border-amber-400 flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 animate-pulse"
+                  className={`absolute w-6 h-6 bg-red-600 rounded-full border-2 border-amber-400 flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 ${
+                    isSailing ? 'animate-bounce' : 'animate-pulse'
+                  }`}
                   style={{
                     left: `${playerMapPosition.x}px`,
                     top: `${playerMapPosition.y}px`
                   }}
                 >
-                  ⚓
+                  {isSailing ? '⛵' : '⚓'}
                 </div>
+                
+                {/* Sailing progress indicator */}
+                {isSailing && (
+                  <div
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                    style={{
+                      left: `${playerMapPosition.x}px`,
+                      top: `${playerMapPosition.y - 40}px`
+                    }}
+                  >
+                    <div className="bg-black/80 text-white px-2 py-1 rounded text-xs">
+                      Sailing to {sailingDestination}
+                      <div className="w-20 bg-gray-600 rounded-full h-1 mt-1">
+                        <div
+                          className="bg-blue-400 h-1 rounded-full transition-all duration-300"
+                          style={{ width: `${sailingProgress * 100}%` }}
+                        />
+                      </div>
+                      <div className="text-xs text-gray-300 mt-1">
+                        Day {Math.floor(sailingProgress * sailingDuration)} of {sailingDuration}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Enemy ships */}
                 {ships.filter(ship => ship.isEnemy).map(ship => {
@@ -332,8 +376,9 @@ function MapView() {
                     if (island) handleSailTo(island);
                   }}
                   className="bg-green-600 hover:bg-green-500"
+                  disabled={isSailing}
                 >
-                  Sail To Island
+                  {isSailing ? 'Currently Sailing...' : 'Sail To Island'}
                 </Button>
               </div>
             </CardContent>

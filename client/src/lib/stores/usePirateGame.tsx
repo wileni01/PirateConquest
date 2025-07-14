@@ -2,10 +2,19 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { GameState, Ship, Port, Cannonball, GameMode } from "../types";
 import { generateInitialPorts, createPlayerShip } from "../gameLogic";
+import { GameDate, WindData, getHistoricalWinds, calculateSailingTime, calculateBearing, ISLAND_DISTANCES, advanceDate } from "../windSystem";
 
 interface PirateGameState extends GameState {
   gameState: GameMode;
   selectedPort?: Port;
+  currentDate: GameDate;
+  currentWinds: WindData;
+  isSailing: boolean;
+  sailingProgress: number;
+  sailingDuration: number;
+  sailingDestination?: string;
+  sailingStartPosition: [number, number, number];
+  sailingEndPosition: [number, number, number];
   
   // Actions
   startGame: () => void;
@@ -24,7 +33,11 @@ interface PirateGameState extends GameState {
   buryTreasure: (amount: number) => void;
   updateWeather: () => void;
   updateTimeOfDay: () => void;
+  sailToIsland: (islandId: string) => void;
+  updateSailing: (deltaTime: number) => void;
 }
+
+const initialGameDate: GameDate = { year: 1692, month: 3, day: 15 };
 
 const initialState: GameState = {
   player: {
@@ -54,6 +67,14 @@ export const usePirateGame = create<PirateGameState>()(
     ...initialState,
     gameState: 'menu',
     selectedPort: undefined,
+    currentDate: initialGameDate,
+    currentWinds: getHistoricalWinds(initialGameDate),
+    isSailing: false,
+    sailingProgress: 0,
+    sailingDuration: 0,
+    sailingDestination: undefined,
+    sailingStartPosition: [0, 0, 0],
+    sailingEndPosition: [0, 0, 0],
 
     startGame: () => {
       console.log("Starting pirate adventure!");
@@ -428,6 +449,110 @@ export const usePirateGame = create<PirateGameState>()(
       const currentIndex = times.indexOf(state.timeOfDay);
       const nextIndex = (currentIndex + 1) % times.length;
       set({ timeOfDay: times[nextIndex] });
+    },
+
+    sailToIsland: (islandId: string) => {
+      const state = get();
+      const currentPos = state.player.ship.position;
+      
+      // Find destination island position (convert from Caribbean islands to world coordinates)
+      const ISLAND_POSITIONS: { [key: string]: [number, number, number] } = {
+        'jamaica': [50, 0, 20],
+        'cuba': [20, 0, -30],
+        'hispaniola': [80, 0, -10],
+        'puerto_rico': [120, 0, -5],
+        'barbados': [180, 0, 60],
+        'trinidad': [170, 0, 90],
+        'martinique': [160, 0, 55],
+        'antigua': [140, 0, 35],
+        'st_lucia': [165, 0, 65],
+        'dominica': [150, 0, 50],
+      };
+      
+      const destPos = ISLAND_POSITIONS[islandId];
+      if (!destPos) return;
+      
+      // Calculate distance and sailing time
+      const distance = ISLAND_DISTANCES[islandId] || { [islandId]: 100 };
+      const nearestKnownIsland = Object.keys(distance)[0];
+      const nauticalMiles = distance[nearestKnownIsland] || 100;
+      
+      const bearing = calculateBearing(nearestKnownIsland, islandId);
+      const sailingDays = calculateSailingTime(
+        nauticalMiles,
+        state.currentWinds.direction,
+        state.currentWinds.speed,
+        bearing,
+        state.player.ship.speed
+      );
+      
+      console.log(`Setting sail to ${islandId}: ${nauticalMiles}nm, ${sailingDays} days`);
+      
+      set({
+        isSailing: true,
+        sailingProgress: 0,
+        sailingDuration: sailingDays,
+        sailingDestination: islandId,
+        sailingStartPosition: [...currentPos],
+        sailingEndPosition: destPos,
+        gameState: 'map' // Stay on map view during sailing
+      });
+    },
+
+    updateSailing: (deltaTime: number) => {
+      const state = get();
+      if (!state.isSailing) return;
+      
+      // Progress sailing (1 real second = 1 game day for demonstration)
+      const progressIncrement = deltaTime / state.sailingDuration;
+      const newProgress = Math.min(1, state.sailingProgress + progressIncrement);
+      
+      // Interpolate ship position
+      const startPos = state.sailingStartPosition;
+      const endPos = state.sailingEndPosition;
+      const currentPos: [number, number, number] = [
+        startPos[0] + (endPos[0] - startPos[0]) * newProgress,
+        startPos[1] + (endPos[1] - startPos[1]) * newProgress,
+        startPos[2] + (endPos[2] - startPos[2]) * newProgress,
+      ];
+      
+      // Update ship position
+      set((state) => ({
+        player: {
+          ...state.player,
+          ship: {
+            ...state.player.ship,
+            position: currentPos,
+          },
+        },
+        sailingProgress: newProgress,
+      }));
+      
+      // Advance time during sailing
+      if (Math.floor(newProgress * state.sailingDuration) > Math.floor(state.sailingProgress * state.sailingDuration)) {
+        const newDate = advanceDate(state.currentDate, 1);
+        const newWinds = getHistoricalWinds(newDate);
+        
+        set({
+          currentDate: newDate,
+          currentWinds: newWinds,
+        });
+        
+        // Update weather and time based on new date
+        if (Math.random() < 0.3) get().updateWeather();
+        if (Math.random() < 0.2) get().updateTimeOfDay();
+      }
+      
+      // Complete sailing
+      if (newProgress >= 1) {
+        console.log(`Arrived at ${state.sailingDestination}!`);
+        set({
+          isSailing: false,
+          sailingProgress: 0,
+          sailingDuration: 0,
+          sailingDestination: undefined,
+        });
+      }
     },
   }))
 );
