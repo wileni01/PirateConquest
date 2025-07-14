@@ -430,7 +430,7 @@ function MapView() {
     return () => clearInterval(encounterCheck);
   }, [ships]);
 
-  const handleSailTo = (location: typeof PIRATE_LOCATIONS[0]) => {
+  const handleSailTo = (location: typeof CARIBBEAN_LOCATIONS[0]) => {
     if (isSailing) return; // Prevent sailing while already sailing
     
     console.log(`Sailing to ${location.name} (${location.id})`);
@@ -450,7 +450,7 @@ function MapView() {
     }
   };
 
-  const getLocationColor = (location: typeof PIRATE_LOCATIONS[0]) => {
+  const getLocationColor = (location: typeof CARIBBEAN_LOCATIONS[0]) => {
     switch (location.faction) {
       case 'pirate': return '#dc2626';
       case 'spanish': return '#eab308';
@@ -852,10 +852,10 @@ function MapView() {
               <div className="flex justify-between items-start">
                 <div className="space-y-1 flex-1">
                   <h3 className="text-lg font-bold text-amber-400">
-                    {PIRATE_LOCATIONS.find(l => l.id === selectedIsland)?.name}
+                    {CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland)?.name}
                   </h3>
                   {(() => {
-                    const location = PIRATE_LOCATIONS.find(l => l.id === selectedIsland);
+                    const location = CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland);
                     if (!location) return null;
                     
                     const port = ports.find(p => 
@@ -890,7 +890,7 @@ function MapView() {
                 </div>
                 <Button 
                   onClick={() => {
-                    const location = PIRATE_LOCATIONS.find(l => l.id === selectedIsland);
+                    const location = CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland);
                     if (location) handleSailTo(location);
                   }}
                   className="bg-green-600 hover:bg-green-500 text-sm py-1 px-2 ml-2"
