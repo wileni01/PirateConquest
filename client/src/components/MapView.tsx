@@ -14,25 +14,27 @@ const MAP_BOUNDS = {
   east: -55     // Lesser Antilles
 };
 
+// Temporary placeholder for map bounds
+let mapBounds = {
+  north: 32,
+  south: 8,
+  west: -98,
+  east: -58
+};
+
 // Convert real lat/lon to map coordinates with better scaling
 const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 100, mapHeight: number = 70) => {
-  // Use percentage-based coordinates for responsive sizing
-  // Adjust bounds for better Caribbean centering with Mexico included
-  const adjustedBounds = {
-    north: 32,
-    south: 8,
-    west: -98,
-    east: -58
-  };
+  // Use calculated bounds centered on port locations
+  const { north, south, west, east } = mapBounds;
   
-  const x = ((lon - adjustedBounds.west) / (adjustedBounds.east - adjustedBounds.west)) * mapWidth;
-  const y = ((adjustedBounds.north - lat) / (adjustedBounds.north - adjustedBounds.south)) * mapHeight;
+  const x = ((lon - west) / (east - west)) * mapWidth;
+  const y = ((north - lat) / (north - south)) * mapHeight;
   
   return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
 };
 
 // Historical Caribbean and Gulf of Mexico pirate locations with real coordinates
-const PIRATE_LOCATIONS = [
+const CARIBBEAN_LOCATIONS = [
   // Major Caribbean Pirate Havens
   { id: 'port_royal', name: 'Port Royal', lat: 17.93, lon: -76.84, size: 'large', type: 'major_port', faction: 'english' },
   { id: 'tortuga', name: 'Tortuga', lat: 20.05, lon: -72.78, size: 'medium', type: 'pirate_haven', faction: 'french' },
@@ -81,10 +83,90 @@ const PIRATE_LOCATIONS = [
   
   // Central America Pacific
   { id: 'acapulco', name: 'Acapulco', lat: 16.86, lon: -99.88, size: 'medium', type: 'treasure_port', faction: 'spanish' },
-].map(location => ({
-  ...location,
-  ...latLonToMapCoords(location.lat, location.lon)
-}));
+];
+
+// Calculate the centroid and optimal bounds after locations are defined
+const calculateCentroid = () => {
+  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat);
+  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon);
+  
+  const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
+  const avgLon = lons.reduce((a, b) => a + b, 0) / lons.length;
+  
+  // Calculate the range needed with padding
+  const latRange = Math.max(...lats) - Math.min(...lats);
+  const lonRange = Math.max(...lons) - Math.min(...lons);
+  
+  // Add 15% padding
+  const padding = 0.15;
+  
+  return {
+    center: { lat: avgLat, lon: avgLon },
+    bounds: {
+      north: Math.max(...lats) + (latRange * padding),
+      south: Math.min(...lats) - (latRange * padding),
+      west: Math.min(...lons) - (lonRange * padding),
+      east: Math.max(...lons) + (lonRange * padding)
+    }
+  };
+};
+
+// Update map bounds based on centroid calculation
+const centroidConfig = calculateCentroid();
+mapBounds = centroidConfig.bounds;
+
+// Function to detect label collisions and adjust positions
+const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
+  // First, map locations with their base positions
+  const locationsWithCoords = locations.map(location => ({
+    ...location,
+    ...latLonToMapCoords(location.lat, location.lon),
+    labelOffsetX: 0,
+    labelOffsetY: 5
+  }));
+
+  // Sort by Y position to process from top to bottom
+  locationsWithCoords.sort((a, b) => a.y - b.y);
+
+  // Simple collision detection and adjustment
+  for (let i = 0; i < locationsWithCoords.length; i++) {
+    for (let j = i + 1; j < locationsWithCoords.length; j++) {
+      const loc1 = locationsWithCoords[i];
+      const loc2 = locationsWithCoords[j];
+      
+      // Calculate distance between icons
+      const dx = Math.abs(loc1.x - loc2.x);
+      const dy = Math.abs(loc1.y - loc2.y);
+      
+      // If icons are close
+      if (dx < 8 && dy < 6) {
+        // Adjust based on relative positions
+        if (dx < 2) {
+          // Vertically aligned - push labels horizontally
+          loc1.labelOffsetX = -40;
+          loc2.labelOffsetX = 40;
+          loc1.labelOffsetY = 0;
+          loc2.labelOffsetY = 0;
+        } else if (dy < 2) {
+          // Horizontally aligned - push labels vertically
+          loc1.labelOffsetY = -15;
+          loc2.labelOffsetY = 15;
+        } else if (loc1.x < loc2.x) {
+          // Diagonal adjustment
+          loc1.labelOffsetX = -30;
+          loc1.labelOffsetY = -10;
+          loc2.labelOffsetX = 30;
+          loc2.labelOffsetY = 10;
+        }
+      }
+    }
+  }
+  
+  return locationsWithCoords;
+};
+
+// Map all locations with smart label positioning
+const MAPPED_LOCATIONS = adjustLabelPositions(CARIBBEAN_LOCATIONS);
 
 // Land masses for visual representation with accurate geography
 const LAND_MASSES = [
@@ -440,7 +522,7 @@ function MapView() {
                 </svg>
 
                 {/* Locations */}
-                {PIRATE_LOCATIONS.map(location => (
+                {MAPPED_LOCATIONS.map(location => (
                   <div
                     key={location.id}
                     className={`absolute cursor-pointer transition-all duration-200 hover:scale-110 ${
@@ -480,7 +562,15 @@ function MapView() {
                          '🏘️'}
                       </span>
                     </div>
-                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-sm text-amber-200 whitespace-nowrap bg-black/70 px-2 py-1 rounded font-semibold">
+                    
+                    <div 
+                      className="absolute text-sm text-amber-200 whitespace-nowrap bg-black/80 px-2 py-1 rounded font-semibold pointer-events-none shadow-lg"
+                      style={{
+                        left: '50%',
+                        top: `${40 + ((location as any).labelOffsetY || 5)}px`,
+                        transform: `translateX(calc(-50% + ${(location as any).labelOffsetX || 0}px))`
+                      }}
+                    >
                       {location.name}
                     </div>
                   </div>
