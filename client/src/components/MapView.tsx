@@ -6,65 +6,131 @@ import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { formatDate, getWindDescription } from "../lib/windSystem";
 
-// Historical Caribbean and Gulf of Mexico pirate locations with authentic coordinates
+// Caribbean map bounds (longitude/latitude)
+const MAP_BOUNDS = {
+  north: 32,    // North Carolina
+  south: 8,     // Venezuela
+  west: -100,   // Gulf of Mexico
+  east: -55     // Lesser Antilles
+};
+
+// Convert real lat/lon to map coordinates
+const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 800, mapHeight: number = 600) => {
+  const x = ((lon - MAP_BOUNDS.west) / (MAP_BOUNDS.east - MAP_BOUNDS.west)) * mapWidth;
+  const y = ((MAP_BOUNDS.north - lat) / (MAP_BOUNDS.north - MAP_BOUNDS.south)) * mapHeight;
+  return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
+};
+
+// Historical Caribbean and Gulf of Mexico pirate locations with real coordinates
 const PIRATE_LOCATIONS = [
   // Major Caribbean Pirate Havens
-  { id: 'port_royal', name: 'Port Royal', x: 280, y: 320, size: 'large', type: 'major_port', faction: 'english' },
-  { id: 'tortuga', name: 'Tortuga', x: 320, y: 280, size: 'medium', type: 'pirate_haven', faction: 'french' },
-  { id: 'nassau', name: 'Nassau', x: 360, y: 240, size: 'medium', type: 'pirate_haven', faction: 'pirate' },
-  { id: 'havana', name: 'Havana', x: 220, y: 260, size: 'large', type: 'major_port', faction: 'spanish' },
-  { id: 'port_au_prince', name: 'Port-au-Prince', x: 330, y: 290, size: 'medium', type: 'port', faction: 'french' },
-  { id: 'santo_domingo', name: 'Santo Domingo', x: 350, y: 290, size: 'medium', type: 'major_port', faction: 'spanish' },
-  { id: 'san_juan', name: 'San Juan', x: 420, y: 270, size: 'medium', type: 'major_port', faction: 'spanish' },
-  { id: 'ile_a_vache', name: 'Île-à-Vache', x: 300, y: 320, size: 'small', type: 'pirate_haven', faction: 'pirate' },
+  { id: 'port_royal', name: 'Port Royal', lat: 17.93, lon: -76.84, size: 'large', type: 'major_port', faction: 'english' },
+  { id: 'tortuga', name: 'Tortuga', lat: 20.05, lon: -72.78, size: 'medium', type: 'pirate_haven', faction: 'french' },
+  { id: 'nassau', name: 'Nassau', lat: 25.06, lon: -77.35, size: 'medium', type: 'pirate_haven', faction: 'pirate' },
+  { id: 'havana', name: 'Havana', lat: 23.13, lon: -82.38, size: 'large', type: 'major_port', faction: 'spanish' },
+  { id: 'port_au_prince', name: 'Port-au-Prince', lat: 18.54, lon: -72.34, size: 'medium', type: 'port', faction: 'french' },
+  { id: 'santo_domingo', name: 'Santo Domingo', lat: 18.47, lon: -69.90, size: 'medium', type: 'major_port', faction: 'spanish' },
+  { id: 'san_juan', name: 'San Juan', lat: 18.47, lon: -66.11, size: 'medium', type: 'major_port', faction: 'spanish' },
+  { id: 'ile_a_vache', name: 'Île-à-Vache', lat: 18.08, lon: -73.69, size: 'small', type: 'pirate_haven', faction: 'pirate' },
   
   // Lesser Antilles
-  { id: 'martinique', name: 'Martinique', x: 460, y: 340, size: 'small', type: 'port', faction: 'french' },
-  { id: 'barbados', name: 'Barbados', x: 500, y: 360, size: 'small', type: 'port', faction: 'english' },
-  { id: 'trinidad', name: 'Trinidad', x: 480, y: 420, size: 'medium', type: 'port', faction: 'spanish' },
-  { id: 'curacao', name: 'Curaçao', x: 440, y: 400, size: 'small', type: 'port', faction: 'dutch' },
-  { id: 'dominica', name: 'Dominica', x: 450, y: 350, size: 'small', type: 'island', faction: 'neutral' },
-  { id: 'st_lucia', name: 'St. Lucia', x: 470, y: 360, size: 'small', type: 'island', faction: 'neutral' },
-  { id: 'antigua', name: 'Antigua', x: 440, y: 320, size: 'small', type: 'port', faction: 'english' },
-  { id: 'guadeloupe', name: 'Guadeloupe', x: 430, y: 330, size: 'small', type: 'port', faction: 'french' },
-  { id: 'st_thomas', name: 'St. Thomas', x: 410, y: 270, size: 'small', type: 'port', faction: 'danish' },
+  { id: 'martinique', name: 'Martinique', lat: 14.60, lon: -61.08, size: 'small', type: 'port', faction: 'french' },
+  { id: 'barbados', name: 'Barbados', lat: 13.10, lon: -59.62, size: 'small', type: 'port', faction: 'english' },
+  { id: 'trinidad', name: 'Trinidad', lat: 10.69, lon: -61.22, size: 'medium', type: 'port', faction: 'spanish' },
+  { id: 'curacao', name: 'Curaçao', lat: 12.17, lon: -69.00, size: 'small', type: 'port', faction: 'dutch' },
+  { id: 'dominica', name: 'Dominica', lat: 15.41, lon: -61.37, size: 'small', type: 'island', faction: 'neutral' },
+  { id: 'st_lucia', name: 'St. Lucia', lat: 13.91, lon: -60.98, size: 'small', type: 'island', faction: 'neutral' },
+  { id: 'antigua', name: 'Antigua', lat: 17.13, lon: -61.85, size: 'small', type: 'port', faction: 'english' },
+  { id: 'guadeloupe', name: 'Guadeloupe', lat: 16.24, lon: -61.58, size: 'small', type: 'port', faction: 'french' },
+  { id: 'st_thomas', name: 'St. Thomas', lat: 18.34, lon: -64.93, size: 'small', type: 'port', faction: 'danish' },
   
   // Gulf of Mexico
-  { id: 'new_orleans', name: 'New Orleans', x: 100, y: 160, size: 'medium', type: 'major_port', faction: 'french' },
-  { id: 'mobile', name: 'Mobile', x: 140, y: 170, size: 'small', type: 'port', faction: 'french' },
-  { id: 'pensacola', name: 'Pensacola', x: 160, y: 180, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'veracruz', name: 'Veracruz', x: 60, y: 240, size: 'large', type: 'treasure_port', faction: 'spanish' },
-  { id: 'campeche', name: 'Campeche', x: 80, y: 220, size: 'medium', type: 'port', faction: 'spanish' },
-  { id: 'tampico', name: 'Tampico', x: 70, y: 200, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'galveston', name: 'Galveston', x: 60, y: 180, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'barataria', name: 'Barataria Bay', x: 110, y: 170, size: 'small', type: 'pirate_haven', faction: 'pirate' },
-  { id: 'biloxi', name: 'Biloxi', x: 130, y: 175, size: 'small', type: 'port', faction: 'french' },
+  { id: 'new_orleans', name: 'New Orleans', lat: 29.95, lon: -90.07, size: 'medium', type: 'major_port', faction: 'french' },
+  { id: 'mobile', name: 'Mobile', lat: 30.69, lon: -88.04, size: 'small', type: 'port', faction: 'french' },
+  { id: 'pensacola', name: 'Pensacola', lat: 30.42, lon: -87.22, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'veracruz', name: 'Veracruz', lat: 19.20, lon: -96.13, size: 'large', type: 'treasure_port', faction: 'spanish' },
+  { id: 'campeche', name: 'Campeche', lat: 19.85, lon: -90.53, size: 'medium', type: 'port', faction: 'spanish' },
+  { id: 'tampico', name: 'Tampico', lat: 22.23, lon: -97.86, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'galveston', name: 'Galveston', lat: 29.30, lon: -94.80, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'barataria', name: 'Barataria Bay', lat: 29.67, lon: -90.12, size: 'small', type: 'pirate_haven', faction: 'pirate' },
   
   // North American Coast
-  { id: 'charleston', name: 'Charleston', x: 200, y: 120, size: 'medium', type: 'major_port', faction: 'english' },
-  { id: 'st_augustine', name: 'St. Augustine', x: 220, y: 160, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'key_west', name: 'Key West', x: 240, y: 240, size: 'small', type: 'island', faction: 'neutral' },
-  { id: 'miami', name: 'Miami', x: 250, y: 220, size: 'small', type: 'settlement', faction: 'neutral' },
-  { id: 'tampa', name: 'Tampa', x: 230, y: 200, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'savannah', name: 'Savannah', x: 210, y: 130, size: 'small', type: 'port', faction: 'english' },
-  { id: 'wilmington', name: 'Wilmington', x: 190, y: 110, size: 'small', type: 'port', faction: 'english' },
-  { id: 'cape_hatteras', name: 'Cape Hatteras', x: 180, y: 100, size: 'small', type: 'landmark', faction: 'neutral' },
+  { id: 'charleston', name: 'Charleston', lat: 32.78, lon: -79.93, size: 'medium', type: 'major_port', faction: 'english' },
+  { id: 'st_augustine', name: 'St. Augustine', lat: 29.90, lon: -81.31, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'key_west', name: 'Key West', lat: 24.56, lon: -81.78, size: 'small', type: 'island', faction: 'neutral' },
+  { id: 'tampa', name: 'Tampa', lat: 27.95, lon: -82.46, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'savannah', name: 'Savannah', lat: 32.08, lon: -81.09, size: 'small', type: 'port', faction: 'english' },
   
   // Central American Coast
-  { id: 'cartagena', name: 'Cartagena', x: 380, y: 440, size: 'large', type: 'treasure_port', faction: 'spanish' },
-  { id: 'panama_city', name: 'Panama City', x: 340, y: 480, size: 'medium', type: 'treasure_port', faction: 'spanish' },
-  { id: 'portobelo', name: 'Portobelo', x: 350, y: 480, size: 'small', type: 'treasure_port', faction: 'spanish' },
-  { id: 'santa_marta', name: 'Santa Marta', x: 390, y: 430, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'maracaibo', name: 'Maracaibo', x: 410, y: 440, size: 'medium', type: 'port', faction: 'spanish' },
-  { id: 'caracas', name: 'Caracas', x: 430, y: 440, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'la_guaira', name: 'La Guaira', x: 425, y: 435, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'belize_city', name: 'Belize City', x: 90, y: 260, size: 'small', type: 'port', faction: 'english' },
+  { id: 'cartagena', name: 'Cartagena', lat: 10.39, lon: -75.51, size: 'large', type: 'treasure_port', faction: 'spanish' },
+  { id: 'panama_city', name: 'Panama City', lat: 8.98, lon: -79.52, size: 'medium', type: 'treasure_port', faction: 'spanish' },
+  { id: 'portobelo', name: 'Portobelo', lat: 9.55, lon: -79.65, size: 'small', type: 'treasure_port', faction: 'spanish' },
+  { id: 'santa_marta', name: 'Santa Marta', lat: 11.24, lon: -74.20, size: 'small', type: 'port', faction: 'spanish' },
+  { id: 'maracaibo', name: 'Maracaibo', lat: 10.67, lon: -71.64, size: 'medium', type: 'port', faction: 'spanish' },
+  { id: 'belize_city', name: 'Belize City', lat: 17.50, lon: -88.20, size: 'small', type: 'port', faction: 'english' },
   
   // Central America Pacific
-  { id: 'acapulco', name: 'Acapulco', x: 20, y: 280, size: 'medium', type: 'treasure_port', faction: 'spanish' },
-  { id: 'merida', name: 'Mérida', x: 70, y: 210, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'cozumel', name: 'Cozumel', x: 95, y: 230, size: 'small', type: 'island', faction: 'neutral' },
+  { id: 'acapulco', name: 'Acapulco', lat: 16.86, lon: -99.88, size: 'medium', type: 'treasure_port', faction: 'spanish' },
+].map(location => ({
+  ...location,
+  ...latLonToMapCoords(location.lat, location.lon)
+}));
+
+// Land masses for visual representation
+const LAND_MASSES = [
+  // North America - Florida
+  { name: 'Florida', points: [
+    { lat: 31.0, lon: -81.5 }, { lat: 30.4, lon: -82.2 }, { lat: 29.2, lon: -83.1 },
+    { lat: 28.0, lon: -83.0 }, { lat: 26.4, lon: -82.0 }, { lat: 25.8, lon: -81.2 },
+    { lat: 24.5, lon: -81.8 }, { lat: 25.3, lon: -80.9 }, { lat: 26.9, lon: -80.1 },
+    { lat: 27.8, lon: -80.6 }, { lat: 29.0, lon: -80.9 }, { lat: 30.4, lon: -81.4 }
+  ]},
+  
+  // Cuba
+  { name: 'Cuba', points: [
+    { lat: 23.2, lon: -84.9 }, { lat: 23.1, lon: -82.4 }, { lat: 22.4, lon: -78.3 },
+    { lat: 21.6, lon: -77.8 }, { lat: 20.2, lon: -74.8 }, { lat: 19.9, lon: -75.2 },
+    { lat: 20.0, lon: -77.0 }, { lat: 20.2, lon: -78.3 }, { lat: 21.4, lon: -82.6 },
+    { lat: 22.0, lon: -84.3 }, { lat: 23.1, lon: -84.9 }
+  ]},
+  
+  // Jamaica
+  { name: 'Jamaica', points: [
+    { lat: 18.5, lon: -78.4 }, { lat: 18.5, lon: -76.2 }, { lat: 17.7, lon: -76.2 },
+    { lat: 17.7, lon: -78.4 }
+  ]},
+  
+  // Hispaniola
+  { name: 'Hispaniola', points: [
+    { lat: 19.9, lon: -74.5 }, { lat: 19.9, lon: -68.3 }, { lat: 18.0, lon: -68.3 },
+    { lat: 17.6, lon: -71.8 }, { lat: 18.0, lon: -74.5 }
+  ]},
+  
+  // Puerto Rico
+  { name: 'Puerto Rico', points: [
+    { lat: 18.5, lon: -67.3 }, { lat: 18.5, lon: -65.2 }, { lat: 17.9, lon: -65.2 },
+    { lat: 17.9, lon: -67.3 }
+  ]},
+  
+  // Venezuela coastline
+  { name: 'Venezuela', points: [
+    { lat: 12.2, lon: -72.0 }, { lat: 11.8, lon: -71.0 }, { lat: 10.8, lon: -68.0 },
+    { lat: 10.4, lon: -66.0 }, { lat: 10.0, lon: -62.0 }, { lat: 8.6, lon: -62.0 },
+    { lat: 8.0, lon: -66.0 }, { lat: 8.4, lon: -72.0 }
+  ]},
+  
+  // Mexico - Yucatan Peninsula
+  { name: 'Yucatan', points: [
+    { lat: 21.6, lon: -90.5 }, { lat: 21.6, lon: -86.8 }, { lat: 20.9, lon: -86.8 },
+    { lat: 18.5, lon: -88.3 }, { lat: 18.5, lon: -90.5 }
+  ]},
 ];
+
+// Convert land masses to map coordinates
+const RENDERED_LAND_MASSES = LAND_MASSES.map(landMass => ({
+  ...landMass,
+  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon))
+}));
 
 function MapView() {
   const { 
@@ -106,10 +172,10 @@ function MapView() {
 
   // Convert 3D world position to map coordinates
   const worldToMap = (worldPos: [number, number, number]) => {
-    return {
-      x: Math.max(50, Math.min(550, (worldPos[0] + 200) * 1.5)),
-      y: Math.max(50, Math.min(450, (worldPos[2] + 200) * 1.5))
-    };
+    // Map world coordinates to latitude/longitude approximation
+    const lat = 18 + (worldPos[2] / 50); // Approximate Caribbean latitude
+    const lon = -75 + (worldPos[0] / 50); // Approximate Caribbean longitude
+    return latLonToMapCoords(lat, lon);
   };
 
   // Update player position on map based on 3D world position
@@ -205,6 +271,50 @@ function MapView() {
                   }} />
                 </div>
 
+                {/* Land masses */}
+                <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
+                  {RENDERED_LAND_MASSES.map((landMass, index) => (
+                    <polygon
+                      key={index}
+                      points={landMass.points.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="#4a5d23"
+                      stroke="#6b7c32"
+                      strokeWidth="1"
+                      opacity="0.8"
+                    />
+                  ))}
+                </svg>
+
+                {/* Grid lines for navigation */}
+                <svg className="absolute inset-0 w-full h-full opacity-20" style={{ pointerEvents: 'none' }}>
+                  {/* Vertical lines (longitude) */}
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <line
+                      key={`v-${i}`}
+                      x1={i * 80}
+                      y1="0"
+                      x2={i * 80}
+                      y2="600"
+                      stroke="#94a3b8"
+                      strokeWidth="0.5"
+                      strokeDasharray="2,2"
+                    />
+                  ))}
+                  {/* Horizontal lines (latitude) */}
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <line
+                      key={`h-${i}`}
+                      x1="0"
+                      y1={i * 75}
+                      x2="800"
+                      y2={i * 75}
+                      stroke="#94a3b8"
+                      strokeWidth="0.5"
+                      strokeDasharray="2,2"
+                    />
+                  ))}
+                </svg>
+
                 {/* Locations */}
                 {PIRATE_LOCATIONS.map(location => (
                   <div
@@ -215,16 +325,34 @@ function MapView() {
                     style={{
                       left: `${location.x}px`,
                       top: `${location.y}px`,
-                      width: location.size === 'large' ? '24px' : location.size === 'medium' ? '16px' : '12px',
-                      height: location.size === 'large' ? '24px' : location.size === 'medium' ? '16px' : '12px',
-                      backgroundColor: getLocationColor(location),
-                      borderRadius: '4px',
-                      border: '1px solid #92400e'
+                      transform: 'translate(-50%, -50%)'
                     }}
                     onClick={() => setSelectedIsland(location.id)}
                     onDoubleClick={() => handleSailTo(location)}
                   >
-                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-white whitespace-nowrap">
+                    <div className={`rounded-full border-2 ${
+                      location.faction === 'pirate' ? 'border-red-400 bg-red-600' :
+                      location.faction === 'spanish' ? 'border-yellow-400 bg-yellow-600' :
+                      location.faction === 'english' ? 'border-blue-400 bg-blue-600' :
+                      location.faction === 'french' ? 'border-purple-400 bg-purple-600' :
+                      location.faction === 'dutch' ? 'border-orange-400 bg-orange-600' :
+                      location.faction === 'danish' ? 'border-cyan-400 bg-cyan-600' :
+                      'border-gray-400 bg-gray-600'
+                    } ${
+                      location.size === 'large' ? 'w-6 h-6' :
+                      location.size === 'medium' ? 'w-4 h-4' :
+                      'w-3 h-3'
+                    } flex items-center justify-center shadow-lg`}>
+                      <span className="text-white text-xs">
+                        {location.type === 'major_port' ? '🏛️' :
+                         location.type === 'pirate_haven' ? '🏴‍☠️' :
+                         location.type === 'treasure_port' ? '💰' :
+                         location.type === 'port' ? '⚓' :
+                         location.type === 'island' ? '🏝️' :
+                         '🏘️'}
+                      </span>
+                    </div>
+                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs text-amber-200 whitespace-nowrap bg-black/50 px-1 rounded">
                       {location.name}
                     </div>
                   </div>
@@ -232,12 +360,13 @@ function MapView() {
 
                 {/* Player ship */}
                 <div
-                  className={`absolute w-6 h-6 bg-red-600 rounded-full border-2 border-amber-400 flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 ${
+                  className={`absolute w-8 h-8 bg-red-600 rounded-full border-2 border-amber-400 flex items-center justify-center text-white text-sm font-bold transform -translate-x-1/2 -translate-y-1/2 shadow-lg ${
                     isSailing ? 'animate-bounce' : 'animate-pulse'
                   }`}
                   style={{
                     left: `${playerMapPosition.x}px`,
-                    top: `${playerMapPosition.y}px`
+                    top: `${playerMapPosition.y}px`,
+                    zIndex: 10
                   }}
                 >
                   {isSailing ? '⛵' : '⚓'}
@@ -305,11 +434,57 @@ function MapView() {
             </CardContent>
           </Card>
 
-          {/* Ship Status */}
-          <Card className="bg-black/80 border-amber-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-amber-400">Ship Status</CardTitle>
-            </CardHeader>
+          {/* Map Legend & Ship Status */}
+          <div className="space-y-4">
+            <Card className="bg-black/80 border-amber-600 text-white">
+              <CardHeader>
+                <CardTitle className="text-amber-400">Map Legend</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="text-xs space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+                    <span>Pirate Havens</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
+                    <span>Spanish Ports</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                    <span>English Ports</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                    <span>French Ports</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                    <span>Dutch Ports</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-cyan-600 rounded-full"></div>
+                    <span>Danish Ports</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+                    <span>Neutral Islands</span>
+                  </div>
+                </div>
+                <div className="text-xs pt-2 border-t border-gray-600">
+                  <p>💰 = Treasure Port</p>
+                  <p>🏴‍☠️ = Pirate Haven</p>
+                  <p>🏛️ = Major Port</p>
+                  <p>⚓ = Minor Port</p>
+                  <p>🏝️ = Island</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-black/80 border-amber-600 text-white">
+              <CardHeader>
+                <CardTitle className="text-amber-400">Ship Status</CardTitle>
+              </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -377,37 +552,49 @@ function MapView() {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
 
-        {/* Island Details */}
+        {/* Location Details */}
         {selectedIsland && (
           <Card className="mt-4 bg-black/80 border-amber-600 text-white">
             <CardContent className="p-4">
               <div className="flex justify-between items-center">
-                <div>
+                <div className="space-y-2">
                   <h3 className="text-xl font-bold text-amber-400">
-                    {CARIBBEAN_ISLANDS.find(i => i.id === selectedIsland)?.name}
+                    {PIRATE_LOCATIONS.find(l => l.id === selectedIsland)?.name}
                   </h3>
                   {(() => {
-                    const island = CARIBBEAN_ISLANDS.find(i => i.id === selectedIsland);
+                    const location = PIRATE_LOCATIONS.find(l => l.id === selectedIsland);
+                    if (!location) return null;
+                    
                     const port = ports.find(p => 
-                      p.name.toLowerCase().includes(island?.name.toLowerCase() || '') ||
-                      island?.name.toLowerCase().includes(p.name.toLowerCase())
+                      p.name.toLowerCase().includes(location.name.toLowerCase()) ||
+                      location.name.toLowerCase().includes(p.name.toLowerCase())
                     );
                     
-                    return port ? (
-                      <div className="text-sm text-gray-300">
-                        <p>Port: {port.name}</p>
-                        <p>Faction: <Badge className={`${
-                          port.faction === 'spanish' ? 'bg-red-600' :
-                          port.faction === 'english' ? 'bg-blue-600' :
-                          port.faction === 'french' ? 'bg-purple-600' :
-                          port.faction === 'pirate' ? 'bg-gray-800' : 'bg-green-600'
-                        }`}>{port.faction}</Badge></p>
-                        <p>Governor: {port.governor.name}</p>
+                    return (
+                      <div className="space-y-1">
+                        <p className="text-sm"><strong>Type:</strong> {location.type.replace(/_/g, ' ')}</p>
+                        <p className="text-sm"><strong>Faction:</strong> <Badge className={`${
+                          location.faction === 'spanish' ? 'bg-yellow-600' :
+                          location.faction === 'english' ? 'bg-blue-600' :
+                          location.faction === 'french' ? 'bg-purple-600' :
+                          location.faction === 'dutch' ? 'bg-orange-600' :
+                          location.faction === 'danish' ? 'bg-cyan-600' :
+                          location.faction === 'pirate' ? 'bg-red-600' : 'bg-gray-600'
+                        }`}>{location.faction}</Badge></p>
+                        <p className="text-sm"><strong>Size:</strong> {location.size}</p>
+                        <p className="text-sm"><strong>Coordinates:</strong> {location.lat?.toFixed(1)}°N, {Math.abs(location.lon || 0).toFixed(1)}°W</p>
+                        
+                        {port && (
+                          <div className="pt-2 border-t border-gray-600">
+                            <p className="text-sm"><strong>Governor:</strong> {port.governor.name}</p>
+                            <p className="text-sm"><strong>Attitude:</strong> {port.governor.attitude}</p>
+                            <p className="text-sm"><strong>Fortification:</strong> {port.fortification}/10</p>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <p className="text-sm text-gray-400">Uninhabited island</p>
                     );
                   })()}
                 </div>
