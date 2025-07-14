@@ -25,6 +25,9 @@ function App() {
   const { setBackgroundMusic } = useAudio();
   const [showCanvas, setShowCanvas] = useState(false);
 
+  // Debug logging
+  console.log("Current game state:", gameState);
+
   // Initialize audio
   useEffect(() => {
     const music = new Audio("/sounds/background.mp3");
