@@ -15,22 +15,18 @@ const MAP_BOUNDS = {
 };
 
 // Convert real lat/lon to map coordinates with better scaling
-const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 1200, mapHeight: number = 800) => {
-  // Add padding and adjust bounds to better center the Caribbean
-  const padding = 60; // pixels of padding
-  const effectiveWidth = mapWidth - (2 * padding);
-  const effectiveHeight = mapHeight - (2 * padding);
-  
+const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 100, mapHeight: number = 70) => {
+  // Use percentage-based coordinates for responsive sizing
   // Adjust bounds for better Caribbean centering with Mexico included
   const adjustedBounds = {
-    north: 33,
-    south: 7,
-    west: -100,
+    north: 32,
+    south: 8,
+    west: -98,
     east: -58
   };
   
-  const x = padding + ((lon - adjustedBounds.west) / (adjustedBounds.east - adjustedBounds.west)) * effectiveWidth;
-  const y = padding + ((adjustedBounds.north - lat) / (adjustedBounds.north - adjustedBounds.south)) * effectiveHeight;
+  const x = ((lon - adjustedBounds.west) / (adjustedBounds.east - adjustedBounds.west)) * mapWidth;
+  const y = ((adjustedBounds.north - lat) / (adjustedBounds.north - adjustedBounds.south)) * mapHeight;
   
   return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
 };
@@ -87,7 +83,7 @@ const PIRATE_LOCATIONS = [
   { id: 'acapulco', name: 'Acapulco', lat: 16.86, lon: -99.88, size: 'medium', type: 'treasure_port', faction: 'spanish' },
 ].map(location => ({
   ...location,
-  ...latLonToMapCoords(location.lat, location.lon, 1200, 800)
+  ...latLonToMapCoords(location.lat, location.lon)
 }));
 
 // Land masses for visual representation with accurate geography
@@ -233,7 +229,7 @@ const LAND_MASSES = [
 // Convert land masses to map coordinates
 const RENDERED_LAND_MASSES = LAND_MASSES.map(landMass => ({
   ...landMass,
-  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon, 1200, 800))
+  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon))
 }));
 
 function MapView() {
@@ -279,7 +275,7 @@ function MapView() {
     // Reverse the latLonTo3D conversion
     const lon = (worldPos[0] / 20) - 77.5;
     const lat = 20 - (worldPos[2] / 20);
-    return latLonToMapCoords(lat, lon, 1200, 800);
+    return latLonToMapCoords(lat, lon);
   };
 
   // Update player position on map based on 3D world position
@@ -364,8 +360,8 @@ function MapView() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0">
           {/* Map */}
-          <Card className="lg:col-span-3 bg-blue-900/90 border-amber-600 text-white flex flex-col">
-            <CardContent className="p-4 flex-1">
+          <Card className="lg:col-span-3 bg-blue-900/90 border-amber-600 text-white flex flex-col h-full">
+            <CardContent className="p-4 flex-1 overflow-hidden">
               <div className="relative w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg overflow-hidden">
                 {/* Water texture pattern */}
                 <div className="absolute inset-0 opacity-20">
@@ -376,45 +372,69 @@ function MapView() {
                 </div>
 
                 {/* Land masses */}
-                <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
+                  <defs>
+                    <pattern id="landTexture" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <rect width="4" height="4" fill="#8b7355"/>
+                      <circle cx="2" cy="2" r="0.5" fill="#7a6248"/>
+                    </pattern>
+                  </defs>
                   {RENDERED_LAND_MASSES.map((landMass, index) => (
-                    <polygon
-                      key={index}
-                      points={landMass.points.map(p => `${p.x},${p.y}`).join(' ')}
-                      fill="#4a5d23"
-                      stroke="#6b7c32"
-                      strokeWidth="1"
-                      opacity="0.8"
-                    />
+                    <g key={index}>
+                      {/* Shadow for depth */}
+                      <polygon
+                        points={landMass.points.map(p => `${p.x + 0.2},${p.y + 0.2}`).join(' ')}
+                        fill="#000000"
+                        opacity="0.3"
+                        fillRule="evenodd"
+                      />
+                      {/* Main land mass */}
+                      <polygon
+                        points={landMass.points.map(p => `${p.x},${p.y}`).join(' ')}
+                        fill="url(#landTexture)"
+                        stroke="#4a3f2a"
+                        strokeWidth="0.3"
+                        fillRule="evenodd"
+                      />
+                      {/* Highlight edge */}
+                      <polygon
+                        points={landMass.points.map(p => `${p.x},${p.y}`).join(' ')}
+                        fill="none"
+                        stroke="#a39171"
+                        strokeWidth="0.1"
+                        fillRule="evenodd"
+                        opacity="0.5"
+                      />
+                    </g>
                   ))}
                 </svg>
 
                 {/* Grid lines for navigation */}
-                <svg className="absolute inset-0 w-full h-full opacity-20" style={{ pointerEvents: 'none' }}>
+                <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
                   {/* Vertical lines (longitude) */}
-                  {Array.from({ length: 15 }, (_, i) => (
+                  {Array.from({ length: 10 }, (_, i) => (
                     <line
                       key={`v-${i}`}
-                      x1={i * 80}
+                      x1={i * 10}
                       y1="0"
-                      x2={i * 80}
-                      y2="800"
+                      x2={i * 10}
+                      y2="70"
                       stroke="#94a3b8"
-                      strokeWidth="0.5"
-                      strokeDasharray="2,2"
+                      strokeWidth="0.1"
+                      strokeDasharray="0.5,0.5"
                     />
                   ))}
                   {/* Horizontal lines (latitude) */}
-                  {Array.from({ length: 10 }, (_, i) => (
+                  {Array.from({ length: 7 }, (_, i) => (
                     <line
                       key={`h-${i}`}
                       x1="0"
-                      y1={i * 80}
-                      x2="1200"
-                      y2={i * 80}
+                      y1={i * 10}
+                      x2="100"
+                      y2={i * 10}
                       stroke="#94a3b8"
-                      strokeWidth="0.5"
-                      strokeDasharray="2,2"
+                      strokeWidth="0.1"
+                      strokeDasharray="0.5,0.5"
                     />
                   ))}
                 </svg>
@@ -427,8 +447,8 @@ function MapView() {
                       selectedIsland === location.id ? 'ring-2 ring-amber-400' : ''
                     }`}
                     style={{
-                      left: `${location.x}px`,
-                      top: `${location.y}px`,
+                      left: `${location.x}%`,
+                      top: `${location.y}%`,
                       transform: 'translate(-50%, -50%)'
                     }}
                     onClick={() => setSelectedIsland(location.id)}
@@ -472,8 +492,8 @@ function MapView() {
                     isSailing ? 'animate-bounce' : 'animate-pulse'
                   }`}
                   style={{
-                    left: `${playerMapPosition.x}px`,
-                    top: `${playerMapPosition.y}px`,
+                    left: `${playerMapPosition.x}%`,
+                    top: `${playerMapPosition.y}%`,
                     zIndex: 10
                   }}
                 >
@@ -485,8 +505,8 @@ function MapView() {
                   <div
                     className="absolute transform -translate-x-1/2 -translate-y-1/2"
                     style={{
-                      left: `${playerMapPosition.x}px`,
-                      top: `${playerMapPosition.y - 40}px`
+                      left: `${playerMapPosition.x}%`,
+                      top: `${playerMapPosition.y - 5}%`
                     }}
                   >
                     <div className="bg-black/80 text-white px-2 py-1 rounded text-xs">
@@ -512,8 +532,8 @@ function MapView() {
                       key={ship.id}
                       className="absolute w-4 h-4 bg-gray-800 rounded-full border border-red-400 flex items-center justify-center text-white text-xs transform -translate-x-1/2 -translate-y-1/2"
                       style={{
-                        left: `${mapPos.x}px`,
-                        top: `${mapPos.y}px`
+                        left: `${mapPos.x}%`,
+                        top: `${mapPos.y}%`
                       }}
                     >
                       ⚔️
@@ -529,8 +549,8 @@ function MapView() {
                       key={treasure.id}
                       className="absolute w-3 h-3 bg-yellow-500 rounded-full border border-yellow-300 transform -translate-x-1/2 -translate-y-1/2 animate-bounce"
                       style={{
-                        left: `${mapPos.x}px`,
-                        top: `${mapPos.y}px`
+                        left: `${mapPos.x}%`,
+                        top: `${mapPos.y}%`
                       }}
                       title={`Buried treasure: ${treasure.gold} gold`}
                     >
