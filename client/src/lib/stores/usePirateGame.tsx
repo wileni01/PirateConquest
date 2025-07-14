@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { GameState, Ship, Port, Cannonball, GameMode } from "../types";
 import { generateInitialPorts, createPlayerShip } from "../gameLogic";
-import { GameDate, WindData, getHistoricalWinds, calculateSailingTime, calculateBearing, ISLAND_DISTANCES, advanceDate } from "../windSystem";
+import { GameDate, WindData, getHistoricalWinds, calculateSailingTime, calculateBearing, PIRATE_LOCATIONS, advanceDate } from "../windSystem";
 
 interface PirateGameState extends GameState {
   gameState: GameMode;
@@ -455,29 +455,64 @@ export const usePirateGame = create<PirateGameState>()(
       const state = get();
       const currentPos = state.player.ship.position;
       
-      // Find destination island position (convert from Caribbean islands to world coordinates)
-      const ISLAND_POSITIONS: { [key: string]: [number, number, number] } = {
-        'jamaica': [50, 0, 20],
-        'cuba': [20, 0, -30],
-        'hispaniola': [80, 0, -10],
-        'puerto_rico': [120, 0, -5],
-        'barbados': [180, 0, 60],
-        'trinidad': [170, 0, 90],
-        'martinique': [160, 0, 55],
-        'antigua': [140, 0, 35],
-        'st_lucia': [165, 0, 65],
-        'dominica': [150, 0, 50],
+      // Find destination position (convert from map coordinates to world coordinates)
+      const WORLD_POSITIONS: { [key: string]: [number, number, number] } = {
+        'port_royal': [280, 0, 320],
+        'tortuga': [320, 0, 280],
+        'nassau': [360, 0, 240],
+        'havana': [220, 0, 260],
+        'port_au_prince': [330, 0, 290],
+        'santo_domingo': [350, 0, 290],
+        'san_juan': [420, 0, 270],
+        'ile_a_vache': [300, 0, 320],
+        'martinique': [460, 0, 340],
+        'barbados': [500, 0, 360],
+        'trinidad': [480, 0, 420],
+        'curacao': [440, 0, 400],
+        'dominica': [450, 0, 350],
+        'st_lucia': [470, 0, 360],
+        'antigua': [440, 0, 320],
+        'guadeloupe': [430, 0, 330],
+        'st_thomas': [410, 0, 270],
+        'new_orleans': [100, 0, 160],
+        'mobile': [140, 0, 170],
+        'pensacola': [160, 0, 180],
+        'veracruz': [60, 0, 240],
+        'campeche': [80, 0, 220],
+        'tampico': [70, 0, 200],
+        'galveston': [60, 0, 180],
+        'barataria': [110, 0, 170],
+        'biloxi': [130, 0, 175],
+        'charleston': [200, 0, 120],
+        'st_augustine': [220, 0, 160],
+        'key_west': [240, 0, 240],
+        'miami': [250, 0, 220],
+        'tampa': [230, 0, 200],
+        'savannah': [210, 0, 130],
+        'wilmington': [190, 0, 110],
+        'cape_hatteras': [180, 0, 100],
+        'cartagena': [380, 0, 440],
+        'panama_city': [340, 0, 480],
+        'portobelo': [350, 0, 480],
+        'santa_marta': [390, 0, 430],
+        'maracaibo': [410, 0, 440],
+        'caracas': [430, 0, 440],
+        'la_guaira': [425, 0, 435],
+        'belize_city': [90, 0, 260],
+        'acapulco': [20, 0, 280],
+        'merida': [70, 0, 210],
+        'cozumel': [95, 0, 230],
       };
       
-      const destPos = ISLAND_POSITIONS[islandId];
+      const destPos = WORLD_POSITIONS[islandId];
       if (!destPos) return;
       
       // Calculate distance and sailing time
-      const distance = ISLAND_DISTANCES[islandId] || { [islandId]: 100 };
-      const nearestKnownIsland = Object.keys(distance)[0];
-      const nauticalMiles = distance[nearestKnownIsland] || 100;
+      const currentLocation = getCurrentLocationId(currentPos);
+      const distance = PIRATE_LOCATIONS[currentLocation];
+      const nauticalMiles = distance?.[islandId] || 100;
       
-      const bearing = calculateBearing(nearestKnownIsland, islandId);
+      const bearing = calculateBearing(currentLocation, islandId);
       const sailingDays = calculateSailingTime(
         nauticalMiles,
         state.currentWinds.direction,
@@ -486,12 +521,15 @@ export const usePirateGame = create<PirateGameState>()(
         state.player.ship.speed
       );
       
-      console.log(`Setting sail to ${islandId}: ${nauticalMiles}nm, ${sailingDays} days`);
+      // Make sailing slower and more realistic (minimum 1 day, maximum based on distance)
+      const adjustedSailingDays = Math.max(1, Math.ceil(sailingDays * 2));
+      
+      console.log(`Setting sail to ${islandId}: ${nauticalMiles}nm, ${adjustedSailingDays} days`);
       
       set({
         isSailing: true,
         sailingProgress: 0,
-        sailingDuration: sailingDays,
+        sailingDuration: adjustedSailingDays,
         sailingDestination: islandId,
         sailingStartPosition: [...currentPos],
         sailingEndPosition: destPos,
@@ -503,8 +541,8 @@ export const usePirateGame = create<PirateGameState>()(
       const state = get();
       if (!state.isSailing) return;
       
-      // Progress sailing (1 real second = 1 game day for demonstration)
-      const progressIncrement = deltaTime / state.sailingDuration;
+      // Progress sailing (slower, more realistic: 3 real seconds = 1 game day)
+      const progressIncrement = deltaTime / (state.sailingDuration * 3);
       const newProgress = Math.min(1, state.sailingProgress + progressIncrement);
       
       // Interpolate ship position
@@ -556,3 +594,42 @@ export const usePirateGame = create<PirateGameState>()(
     },
   }))
 );
+
+// Helper function to find current location based on position
+function getCurrentLocationId(position: [number, number, number]): string {
+  const locations = [
+    { id: 'port_royal', pos: [280, 0, 320] },
+    { id: 'tortuga', pos: [320, 0, 280] },
+    { id: 'nassau', pos: [360, 0, 240] },
+    { id: 'havana', pos: [220, 0, 260] },
+    { id: 'port_au_prince', pos: [330, 0, 290] },
+    { id: 'santo_domingo', pos: [350, 0, 290] },
+    { id: 'san_juan', pos: [420, 0, 270] },
+    { id: 'ile_a_vache', pos: [300, 0, 320] },
+    { id: 'martinique', pos: [460, 0, 340] },
+    { id: 'barbados', pos: [500, 0, 360] },
+    { id: 'trinidad', pos: [480, 0, 420] },
+    { id: 'curacao', pos: [440, 0, 400] },
+    { id: 'new_orleans', pos: [100, 0, 160] },
+    { id: 'veracruz', pos: [60, 0, 240] },
+    { id: 'charleston', pos: [200, 0, 120] },
+    { id: 'cartagena', pos: [380, 0, 440] },
+  ];
+  
+  let closestLocation = 'port_royal';
+  let closestDistance = Infinity;
+  
+  for (const location of locations) {
+    const distance = Math.sqrt(
+      Math.pow(position[0] - location.pos[0], 2) +
+      Math.pow(position[2] - location.pos[2], 2)
+    );
+    
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestLocation = location.id;
+    }
+  }
+  
+  return closestLocation;
+}
