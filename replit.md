@@ -26,6 +26,15 @@ Cutthroats is a 3D pirate adventure game inspired by the 90s classic "Cutthroats
 - **Interactive Features**: Clickable locations with detailed information panels showing coordinates, faction, and port details
 - **Improved Readability**: Scaled up port icons and text for better visibility (large: 10x10, medium: 8x8, small: 6x6 pixels)
 
+### Dynamic Encounter System (January 2025)
+- **Faction-Based Encounters**: Different encounter types based on faction territories (Spanish treasure fleets, pirate raiders, merchant convoys, navy patrols)
+- **Historical Accuracy**: Encounters weighted by historical trade routes and faction presence (Spanish treasure routes, pirate havens, trade hubs)
+- **Strategic Gameplay**: Encounter probabilities influenced by player reputation, route value, seasonal patterns, and faction relationships
+- **Dynamic UI**: Interactive encounter interface with fight/flee options and detailed enemy force information
+- **Seasonal Variations**: Hurricane season affects encounter rates and treasure fleet movements (June-November)
+- **Route-Based Logic**: Valuable routes (treasure ports to Spanish territories) have higher chances of treasure fleet encounters
+- **Reputation Impact**: Player's reputation and infamy affect both encounter frequency and escape success rates
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -79,6 +88,7 @@ Preferred communication style: Simple, everyday language.
 - **Persistent Data**: Local storage integration for game saves
 - **Weather State**: Dynamic weather and time management system
 - **Fleet State**: Captured ship management and crew morale tracking
+- **Encounter State**: Dynamic encounter generation with faction-based logic and probability calculations
 
 ## Data Flow
 
@@ -100,6 +110,13 @@ Preferred communication style: Simple, everyday language.
 2. **Physics Simulation**: Cannonballs follow ballistic trajectories
 3. **Collision Detection**: Real-time collision checking between projectiles and ships
 4. **Damage Application**: Health reduction and potential ship destruction
+
+### Encounter System Flow
+1. **Route Analysis**: System evaluates current sailing route for encounter probability
+2. **Faction Logic**: Encounters generated based on faction territories and historical accuracy
+3. **Probability Calculation**: Factors in route value, player reputation, season, and faction presence
+4. **Encounter Resolution**: Player chooses fight or flee, with reputation affecting escape success
+5. **Combat Transition**: Fighting transitions to combat mode with generated enemy ships
 
 ## External Dependencies
 

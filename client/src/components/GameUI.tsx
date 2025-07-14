@@ -4,7 +4,7 @@ import { Progress } from "./ui/progress";
 import { Button } from "./ui/button";
 
 function GameUI() {
-  const { player, gameState, setGameState, restartGame, weather, timeOfDay } = usePirateGame();
+  const { player, gameState, setGameState, restartGame, weather, timeOfDay, activeEncounter, resolveEncounter } = usePirateGame();
   const ship = player.ship;
   
   if (gameState !== 'sailing' && gameState !== 'combat') return null;
@@ -123,6 +123,80 @@ function GameUI() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Encounter UI */}
+      {activeEncounter && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center pointer-events-auto">
+          <Card className="bg-gradient-to-b from-red-900/95 to-black/95 border-2 border-yellow-500 text-white p-8 max-w-lg animate-pulse shadow-2xl">
+            <CardContent className="space-y-6 text-center">
+              <h2 className="text-3xl font-bold text-yellow-400 animate-bounce">⚠️ SHIPS SPOTTED! ⚠️</h2>
+              
+              <div className="space-y-4">
+                <p className="text-xl">
+                  {activeEncounter.type === 'treasure_fleet' && (
+                    <>
+                      <span className="text-yellow-400 font-bold">Spanish Treasure Fleet!</span>
+                      <br />
+                      <span className="text-sm">Heavily armed galleons loaded with gold!</span>
+                    </>
+                  )}
+                  {activeEncounter.type === 'pirates' && (
+                    <>
+                      <span className="text-red-400 font-bold">Pirate Raiders!</span>
+                      <br />
+                      <span className="text-sm">Bloodthirsty cutthroats seeking plunder!</span>
+                    </>
+                  )}
+                  {activeEncounter.type === 'navy_patrol' && (
+                    <>
+                      <span className="text-blue-400 font-bold">Navy Patrol!</span>
+                      <br />
+                      <span className="text-sm">{activeEncounter.faction} warships enforcing the law!</span>
+                    </>
+                  )}
+                  {activeEncounter.type === 'merchant_convoy' && (
+                    <>
+                      <span className="text-green-400 font-bold">Merchant Convoy!</span>
+                      <br />
+                      <span className="text-sm">Trading vessels with valuable cargo!</span>
+                    </>
+                  )}
+                </p>
+                
+                <div className="bg-black/50 p-4 rounded-lg">
+                  <p className="text-lg font-bold mb-2">Enemy Forces:</p>
+                  <div className="space-y-1">
+                    {activeEncounter.ships.map((ship, index) => (
+                      <div key={index} className="text-sm">
+                        {ship.type.toUpperCase()} - {ship.crew} crew, {ship.cannons} cannons
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={() => resolveEncounter('fight')}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 text-lg animate-pulse"
+                >
+                  ⚔️ ATTACK!
+                </Button>
+                <Button
+                  onClick={() => resolveEncounter('flee')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 text-lg"
+                >
+                  🏃 FLEE!
+                </Button>
+              </div>
+              
+              <p className="text-xs text-gray-400">
+                Your reputation affects your chances of escape!
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Game Over screen */}
       {ship.health <= 0 && (
