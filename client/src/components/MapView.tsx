@@ -237,12 +237,12 @@ function MapView() {
   if (gameState !== 'map') return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-600 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-600 p-4 overflow-hidden">
+      <div className="max-w-7xl mx-auto h-full flex flex-col">
         {/* Header */}
-        <Card className="mb-4 bg-black/80 border-amber-600 text-white">
-          <CardHeader>
-            <CardTitle className="text-center text-3xl font-bold text-amber-400">
+        <Card className="mb-4 bg-black/80 border-amber-600 text-white flex-shrink-0">
+          <CardHeader className="py-3">
+            <CardTitle className="text-center text-2xl font-bold text-amber-400">
               Caribbean Sea - Captain's Chart
             </CardTitle>
             <div className="flex justify-center space-x-6 text-sm">
@@ -258,11 +258,11 @@ function MapView() {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0">
           {/* Map */}
-          <Card className="lg:col-span-3 bg-blue-900/90 border-amber-600 text-white">
-            <CardContent className="p-4">
-              <div className="relative w-full h-[600px] bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg overflow-hidden">
+          <Card className="lg:col-span-3 bg-blue-900/90 border-amber-600 text-white flex flex-col">
+            <CardContent className="p-4 flex-1">
+              <div className="relative w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg overflow-hidden">
                 {/* Water texture pattern */}
                 <div className="absolute inset-0 opacity-20">
                   <div className="w-full h-full bg-repeat" style={{
@@ -435,43 +435,43 @@ function MapView() {
           </Card>
 
           {/* Map Legend & Ship Status */}
-          <div className="space-y-4">
-            <Card className="bg-black/80 border-amber-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-amber-400">Map Legend</CardTitle>
+          <div className="space-y-4 flex flex-col overflow-y-auto">
+            <Card className="bg-black/80 border-amber-600 text-white flex-shrink-0">
+              <CardHeader className="py-2">
+                <CardTitle className="text-amber-400 text-sm">Map Legend</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 py-2">
                 <div className="text-xs space-y-1">
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-red-600 rounded-full"></div>
                     <span>Pirate Havens</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
                     <span>Spanish Ports</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                     <span>English Ports</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
                     <span>French Ports</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                     <span>Dutch Ports</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-cyan-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-cyan-600 rounded-full"></div>
                     <span>Danish Ports</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                     <span>Neutral Islands</span>
                   </div>
                 </div>
-                <div className="text-xs pt-2 border-t border-gray-600">
+                <div className="text-xs pt-1 border-t border-gray-600">
                   <p>💰 = Treasure Port</p>
                   <p>🏴‍☠️ = Pirate Haven</p>
                   <p>🏛️ = Major Port</p>
@@ -481,11 +481,11 @@ function MapView() {
               </CardContent>
             </Card>
             
-            <Card className="bg-black/80 border-amber-600 text-white">
-              <CardHeader>
-                <CardTitle className="text-amber-400">Ship Status</CardTitle>
+            <Card className="bg-black/80 border-amber-600 text-white flex-1 min-h-0">
+              <CardHeader className="py-2">
+                <CardTitle className="text-amber-400 text-sm">Ship Status</CardTitle>
               </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 py-2 overflow-y-auto">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Hull:</span>
@@ -536,16 +536,16 @@ function MapView() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mt-auto">
                 <Button 
                   onClick={() => setGameState('sailing')}
-                  className="w-full bg-blue-600 hover:bg-blue-500"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-sm py-1"
                 >
                   Set Sail
                 </Button>
                 <Button 
                   onClick={() => setGameState('menu')}
-                  className="w-full bg-gray-600 hover:bg-gray-500"
+                  className="w-full bg-gray-600 hover:bg-gray-500 text-sm py-1"
                 >
                   Back to Menu
                 </Button>
@@ -557,11 +557,11 @@ function MapView() {
 
         {/* Location Details */}
         {selectedIsland && (
-          <Card className="mt-4 bg-black/80 border-amber-600 text-white">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-amber-400">
+          <Card className="mt-4 bg-black/80 border-amber-600 text-white flex-shrink-0">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1 flex-1">
+                  <h3 className="text-lg font-bold text-amber-400">
                     {PIRATE_LOCATIONS.find(l => l.id === selectedIsland)?.name}
                   </h3>
                   {(() => {
@@ -575,8 +575,8 @@ function MapView() {
                     
                     return (
                       <div className="space-y-1">
-                        <p className="text-sm"><strong>Type:</strong> {location.type.replace(/_/g, ' ')}</p>
-                        <p className="text-sm"><strong>Faction:</strong> <Badge className={`${
+                        <p className="text-xs"><strong>Type:</strong> {location.type.replace(/_/g, ' ')}</p>
+                        <p className="text-xs"><strong>Faction:</strong> <Badge className={`text-xs ${
                           location.faction === 'spanish' ? 'bg-yellow-600' :
                           location.faction === 'english' ? 'bg-blue-600' :
                           location.faction === 'french' ? 'bg-purple-600' :
@@ -584,14 +584,14 @@ function MapView() {
                           location.faction === 'danish' ? 'bg-cyan-600' :
                           location.faction === 'pirate' ? 'bg-red-600' : 'bg-gray-600'
                         }`}>{location.faction}</Badge></p>
-                        <p className="text-sm"><strong>Size:</strong> {location.size}</p>
-                        <p className="text-sm"><strong>Coordinates:</strong> {location.lat?.toFixed(1)}°N, {Math.abs(location.lon || 0).toFixed(1)}°W</p>
+                        <p className="text-xs"><strong>Size:</strong> {location.size}</p>
+                        <p className="text-xs"><strong>Coordinates:</strong> {location.lat?.toFixed(1)}°N, {Math.abs(location.lon || 0).toFixed(1)}°W</p>
                         
                         {port && (
-                          <div className="pt-2 border-t border-gray-600">
-                            <p className="text-sm"><strong>Governor:</strong> {port.governor.name}</p>
-                            <p className="text-sm"><strong>Attitude:</strong> {port.governor.attitude}</p>
-                            <p className="text-sm"><strong>Fortification:</strong> {port.fortification}/10</p>
+                          <div className="pt-1 border-t border-gray-600">
+                            <p className="text-xs"><strong>Governor:</strong> {port.governor.name}</p>
+                            <p className="text-xs"><strong>Attitude:</strong> {port.governor.attitude}</p>
+                            <p className="text-xs"><strong>Fortification:</strong> {port.fortification}/10</p>
                           </div>
                         )}
                       </div>
@@ -603,10 +603,10 @@ function MapView() {
                     const location = PIRATE_LOCATIONS.find(l => l.id === selectedIsland);
                     if (location) handleSailTo(location);
                   }}
-                  className="bg-green-600 hover:bg-green-500"
+                  className="bg-green-600 hover:bg-green-500 text-sm py-1 px-2 ml-2"
                   disabled={isSailing}
                 >
-                  {isSailing ? 'Currently Sailing...' : 'Sail To Location'}
+                  {isSailing ? 'Sailing...' : 'Sail To'}
                 </Button>
               </div>
             </CardContent>

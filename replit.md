@@ -17,6 +17,14 @@ Cutthroats is a 3D pirate adventure game inspired by the 90s classic "Cutthroats
 - **Enhanced UI**: Added morale tracking, weather display, and comprehensive pirate statistics
 - **Historical Authenticity**: Added 10 authentic Caribbean ports with historically accurate governors and factions
 
+### Map System Overhaul (Latest Update)
+- **Realistic Geographic Projection**: Implemented authentic lat/lon coordinate system for all Caribbean locations
+- **Land Mass Visualization**: Added proper coastlines for Florida, Cuba, Jamaica, Hispaniola, Puerto Rico, Venezuela, and Yucatan Peninsula
+- **Expanded Location Database**: 30+ historically accurate pirate locations with real coordinates
+- **Enhanced Visual Design**: Navigation grid lines, faction-colored ports, and comprehensive map legend
+- **Responsive Layout**: Fixed screen overflow issues with flexible layout system
+- **Interactive Features**: Clickable locations with detailed information panels showing coordinates, faction, and port details
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
