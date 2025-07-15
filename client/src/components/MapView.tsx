@@ -201,6 +201,36 @@ export function MapView() {
   // Adjust positions to prevent overlap
   const adjustedLocations = adjustLabelPositions(CARIBBEAN_LOCATIONS);
 
+  // Convert player's 3D position to lat/lon
+  const getPlayerLatLon = () => {
+    // Find the closest location to determine approximate lat/lon
+    // This is a simplified approach - in reality we'd need proper conversion
+    let closestLocation = CARIBBEAN_LOCATIONS[0];
+    let closestDistance = Infinity;
+    
+    // First, try to find if player is at a known port
+    const playerPort = ports.find(p => 
+      Math.abs(p.position[0] - player.ship.position[0]) < 0.1 && 
+      Math.abs(p.position[2] - player.ship.position[2]) < 0.1
+    );
+    
+    if (playerPort) {
+      // Find the matching location in CARIBBEAN_LOCATIONS
+      const matchingLocation = CARIBBEAN_LOCATIONS.find(loc => loc.id === playerPort.id);
+      if (matchingLocation) {
+        return { lat: matchingLocation.lat, lon: matchingLocation.lon };
+      }
+    }
+    
+    // If not at a port, estimate position based on interpolation
+    // For now, use Port Royal as default (this would need proper interpolation in a real game)
+    const portRoyal = CARIBBEAN_LOCATIONS.find(loc => loc.id === 'port_royal');
+    return { lat: portRoyal?.lat || 17.94, lon: portRoyal?.lon || -76.84 };
+  };
+
+  const playerLatLon = getPlayerLatLon();
+  const playerMapCoords = latLonToMapCoords(playerLatLon.lat, playerLatLon.lon);
+
   // Handle location selection for sailing
   const handleLocationClick = (location: any) => {
     const playerPort = ports.find(p => p.position[0] === player.ship.position[0] && p.position[2] === player.ship.position[2]);
@@ -570,6 +600,59 @@ export function MapView() {
                 </g>
               );
             })}
+
+            {/* Player Ship Marker */}
+            <g transform={`translate(${playerMapCoords.x}, ${playerMapCoords.y})`}>
+              {/* Ship shadow */}
+              <ellipse cx="0" cy="0.3" rx="1.2" ry="0.4" fill="#000" opacity="0.3" />
+              
+              {/* Ship body */}
+              <path 
+                d="M -1,0 L -0.8,-0.8 L 0.8,-0.8 L 1,0 L 0.5,0.5 L -0.5,0.5 Z" 
+                fill="#8B4513" 
+                stroke="#654321" 
+                strokeWidth="0.1"
+              />
+              
+              {/* Sail */}
+              <path 
+                d="M 0,-0.8 L 0,-2.5 L 1.5,-1.5 Z" 
+                fill="#FFF" 
+                stroke="#CCC" 
+                strokeWidth="0.1"
+                opacity="0.9"
+              />
+              
+              {/* Flag */}
+              <rect x="0" y="-2.8" width="0.8" height="0.5" fill="#FF0000" />
+              
+              {/* Player indicator ring */}
+              <circle 
+                cx="0" 
+                cy="0" 
+                r="2" 
+                fill="none" 
+                stroke="#FFD700" 
+                strokeWidth="0.3" 
+                strokeDasharray="0.5 0.5"
+                className="animate-spin"
+                style={{ animationDuration: '3s' }}
+              />
+              
+              {/* "You are here" text */}
+              <text 
+                x="0" 
+                y="3" 
+                fontSize="1.2" 
+                fill="#FFD700" 
+                stroke="#000" 
+                strokeWidth="0.2" 
+                textAnchor="middle"
+                fontWeight="bold"
+              >
+                YOUR SHIP
+              </text>
+            </g>
 
             {/* Wind rose */}
             <g transform="translate(90, 60)">
