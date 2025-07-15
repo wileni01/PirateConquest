@@ -7,7 +7,7 @@ import Game from "./components/Game";
 import Menu from "./components/Menu";
 import GameUI from "./components/GameUI";
 import TradingMenu from "./components/TradingMenu";
-import { MapView } from "./components/MapView";
+import MapView from "./components/MapView";
 import "@fontsource/inter";
 
 // Define control keys for the pirate game

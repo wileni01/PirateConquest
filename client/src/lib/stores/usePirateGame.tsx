@@ -3,7 +3,6 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { GameState, Ship, Port, Cannonball, GameMode } from "../types";
 import { generateInitialPorts, createPlayerShip } from "../gameLogic";
 import { GameDate, WindData, getHistoricalWinds, calculateSailingTime, calculateBearing, PIRATE_LOCATIONS, advanceDate } from "../windSystem";
-import { CARIBBEAN_LOCATIONS } from "../caribbeanLocations";
 
 interface PirateGameState extends GameState {
   gameState: GameMode;
@@ -16,12 +15,6 @@ interface PirateGameState extends GameState {
   sailingDestination?: string;
   sailingStartPosition: [number, number, number];
   sailingEndPosition: [number, number, number];
-  lastEncounterCheck: number;
-  activeEncounter?: {
-    ships: Ship[];
-    type: 'treasure_fleet' | 'pirates' | 'navy_patrol' | 'merchant_convoy';
-    faction: string;
-  };
   
   // Actions
   startGame: () => void;
@@ -42,8 +35,6 @@ interface PirateGameState extends GameState {
   updateTimeOfDay: () => void;
   sailToIsland: (islandId: string) => void;
   updateSailing: (deltaTime: number) => void;
-  checkForEncounters: () => void;
-  resolveEncounter: (action: 'fight' | 'flee') => void;
 }
 
 const initialGameDate: GameDate = { year: 1692, month: 3, day: 15 };
@@ -84,8 +75,6 @@ export const usePirateGame = create<PirateGameState>()(
     sailingDestination: undefined,
     sailingStartPosition: [0, 0, 0],
     sailingEndPosition: [0, 0, 0],
-    lastEncounterCheck: 0,
-    activeEncounter: undefined,
 
     startGame: () => {
       console.log("Starting pirate adventure!");
@@ -544,9 +533,6 @@ export const usePirateGame = create<PirateGameState>()(
         // Update weather and time based on new date
         if (Math.random() < 0.3) get().updateWeather();
         if (Math.random() < 0.2) get().updateTimeOfDay();
-        
-        // Check for encounters during sailing
-        get().checkForEncounters();
       }
       
       // Complete sailing
@@ -560,319 +546,10 @@ export const usePirateGame = create<PirateGameState>()(
         });
       }
     },
-
-    checkForEncounters: () => {
-      const state = get();
-      if (!state.isSailing || state.activeEncounter) return;
-      
-      // Check once per game day (every 10% of journey)
-      const currentCheck = Math.floor(state.sailingProgress * 10);
-      if (currentCheck <= state.lastEncounterCheck) return;
-      
-      set({ lastEncounterCheck: currentCheck });
-      
-      // Get route information
-      const currentLocation = getCurrentLocationId(state.sailingStartPosition);
-      const destinationLocation = state.sailingDestination;
-      if (!destinationLocation) return;
-      
-      // Analyze route for encounter probability
-      const routeData = analyzeRoute(currentLocation, destinationLocation, state);
-      
-      // Random encounter check based on route danger
-      if (Math.random() < routeData.encounterChance) {
-        const encounter = generateEncounter(routeData, state);
-        
-        // Spawn encounter ships
-        const encounterShips = [];
-        for (let i = 0; i < encounter.shipCount; i++) {
-          const ship = createEncounterShip(encounter.type, encounter.faction, i, state.player.ship.position);
-          encounterShips.push(ship);
-        }
-        
-        set({
-          activeEncounter: {
-            ships: encounterShips,
-            type: encounter.type,
-            faction: encounter.faction
-          },
-          ships: [...state.ships, ...encounterShips],
-          gameState: 'combat' // Trigger combat mode
-        });
-        
-        console.log(`Encounter! ${encounter.shipCount} ${encounter.faction} ${encounter.type} spotted!`);
-      }
-    },
-
-    resolveEncounter: (action: 'fight' | 'flee') => {
-      const state = get();
-      if (!state.activeEncounter) return;
-      
-      if (action === 'flee') {
-        // Flee attempt based on ship speed and weather
-        const fleeChance = 0.6 + (state.player.ship.speed / 20) + (state.weather === 'fog' ? 0.2 : 0);
-        
-        if (Math.random() < fleeChance) {
-          // Successful escape
-          set({
-            activeEncounter: undefined,
-            ships: state.ships.filter(s => !state.activeEncounter?.ships.find(es => es.id === s.id)),
-            gameState: 'map'
-          });
-          console.log("Successfully escaped!");
-        } else {
-          // Failed escape - take damage
-          const damage = 10 + Math.random() * 20;
-          set((state) => ({
-            player: {
-              ...state.player,
-              ship: {
-                ...state.player.ship,
-                health: Math.max(0, state.player.ship.health - damage)
-              }
-            }
-          }));
-          console.log("Escape failed! Took damage!");
-        }
-      } else {
-        // Fight - handled by existing combat system
-        set({ gameState: 'combat' });
-      }
-    },
   }))
 );
 
-// Analyze route for encounter probability and type
-function analyzeRoute(from: string, to: string, state: PirateGameState) {
-  const fromLoc = CARIBBEAN_LOCATIONS.find(l => l.id === from);
-  const toLoc = CARIBBEAN_LOCATIONS.find(l => l.id === to);
-  
-  if (!fromLoc || !toLoc) {
-    return { encounterChance: 0.1, routeType: 'unknown', mainFaction: 'pirate' };
-  }
-  
-  // Determine route characteristics
-  const isSpanishTreasureRoute = 
-    (fromLoc.faction === 'spanish' && toLoc.type === 'treasure_port') ||
-    (toLoc.faction === 'spanish' && fromLoc.type === 'treasure_port') ||
-    (fromLoc.id === 'cartagena' || toLoc.id === 'cartagena') ||
-    (fromLoc.id === 'veracruz' || toLoc.id === 'veracruz');
-  
-  const isPirateRoute = 
-    fromLoc.type === 'pirate_haven' || toLoc.type === 'pirate_haven' ||
-    fromLoc.faction === 'pirate' || toLoc.faction === 'pirate';
-  
-  const isMajorTradeRoute = 
-    fromLoc.type === 'major_port' || toLoc.type === 'major_port';
-  
-  // Calculate base encounter chance
-  let encounterChance = 0.2; // Base 20% chance
-  
-  if (isSpanishTreasureRoute) {
-    encounterChance += 0.3; // Spanish treasure routes are heavily patrolled
-  }
-  if (isPirateRoute) {
-    encounterChance += 0.2; // Pirate waters are dangerous
-  }
-  if (isMajorTradeRoute) {
-    encounterChance += 0.1; // Trade routes attract merchants and pirates
-  }
-  
-  // Seasonal modifier (hurricane season = fewer encounters)
-  if (state.currentDate.month >= 6 && state.currentDate.month <= 11) {
-    encounterChance *= 0.7;
-  }
-  
-  // Player reputation/infamy modifier
-  if (state.player.infamy > 50) {
-    encounterChance += 0.1; // High infamy attracts navy patrols
-  }
-  
-  // Determine main faction for route
-  const factions = [fromLoc.faction, toLoc.faction].filter(f => f !== 'neutral');
-  const mainFaction = factions.length > 0 ? factions[0] : 'pirate';
-  
-  return {
-    encounterChance: Math.min(0.6, encounterChance), // Cap at 60%
-    isSpanishTreasureRoute,
-    isPirateRoute,
-    isMajorTradeRoute,
-    mainFaction,
-    routeType: isSpanishTreasureRoute ? 'treasure' : 
-               isPirateRoute ? 'pirate' : 
-               isMajorTradeRoute ? 'trade' : 'coastal'
-  };
-}
-
-// Generate encounter based on route analysis
-function generateEncounter(routeData: any, state: PirateGameState) {
-  const { routeType, mainFaction } = routeData;
-  
-  // Spanish treasure fleet season (May-August)
-  const isTreasureFleetSeason = state.currentDate.month >= 5 && state.currentDate.month <= 8;
-  
-  let encounterType: 'treasure_fleet' | 'pirates' | 'navy_patrol' | 'merchant_convoy';
-  let faction = mainFaction;
-  let shipCount = 1;
-  
-  if (routeType === 'treasure' && isTreasureFleetSeason && Math.random() < 0.4) {
-    // Spanish treasure fleet!
-    encounterType = 'treasure_fleet';
-    faction = 'spanish';
-    shipCount = 2 + Math.floor(Math.random() * 3); // 2-4 ships
-  } else if (routeType === 'pirate' || Math.random() < 0.3) {
-    // Pirates
-    encounterType = 'pirates';
-    faction = 'pirate';
-    shipCount = 1 + Math.floor(Math.random() * 2); // 1-2 ships
-  } else if (state.player.infamy > 75 && Math.random() < 0.5) {
-    // Navy patrol hunting high-infamy players
-    encounterType = 'navy_patrol';
-    shipCount = 2 + Math.floor(Math.random() * 2); // 2-3 ships
-  } else {
-    // Merchant convoy
-    encounterType = 'merchant_convoy';
-    shipCount = 1 + Math.floor(Math.random() * 3); // 1-3 ships
-  }
-  
-  return { type: encounterType, faction, shipCount };
-}
-
-// Create a ship for the encounter
-function createEncounterShip(
-  type: 'treasure_fleet' | 'pirates' | 'navy_patrol' | 'merchant_convoy',
-  faction: string,
-  index: number,
-  playerPos: [number, number, number]
-): Ship {
-  // Position ships in formation around player
-  const angle = (index / 3) * Math.PI * 2;
-  const distance = 20 + Math.random() * 10;
-  const position: [number, number, number] = [
-    playerPos[0] + Math.cos(angle) * distance,
-    0,
-    playerPos[2] + Math.sin(angle) * distance
-  ];
-  
-  const baseShip = {
-    id: `encounter_${Date.now()}_${index}`,
-    position,
-    rotation: angle + Math.PI, // Face the player
-    isPlayer: false,
-    isEnemy: true,
-    lastFired: 0,
-  };
-  
-  switch (type) {
-    case 'treasure_fleet':
-      return {
-        ...baseShip,
-        type: 'galleon',
-        health: 150,
-        maxHealth: 150,
-        crew: 100,
-        maxCrew: 100,
-        cannons: 32,
-        speed: 5,
-        morale: 90,
-        maxMorale: 100,
-        cargo: {
-          food: 50,
-          rum: 30,
-          ammunition: 80,
-          treasure: 200 + Math.floor(Math.random() * 300) // Lots of treasure!
-        },
-        maxCargo: 500,
-      };
-    
-    case 'navy_patrol':
-      return {
-        ...baseShip,
-        type: 'frigate',
-        health: 120,
-        maxHealth: 120,
-        crew: 80,
-        maxCrew: 80,
-        cannons: 24,
-        speed: 8,
-        morale: 95,
-        maxMorale: 100,
-        cargo: {
-          food: 40,
-          rum: 20,
-          ammunition: 100,
-          treasure: 50
-        },
-        maxCargo: 300,
-      };
-    
-    case 'pirates':
-      return {
-        ...baseShip,
-        type: 'sloop',
-        health: 80,
-        maxHealth: 80,
-        crew: 40,
-        maxCrew: 40,
-        cannons: 12,
-        speed: 10,
-        morale: 80,
-        maxMorale: 100,
-        cargo: {
-          food: 20,
-          rum: 40,
-          ammunition: 50,
-          treasure: 100 + Math.floor(Math.random() * 100)
-        },
-        maxCargo: 200,
-      };
-    
-    default: // merchant_convoy
-      return {
-        ...baseShip,
-        type: 'merchant',
-        health: 60,
-        maxHealth: 60,
-        crew: 30,
-        maxCrew: 30,
-        cannons: 8,
-        speed: 6,
-        morale: 60,
-        maxMorale: 100,
-        cargo: {
-          food: 80,
-          rum: 60,
-          ammunition: 20,
-          treasure: 50 + Math.floor(Math.random() * 50)
-        },
-        maxCargo: 400,
-      };
-  }
-}
-
 // Convert lat/lon to 3D world coordinates
-// Helper function to find current location from position
-function getCurrentLocationId(position: [number, number, number]): string {
-  // Find the nearest location based on position
-  let minDistance = Infinity;
-  let closestLocation = 'unknown';
-  
-  for (const location of CARIBBEAN_LOCATIONS) {
-    const locPos = latLonTo3D(location.lat, location.lon);
-    const distance = Math.sqrt(
-      Math.pow(position[0] - locPos[0], 2) + 
-      Math.pow(position[2] - locPos[2], 2)
-    );
-    
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestLocation = location.id;
-    }
-  }
-  
-  return closestLocation;
-}
-
 function latLonTo3D(lat: number, lon: number): [number, number, number] {
   // Map latitude and longitude to 3D world space
   // Caribbean roughly spans 8°N to 32°N, -100°W to -55°W
@@ -944,4 +621,22 @@ const WORLD_POSITIONS: { [key: string]: [number, number, number] } = {
   'st_vincent': latLonTo3D(13.25, -61.19),
 };
 
-
+// Helper function to find current location based on position
+function getCurrentLocationId(position: [number, number, number]): string {
+  let closestLocation = 'port_royal';
+  let closestDistance = Infinity;
+  
+  for (const [locationId, worldPos] of Object.entries(WORLD_POSITIONS)) {
+    const distance = Math.sqrt(
+      Math.pow(position[0] - worldPos[0], 2) +
+      Math.pow(position[2] - worldPos[2], 2)
+    );
+    
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestLocation = locationId;
+    }
+  }
+  
+  return closestLocation;
+}
