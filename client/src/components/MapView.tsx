@@ -184,7 +184,10 @@ export function MapView() {
     timeOfDay,
     sailToIsland,
     player,
-    gameState
+    gameState,
+    isSailing,
+    sailingProgress,
+    sailingDestination
   } = usePirateGame();
   
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -230,6 +233,17 @@ export function MapView() {
 
   const playerLatLon = getPlayerLatLon();
   const playerMapCoords = latLonToMapCoords(playerLatLon.lat, playerLatLon.lon);
+
+  // Update sailing progress while on map
+  useEffect(() => {
+    if (isSailing && gameState === 'map') {
+      const interval = setInterval(() => {
+        usePirateGame.getState().updateSailing(0.033); // ~30fps update
+      }, 33);
+      
+      return () => clearInterval(interval);
+    }
+  }, [gameState, isSailing]);
 
   // Handle location selection for sailing
   const handleLocationClick = (location: any) => {
@@ -601,6 +615,59 @@ export function MapView() {
               );
             })}
 
+            {/* Sailing Route Indicator */}
+            {isSailing && sailingDestination && (
+              <>
+                {/* Find destination coordinates */}
+                {(() => {
+                  const destLocation = CARIBBEAN_LOCATIONS.find(loc => loc.id === sailingDestination);
+                  if (!destLocation) return null;
+                  const destCoords = latLonToMapCoords(destLocation.lat, destLocation.lon);
+                  
+                  return (
+                    <>
+                      {/* Route line */}
+                      <line
+                        x1={playerMapCoords.x}
+                        y1={playerMapCoords.y}
+                        x2={destCoords.x}
+                        y2={destCoords.y}
+                        stroke="#3B82F6"
+                        strokeWidth="0.3"
+                        strokeDasharray="1 0.5"
+                        opacity="0.6"
+                      />
+                      
+                      {/* Destination marker */}
+                      <circle
+                        cx={destCoords.x}
+                        cy={destCoords.y}
+                        r="1"
+                        fill="none"
+                        stroke="#3B82F6"
+                        strokeWidth="0.2"
+                        className="animate-pulse"
+                      />
+                      
+                      {/* Progress indicator */}
+                      <text
+                        x={playerMapCoords.x}
+                        y={playerMapCoords.y - 4}
+                        fontSize="1.5"
+                        fill="#3B82F6"
+                        stroke="#FFF"
+                        strokeWidth="0.3"
+                        textAnchor="middle"
+                        fontWeight="bold"
+                      >
+                        Sailing {Math.round(sailingProgress * 100)}%
+                      </text>
+                    </>
+                  );
+                })()}
+              </>
+            )}
+
             {/* Player Ship Marker */}
             <g transform={`translate(${playerMapCoords.x}, ${playerMapCoords.y})`}>
               {/* Ship shadow */}
@@ -775,74 +842,75 @@ export function MapView() {
         </div>
       </div>
 
-      {/* Location Details Modal */}
+      {/* Location Details Panel at Bottom */}
       {selectedLocation && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-30 backdrop-blur-sm">
-          <Card className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Anchor className="w-6 h-6" />
-                  {selectedLocation.name}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {selectedLocation.lat.toFixed(2)}°N, {Math.abs(selectedLocation.lon).toFixed(2)}°W
-                </p>
+        <Card className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-b from-amber-100 to-amber-50 border-2 border-amber-600 shadow-2xl max-w-2xl w-full mx-4 z-30">
+          <div className="p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-3">
+                <Anchor className="w-6 h-6 text-amber-700" />
+                <div>
+                  <h2 className="text-xl font-bold text-amber-900">{selectedLocation.name}</h2>
+                  <p className="text-sm text-amber-700">
+                    {selectedLocation.lat.toFixed(2)}°N, {Math.abs(selectedLocation.lon).toFixed(2)}°W
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedLocation(null)}
-                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                className="p-1 hover:bg-amber-200 rounded transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-amber-700" />
               </button>
             </div>
             
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Type:</span>
-                <span className="capitalize">{selectedLocation.type.replace('_', ' ')}</span>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <span className="text-sm font-semibold text-amber-700">Type:</span>
+                <p className="capitalize text-amber-900">{selectedLocation.type.replace('_', ' ')}</p>
               </div>
               
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Faction:</span>
-                <div className="flex items-center gap-1">
+              <div>
+                <span className="text-sm font-semibold text-amber-700">Faction:</span>
+                <div className="flex items-center gap-1 mt-1">
                   <div 
                     className="w-4 h-4 rounded-full" 
                     style={{ backgroundColor: factionColors[selectedLocation.faction as keyof typeof factionColors] || '#6b7280' }}
                   />
-                  <span className="capitalize">{selectedLocation.faction}</span>
-                  <span>({getFactionSymbol(selectedLocation.faction)})</span>
+                  <span className="capitalize text-amber-900">{selectedLocation.faction}</span>
+                  <span className="text-amber-700">({getFactionSymbol(selectedLocation.faction)})</span>
                 </div>
               </div>
               
-              {selectedLocation.isPlayerLocation ? (
-                <div className="bg-yellow-100 border border-yellow-400 rounded p-3 text-center">
-                  <p className="font-semibold text-yellow-800">You are here!</p>
-                </div>
-              ) : (
-                <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                  <p className="text-sm text-blue-800">
-                    {selectedLocation.type === 'treasure_port' && "Famous for Spanish treasure fleets!"}
-                    {selectedLocation.type === 'pirate_haven' && "A notorious haven for pirates and privateers."}
-                    {selectedLocation.type === 'major_port' && "A bustling center of trade and commerce."}
-                    {selectedLocation.type === 'port' && "A peaceful trading port."}
-                    {selectedLocation.type === 'island' && "A small island settlement."}
-                  </p>
-                </div>
-              )}
-              
-              {selectedLocation.canSailTo && (
-                <button
-                  onClick={handleSailToLocation}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <Navigation className="w-5 h-5" />
-                  Sail to {selectedLocation.name}
-                </button>
-              )}
+              <div className="flex items-center">
+                {selectedLocation.isPlayerLocation ? (
+                  <Badge className="bg-yellow-500 text-black">
+                    <Ship className="w-4 h-4 mr-1" />
+                    You are here!
+                  </Badge>
+                ) : selectedLocation.canSailTo && (
+                  <button
+                    onClick={handleSailToLocation}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
+                  >
+                    <Navigation className="w-4 h-4" />
+                    Sail Here
+                  </button>
+                )}
+              </div>
             </div>
-          </Card>
-        </div>
+            
+            {selectedLocation.type === 'treasure_port' && (
+              <p className="text-sm text-amber-700 mt-2 italic">Famous for Spanish treasure fleets!</p>
+            )}
+            {selectedLocation.type === 'pirate_haven' && (
+              <p className="text-sm text-amber-700 mt-2 italic">A notorious haven for pirates and privateers.</p>
+            )}
+            {selectedLocation.type === 'major_port' && (
+              <p className="text-sm text-amber-700 mt-2 italic">A bustling center of trade and commerce.</p>
+            )}
+          </div>
+        </Card>
       )}
     </div>
   );
