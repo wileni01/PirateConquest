@@ -409,8 +409,27 @@ function MapView() {
 
   // Handle clicking on a location to enter port
   const handleEnterPort = (location: typeof CARIBBEAN_LOCATIONS[0]) => {
-    console.log(`Attempting to enter port: ${location.name}`);
-    enterPort(location.id);
+    // Calculate distance between player ship and port
+    const playerMapPos = worldToMap(player.ship.position);
+    const portMapPos = { x: location.x, y: location.y };
+    
+    // Calculate distance in map coordinates (percentage points)
+    const distance = Math.sqrt(
+      Math.pow(playerMapPos.x - portMapPos.x, 2) + 
+      Math.pow(playerMapPos.y - portMapPos.y, 2)
+    );
+    
+    // Convert to a more reasonable distance threshold (5% of map = close proximity)
+    const maxDistance = 5; // 5% of map dimensions
+    
+    if (distance <= maxDistance) {
+      console.log(`Entering port: ${location.name} (distance: ${distance.toFixed(1)})`);
+      enterPort(location.id);
+    } else {
+      console.log(`Too far from ${location.name}! Distance: ${distance.toFixed(1)}, required: ${maxDistance}`);
+      // Could show a toast notification here
+      alert(`You must sail closer to ${location.name} to enter the port!`);
+    }
   };
 
   // Update player position on map based on 3D world position
