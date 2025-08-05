@@ -76,6 +76,15 @@ export interface GameState {
       gold: number;
       buried: Date;
     }>;
+    cargo: {
+      current: number;
+      max: number;
+      goods: {
+        id: string;
+        name: string;
+        quantity: number;
+      }[];
+    };
   };
   ships: Ship[];
   ports: Port[];
@@ -85,4 +94,4 @@ export interface GameState {
   timeOfDay: 'dawn' | 'day' | 'dusk' | 'night';
 }
 
-export type GameMode = 'menu' | 'map' | 'sailing' | 'combat' | 'trading';
+export type GameMode = 'menu' | 'map' | 'sailing' | 'combat' | 'trading' | 'port';

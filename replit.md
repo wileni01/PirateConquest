@@ -17,6 +17,15 @@ Cutthroats is a 3D pirate adventure game inspired by the 90s classic "Cutthroats
 - **Enhanced UI**: Added morale tracking, weather display, and comprehensive pirate statistics
 - **Historical Authenticity**: Added 10 authentic Caribbean ports with historically accurate governors and factions
 
+### Port Entry System (January 2025)
+- **Comprehensive Port Screen**: New dedicated port interface with multiple activity tabs
+- **Trading System**: Dynamic pricing based on port type, supply/demand, and faction relations
+- **Cargo Management**: Player cargo system with various trade goods (rum, sugar, spices, etc.)
+- **Shipyard Services**: Ship repair, buying/selling ships, and fleet management
+- **Governor Missions**: Reputation-based missions from port governors (escort, delivery, combat)
+- **Tavern Interactions**: Meet characters for quests, information, and trading opportunities
+- **Trade Goods Categories**: Provisions, luxury goods, raw materials, and military supplies
+
 ### Map System Overhaul (January 2025)
 - **Realistic Geographic Projection**: Implemented authentic lat/lon coordinate system for all Caribbean locations
 - **Land Mass Visualization**: Added proper coastlines for Florida, Cuba, Jamaica, Hispaniola, Puerto Rico, Venezuela, Yucatan Peninsula, Central America, Trinidad, and mainland Mexico
@@ -79,6 +88,8 @@ Preferred communication style: Simple, everyday language.
 - **Persistent Data**: Local storage integration for game saves
 - **Weather State**: Dynamic weather and time management system
 - **Fleet State**: Captured ship management and crew morale tracking
+- **Cargo State**: Player cargo inventory with trade goods management
+- **Port State**: Current port interactions and trading state
 
 ## Data Flow
 

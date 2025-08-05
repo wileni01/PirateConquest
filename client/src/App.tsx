@@ -8,6 +8,7 @@ import Menu from "./components/Menu";
 import GameUI from "./components/GameUI";
 import TradingMenu from "./components/TradingMenu";
 import MapView from "./components/MapView";
+import { PortScreen } from "./components/PortScreen";
 import "@fontsource/inter";
 
 // Define control keys for the pirate game
@@ -48,6 +49,8 @@ function App() {
           {gameState === 'map' && <MapView />}
           
           {gameState === 'trading' && <TradingMenu />}
+          
+          {gameState === 'port' && <PortScreen />}
 
           {(gameState === 'sailing' || gameState === 'combat') && (
             <>

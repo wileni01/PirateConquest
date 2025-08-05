@@ -35,6 +35,12 @@ interface PirateGameState extends GameState {
   updateTimeOfDay: () => void;
   sailToIsland: (islandId: string) => void;
   updateSailing: (deltaTime: number) => void;
+  buyGoods: (goodId: string, quantity: number, price: number) => void;
+  sellGoods: (goodId: string, quantity: number) => void;
+  repairShip: () => void;
+  buyShip: (shipType: string) => void;
+  sellShip: (shipId: string) => void;
+  acceptMission: (missionId: string) => void;
 }
 
 const initialGameDate: GameDate = { year: 1692, month: 3, day: 15 };
@@ -53,6 +59,14 @@ const initialState: GameState = {
     fleet: [],
     capturedShips: [],
     buriedTreasure: [],
+    cargo: {
+      current: 20,
+      max: 100,
+      goods: [
+        { id: 'rum', name: 'Rum', quantity: 10 },
+        { id: 'sugar', name: 'Sugar', quantity: 10 }
+      ],
+    },
   },
   ships: [],
   ports: generateInitialPorts(),
@@ -255,7 +269,7 @@ export const usePirateGame = create<PirateGameState>()(
         set({ 
           currentPort: port,
           selectedPort: port,
-          gameState: 'trading' 
+          gameState: 'port' 
         });
       }
     },
@@ -489,6 +503,103 @@ export const usePirateGame = create<PirateGameState>()(
         sailingEndPosition: destPos,
         gameState: 'map' // Stay on map view during sailing
       });
+    },
+    
+    buyGoods: (goodId: string, quantity: number, price: number) => {
+      set((state) => {
+        const totalCost = price * quantity;
+        if (state.player.gold < totalCost) return state;
+        
+        const existingGood = state.player.cargo.goods.find(g => g.id === goodId);
+        const newCargoAmount = state.player.cargo.current + quantity;
+        
+        if (newCargoAmount > state.player.cargo.max) return state;
+        
+        const updatedGoods = existingGood
+          ? state.player.cargo.goods.map(g => 
+              g.id === goodId 
+                ? { ...g, quantity: g.quantity + quantity }
+                : g
+            )
+          : [...state.player.cargo.goods, { id: goodId, name: goodId, quantity }];
+        
+        return {
+          player: {
+            ...state.player,
+            gold: state.player.gold - totalCost,
+            cargo: {
+              ...state.player.cargo,
+              current: newCargoAmount,
+              goods: updatedGoods
+            }
+          }
+        };
+      });
+    },
+    
+    sellGoods: (goodId: string, quantity: number) => {
+      set((state) => {
+        const good = state.player.cargo.goods.find(g => g.id === goodId);
+        if (!good || good.quantity < quantity) return state;
+        
+        const basePrice = 20; // Base price per unit
+        const totalRevenue = basePrice * quantity * 0.9; // 90% of base price when selling
+        
+        const updatedGoods = good.quantity === quantity
+          ? state.player.cargo.goods.filter(g => g.id !== goodId)
+          : state.player.cargo.goods.map(g => 
+              g.id === goodId 
+                ? { ...g, quantity: g.quantity - quantity }
+                : g
+            );
+        
+        return {
+          player: {
+            ...state.player,
+            gold: state.player.gold + totalRevenue,
+            cargo: {
+              ...state.player.cargo,
+              current: state.player.cargo.current - quantity,
+              goods: updatedGoods
+            }
+          }
+        };
+      });
+    },
+    
+    repairShip: () => {
+      set((state) => {
+        const damage = state.player.ship.maxHealth - state.player.ship.health;
+        const repairCost = Math.round(damage * 2);
+        
+        if (state.player.gold < repairCost) return state;
+        
+        return {
+          player: {
+            ...state.player,
+            gold: state.player.gold - repairCost,
+            ship: {
+              ...state.player.ship,
+              health: state.player.ship.maxHealth
+            }
+          }
+        };
+      });
+    },
+    
+    buyShip: (shipType: string) => {
+      // This would add a ship to the player's fleet
+      console.log('Buying ship:', shipType);
+    },
+    
+    sellShip: (shipId: string) => {
+      // This would remove a ship from the player's fleet
+      console.log('Selling ship:', shipId);
+    },
+    
+    acceptMission: (missionId: string) => {
+      console.log('Accepting mission:', missionId);
+      // This would add a mission to the player's active missions
     },
 
     updateSailing: (deltaTime: number) => {
