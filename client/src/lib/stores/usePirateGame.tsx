@@ -268,7 +268,7 @@ export const usePirateGame = create<PirateGameState>()(
       // If port not found by ID, try to find by name matching
       if (!port) {
         // Create a basic port structure from the Caribbean location
-        const portData = {
+        const portData: Port = {
           id: portId,
           name: portId.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
           position: [0, 0, 0] as [number, number, number],
@@ -276,7 +276,9 @@ export const usePirateGame = create<PirateGameState>()(
           prices: { food: 10, rum: 25, ammunition: 5 },
           governor: { name: 'Governor Smith', attitude: 'neutral' as const, bribes: 100 },
           fortification: 5,
-          garrison: 200
+          garrison: 200,
+          faction: 'neutral' as const,
+          type: 'port' as const
         };
         port = portData;
         
@@ -286,12 +288,14 @@ export const usePirateGame = create<PirateGameState>()(
         }));
       }
       
-      console.log(`Entering port: ${port.name}`);
-      set({ 
-        currentPort: port,
-        selectedPort: port,
-        gameState: 'port' 
-      });
+      if (port) {
+        console.log(`Entering port: ${port.name}`);
+        set({ 
+          currentPort: port,
+          selectedPort: port,
+          gameState: 'port' 
+        });
+      }
     },
 
     exitPort: () => {

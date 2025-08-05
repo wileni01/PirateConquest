@@ -27,7 +27,8 @@ export interface Port {
   id: string;
   name: string;
   position: [number, number, number];
-  faction: 'neutral' | 'spanish' | 'english' | 'french' | 'pirate';
+  faction: 'neutral' | 'spanish' | 'english' | 'french' | 'pirate' | 'dutch' | 'danish';
+  type: 'port' | 'major_port' | 'pirate_haven' | 'treasure_port' | 'island';
   supplies: {
     food: number;
     rum: number;

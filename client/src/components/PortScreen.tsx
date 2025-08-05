@@ -7,12 +7,18 @@ import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
 
-// Import CARIBBEAN_LOCATIONS from MapView
+// Define key Caribbean locations for missions
 const CARIBBEAN_LOCATIONS = [
   { id: 'port_royal', name: 'Port Royal', lat: 17.93, lon: -76.84, size: 'large', type: 'major_port', faction: 'english' },
   { id: 'tortuga', name: 'Tortuga', lat: 20.05, lon: -72.78, size: 'medium', type: 'pirate_haven', faction: 'french' },
   { id: 'nassau', name: 'Nassau', lat: 25.06, lon: -77.35, size: 'medium', type: 'pirate_haven', faction: 'pirate' },
   { id: 'havana', name: 'Havana', lat: 23.13, lon: -82.38, size: 'large', type: 'major_port', faction: 'spanish' },
+  { id: 'port_au_prince', name: 'Port-au-Prince', lat: 18.54, lon: -72.34, size: 'medium', type: 'port', faction: 'french' },
+  { id: 'santo_domingo', name: 'Santo Domingo', lat: 18.47, lon: -69.90, size: 'medium', type: 'major_port', faction: 'spanish' },
+  { id: 'san_juan', name: 'San Juan', lat: 18.47, lon: -66.11, size: 'medium', type: 'major_port', faction: 'spanish' },
+  { id: 'martinique', name: 'Martinique', lat: 14.60, lon: -61.08, size: 'small', type: 'port', faction: 'french' },
+  { id: 'barbados', name: 'Barbados', lat: 13.10, lon: -59.62, size: 'small', type: 'port', faction: 'english' },
+  { id: 'cartagena', name: 'Cartagena', lat: 10.39, lon: -75.51, size: 'large', type: 'treasure_port', faction: 'spanish' }
 ];
 
 // Trading goods with base prices and categories
@@ -121,7 +127,7 @@ export function PortScreen() {
     missions.push({
       id: 'delivery',
       title: 'Deliver Urgent Dispatches',
-      description: `Deliver messages to ${CARIBBEAN_LOCATIONS[Math.floor(Math.random() * 10)].name}`,
+      description: `Deliver messages to ${CARIBBEAN_LOCATIONS[Math.floor(Math.random() * CARIBBEAN_LOCATIONS.length)].name}`,
       reward: 1000,
       type: 'delivery'
     });
