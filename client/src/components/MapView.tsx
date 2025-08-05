@@ -379,7 +379,8 @@ function MapView() {
     updateSailing,
     updateAI,
     checkCollisions,
-    updateCannonballs
+    updateCannonballs,
+    enterPort
   } = usePirateGame();
 
   const [selectedIsland, setSelectedIsland] = useState<string | null>(null);
@@ -404,6 +405,12 @@ function MapView() {
     const lon = (worldPos[0] / 20) - 77.5;
     const lat = 20 - (worldPos[2] / 20);
     return latLonToMapCoords(lat, lon);
+  };
+
+  // Handle clicking on a location to enter port
+  const handleEnterPort = (location: typeof CARIBBEAN_LOCATIONS[0]) => {
+    console.log(`Attempting to enter port: ${location.name}`);
+    enterPort(location.id);
   };
 
   // Update player position on map based on 3D world position
@@ -580,7 +587,7 @@ function MapView() {
                       transform: 'translate(-50%, -50%)'
                     }}
                     onClick={() => setSelectedIsland(location.id)}
-                    onDoubleClick={() => handleSailTo(location)}
+                    onDoubleClick={() => handleEnterPort(location)}
                   >
                     <div className={`rounded-full border-2 ${
                       location.faction === 'pirate' ? 'border-red-400 bg-red-600' :
@@ -888,16 +895,28 @@ function MapView() {
                     );
                   })()}
                 </div>
-                <Button 
-                  onClick={() => {
-                    const location = CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland);
-                    if (location) handleSailTo(location);
-                  }}
-                  className="bg-green-600 hover:bg-green-500 text-sm py-1 px-2 ml-2"
-                  disabled={isSailing}
-                >
-                  {isSailing ? 'Sailing...' : 'Sail To'}
-                </Button>
+                <div className="flex flex-col space-y-2 ml-2">
+                  <Button 
+                    onClick={() => {
+                      const location = CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland);
+                      if (location) handleEnterPort(location);
+                    }}
+                    className="bg-amber-600 hover:bg-amber-500 text-sm py-1 px-2"
+                    disabled={isSailing}
+                  >
+                    Enter Port
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      const location = CARIBBEAN_LOCATIONS.find(l => l.id === selectedIsland);
+                      if (location) handleSailTo(location);
+                    }}
+                    className="bg-green-600 hover:bg-green-500 text-sm py-1 px-2"
+                    disabled={isSailing}
+                  >
+                    {isSailing ? 'Sailing...' : 'Sail To'}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
