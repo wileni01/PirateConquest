@@ -411,7 +411,7 @@ function MapView() {
   const handleEnterPort = (location: typeof CARIBBEAN_LOCATIONS[0]) => {
     // Calculate distance between player ship and port
     const playerMapPos = worldToMap(player.ship.position);
-    const portMapPos = { x: location.x, y: location.y };
+    const portMapPos = latLonToMapCoords(location.lat, location.lon);
     
     // Calculate distance in map coordinates (percentage points)
     const distance = Math.sqrt(
@@ -419,16 +419,15 @@ function MapView() {
       Math.pow(playerMapPos.y - portMapPos.y, 2)
     );
     
-    // Convert to a more reasonable distance threshold (5% of map = close proximity)
-    const maxDistance = 5; // 5% of map dimensions
+    // Convert to a more reasonable distance threshold (3% of map = close proximity)
+    const maxDistance = 3; // 3% of map dimensions for closer proximity requirement
     
     if (distance <= maxDistance) {
       console.log(`Entering port: ${location.name} (distance: ${distance.toFixed(1)})`);
       enterPort(location.id);
     } else {
       console.log(`Too far from ${location.name}! Distance: ${distance.toFixed(1)}, required: ${maxDistance}`);
-      // Could show a toast notification here
-      alert(`You must sail closer to ${location.name} to enter the port!`);
+      alert(`You must sail closer to ${location.name} to enter the port! Current distance: ${distance.toFixed(1)}%, required: ${maxDistance}%`);
     }
   };
 
