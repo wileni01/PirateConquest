@@ -63,16 +63,16 @@ export function createEnemyShip(position: [number, number, number]): Ship {
 
 export function generateInitialPorts(): Port[] {
   const portData = [
-    { name: "Port Royal", faction: 'english', governor: "Sir William Beeston" },
-    { name: "Tortuga", faction: 'pirate', governor: "Captain Bellamy" },
-    { name: "Nassau", faction: 'pirate', governor: "Blackbeard" },
-    { name: "Havana", faction: 'spanish', governor: "Don Carlos Menendez" },
-    { name: "Cartagena", faction: 'spanish', governor: "Capitán Rodriguez" },
-    { name: "Santo Domingo", faction: 'spanish', governor: "Almirante Santos" },
-    { name: "Kingston", faction: 'english', governor: "Lord Pemberton" },
-    { name: "Bridgetown", faction: 'english', governor: "Admiral Clarke" },
-    { name: "Port-au-Prince", faction: 'french', governor: "Capitaine Dubois" },
-    { name: "Campeche", faction: 'neutral', governor: "Señor Vásquez" }
+    { name: "Port Royal", faction: 'english', governor: "Sir William Beeston", type: 'major_port' },
+    { name: "Tortuga", faction: 'pirate', governor: "Captain Bellamy", type: 'pirate_haven' },
+    { name: "Nassau", faction: 'pirate', governor: "Blackbeard", type: 'pirate_haven' },
+    { name: "Havana", faction: 'spanish', governor: "Don Carlos Menendez", type: 'major_port' },
+    { name: "Cartagena", faction: 'spanish', governor: "Capitán Rodriguez", type: 'treasure_port' },
+    { name: "Santo Domingo", faction: 'spanish', governor: "Almirante Santos", type: 'major_port' },
+    { name: "Kingston", faction: 'english', governor: "Lord Pemberton", type: 'port' },
+    { name: "Bridgetown", faction: 'english', governor: "Admiral Clarke", type: 'port' },
+    { name: "Port-au-Prince", faction: 'french', governor: "Capitaine Dubois", type: 'port' },
+    { name: "Campeche", faction: 'neutral', governor: "Señor Vásquez", type: 'port' }
   ];
 
   return portData.map((port, index) => {
@@ -88,6 +88,7 @@ export function generateInitialPorts(): Port[] {
         Math.sin(angle) * radius
       ] as [number, number, number],
       faction: port.faction as any,
+      type: port.type as any,
       supplies: {
         food: 50 + Math.floor(Math.random() * 100),
         rum: 30 + Math.floor(Math.random() * 50),

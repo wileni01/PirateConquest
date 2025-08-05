@@ -157,7 +157,7 @@ export function PortScreen() {
               <div>
                 <CardTitle className="text-3xl text-amber-400">{currentPort.name}</CardTitle>
                 <p className="text-gray-300 mt-1">
-                  {currentPort.faction.charAt(0).toUpperCase() + currentPort.faction.slice(1)} {currentPort.type.replace(/_/g, ' ')}
+                  {currentPort.faction?.charAt(0).toUpperCase() + currentPort.faction?.slice(1)} {currentPort.type?.replace(/_/g, ' ') || 'Port'}
                 </p>
               </div>
               <Button 
