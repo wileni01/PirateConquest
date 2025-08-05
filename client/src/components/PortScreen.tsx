@@ -148,7 +148,7 @@ export function PortScreen() {
   const missions = generateMissions();
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-900/20 to-amber-950/20 p-4">
+    <div className="min-h-screen max-h-screen bg-gradient-to-b from-amber-900/20 to-amber-950/20 p-4 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
         {/* Port Header */}
         <Card className="mb-4 bg-black/80 border-amber-600">
@@ -221,7 +221,7 @@ export function PortScreen() {
                   <CardTitle className="text-amber-400">Buy Goods</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-96">
+                  <ScrollArea className="h-[500px]">
                     <div className="space-y-2">
                       {TRADE_GOODS.map(good => {
                         const price = calculatePrice(good, true);
@@ -267,7 +267,7 @@ export function PortScreen() {
                     />
                   </div>
                   
-                  <ScrollArea className="h-80">
+                  <ScrollArea className="h-[400px]">
                     <div className="space-y-2">
                       {player.cargo.goods.map((item: any) => (
                         <div 
@@ -333,7 +333,7 @@ export function PortScreen() {
                   <CardTitle className="text-amber-400">Buy Ships</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-80">
+                  <ScrollArea className="h-[400px]">
                     <div className="space-y-3">
                       {SHIP_TYPES.map(ship => (
                         <div key={ship.id} className="p-3 bg-amber-900/20 rounded">
@@ -382,8 +382,9 @@ export function PortScreen() {
                 </div>
                 
                 <h3 className="text-lg text-amber-400 mb-3">Available Missions</h3>
-                <div className="space-y-3">
-                  {missions.map(mission => (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3">
+                    {missions.map(mission => (
                     <div key={mission.id} className="p-4 bg-amber-900/20 rounded">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="text-amber-300 font-semibold">{mission.title}</h4>
@@ -398,8 +399,9 @@ export function PortScreen() {
                         Accept Mission
                       </Button>
                     </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
@@ -415,8 +417,9 @@ export function PortScreen() {
                   The tavern is filled with smoke, laughter, and the sound of dice hitting tables...
                 </p>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  {TAVERN_CHARACTERS.map(character => (
+                <ScrollArea className="h-[350px]">
+                  <div className="grid grid-cols-2 gap-4">
+                    {TAVERN_CHARACTERS.map(character => (
                     <Card 
                       key={character.id}
                       className="bg-amber-900/20 border-amber-700/50 cursor-pointer hover:bg-amber-900/30"
@@ -432,10 +435,10 @@ export function PortScreen() {
                         </p>
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-                
-                {selectedCharacter && (
+                    ))}
+                  </div>
+                  
+                  {selectedCharacter && (
                   <div className="mt-4 p-4 bg-black/60 rounded">
                     <p className="text-amber-300 mb-3">
                       "Buy me a drink and I might share what I know..."
@@ -450,7 +453,8 @@ export function PortScreen() {
                       Buy a Round (50 gold)
                     </Button>
                   </div>
-                )}
+                  )}
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
