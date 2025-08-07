@@ -1,0 +1,160 @@
+# Cutthroats: 3D Pirate Adventure
+
+## Overview
+
+Cutthroats is a 3D pirate adventure game inspired by the 90s classic "Cutthroats: Terror on the High Seas", built with React Three Fiber and Express.js. The application features a full-stack architecture with a React frontend for the 3D game interface and an Express backend for data management. The game includes naval combat, ship boarding mechanics, trading systems, port interactions, weather effects, treasure hunting, and comprehensive resource management in an immersive 3D Caribbean environment.
+
+## Recent Changes (January 2025)
+
+### Enhanced Pirate Game Features
+- **Ship Boarding System**: Players can now board and capture enemy ships using the E key when close to enemy vessels
+- **Treasure Mechanics**: Added treasure burying system (B key) and buried treasure markers throughout the world
+- **Fleet Management**: Captured ships are added to player's fleet and displayed in trading menus
+- **Reputation & Infamy System**: Dual reputation system tracking both fame and infamy for pirate actions
+- **Weather System**: Dynamic weather changes (clear, storm, fog) affecting ocean appearance and gameplay
+- **Time of Day**: Day/night cycle with dawn, day, dusk, and night phases affecting ocean colors
+- **Enhanced Trading**: Improved port trading with governor information, faction attitudes, and fleet status
+- **Enhanced UI**: Added morale tracking, weather display, and comprehensive pirate statistics
+- **Historical Authenticity**: Added 10 authentic Caribbean ports with historically accurate governors and factions
+
+### Port Entry System (January 2025)
+- **Comprehensive Port Screen**: New dedicated port interface with multiple activity tabs
+- **Trading System**: Dynamic pricing based on port type, supply/demand, and faction relations
+- **Cargo Management**: Player cargo system with various trade goods (rum, sugar, spices, etc.)
+- **Shipyard Services**: Ship repair, buying/selling ships, and fleet management
+- **Governor Missions**: Reputation-based missions from port governors (escort, delivery, combat)
+- **Tavern Interactions**: Meet characters for quests, information, and trading opportunities
+- **Trade Goods Categories**: Provisions, luxury goods, raw materials, and military supplies
+
+### Map System Overhaul (January 2025)
+- **Realistic Geographic Projection**: Implemented authentic lat/lon coordinate system for all Caribbean locations
+- **Land Mass Visualization**: Added proper coastlines for Florida, Cuba, Jamaica, Hispaniola, Puerto Rico, Venezuela, Yucatan Peninsula, Central America, Trinidad, and mainland Mexico
+- **Expanded Location Database**: 40+ historically accurate pirate locations with real coordinates
+- **Enhanced Visual Design**: Navigation grid lines, faction-colored ports, and comprehensive map legend
+- **Responsive Layout**: Fixed screen overflow issues with percentage-based positioning and SVG viewBox
+- **Interactive Features**: Clickable locations with detailed information panels showing coordinates, faction, and port details
+- **Improved Readability**: Scaled up port icons and text for better visibility (large: 10x10, medium: 8x8, small: 6x6 pixels)
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **3D Rendering**: React Three Fiber (@react-three/fiber) with Three.js
+- **3D Components**: React Three Drei (@react-three/drei) for enhanced 3D utilities
+- **UI Components**: Radix UI primitives with custom shadcn/ui components
+- **Styling**: Tailwind CSS with custom design tokens
+- **State Management**: Zustand for game state and audio management
+- **Build Tool**: Vite with custom configuration for 3D assets
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js
+- **Language**: TypeScript with ES modules
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Database Provider**: Neon Database (@neondatabase/serverless)
+- **Storage Layer**: In-memory storage implementation with interface for database integration
+
+### Data Layer
+- **ORM**: Drizzle ORM with PostgreSQL dialect
+- **Schema Location**: `shared/schema.ts` for type-safe data structures
+- **Migration Strategy**: Drizzle Kit for schema migrations
+- **Type Safety**: Zod schemas for runtime validation integrated with Drizzle
+
+## Key Components
+
+### Game Engine Components
+- **Game Loop**: Frame-based update system using React Three Fiber's useFrame
+- **Ship System**: Player and AI-controlled ships with physics, combat, and boarding mechanics
+- **Ocean Rendering**: Dynamic animated water surface with weather and time-based color changes
+- **Combat System**: Cannonball physics, collision detection, and ship boarding combat
+- **Trading System**: Port-based economy with supply/demand mechanics and governor interactions
+- **Weather System**: Dynamic weather effects influencing ocean appearance and wave behavior
+- **Treasure System**: Treasure burying mechanics with persistent world markers
+- **Fleet Management**: Captured ship management and display systems
+
+### UI System
+- **Menu System**: Main menu, enhanced trading interfaces, and comprehensive game HUD
+- **3D Interface**: Integrated UI overlays within the 3D canvas with weather and time display
+- **Audio Management**: Background music and sound effects with mute controls
+- **Keyboard Controls**: WASD movement, space for combat, E for interactions/boarding, B for treasure burying
+- **Status Display**: Ship health, crew morale, reputation, infamy, and fleet management
+
+### State Management
+- **Game State**: Zustand store managing player progress, ships, fleet, treasure, and world state
+- **Audio State**: Separate audio management system for music and sound effects
+- **Persistent Data**: Local storage integration for game saves
+- **Weather State**: Dynamic weather and time management system
+- **Fleet State**: Captured ship management and crew morale tracking
+- **Cargo State**: Player cargo inventory with trade goods management
+- **Port State**: Current port interactions and trading state
+
+## Data Flow
+
+### Game State Flow
+1. **Initialization**: Game starts in menu state with initial world generation
+2. **Game Loop**: Continuous updates for ship movement, AI behavior, and physics
+3. **User Input**: Keyboard controls processed through React Three Fiber's KeyboardControls
+4. **State Updates**: Zustand actions update game state reactively
+5. **Rendering**: React Three Fiber renders 3D scene based on current state
+
+### Trading System Flow
+1. **Port Entry**: Player approaches port within interaction range
+2. **Trading Interface**: Modal interface displays available supplies and prices
+3. **Transaction Processing**: Gold and supplies updated through Zustand actions
+4. **State Persistence**: Changes reflected in game state and UI
+
+### Combat System Flow
+1. **Input Detection**: Spacebar triggers cannonball firing
+2. **Physics Simulation**: Cannonballs follow ballistic trajectories
+3. **Collision Detection**: Real-time collision checking between projectiles and ships
+4. **Damage Application**: Health reduction and potential ship destruction
+
+## External Dependencies
+
+### Core 3D Libraries
+- **React Three Fiber**: Core 3D rendering framework
+- **React Three Drei**: Additional 3D utilities and helpers
+- **React Three Postprocessing**: Visual effects and post-processing
+
+### UI and Styling
+- **Radix UI**: Accessible component primitives
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: Pre-built component library
+- **Lucide React**: Icon library
+
+### Database and Backend
+- **Neon Database**: Serverless PostgreSQL provider
+- **Drizzle ORM**: Type-safe database toolkit
+- **Express.js**: Web application framework
+
+### Development Tools
+- **Vite**: Build tool with HMR and asset optimization
+- **TypeScript**: Type safety across the entire stack
+- **ESBuild**: Fast JavaScript bundling for production
+
+## Deployment Strategy
+
+### Development Environment
+- **Frontend**: Vite dev server with HMR for rapid development
+- **Backend**: tsx for TypeScript execution in development
+- **Database**: Neon Database with connection pooling
+
+### Production Build
+- **Frontend**: Vite builds optimized static assets to `dist/public`
+- **Backend**: ESBuild bundles server code to `dist/index.js`
+- **Assets**: Support for 3D models (.gltf, .glb) and audio files (.mp3, .ogg, .wav)
+- **Deployment**: Single Node.js process serving both frontend and API
+
+### Database Management
+- **Schema Updates**: `npm run db:push` for schema synchronization
+- **Migrations**: Drizzle Kit manages database migrations in `migrations/` directory
+- **Connection**: Environment variable `DATABASE_URL` for database connectivity
+
+### Performance Considerations
+- **3D Asset Optimization**: GLSL shader support and asset preloading
+- **Bundle Splitting**: Vite automatically splits bundles for optimal loading
+- **Tree Shaking**: Unused code elimination in production builds
+- **Runtime Error Handling**: Development overlay for debugging

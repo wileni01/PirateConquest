@@ -1,0 +1,47 @@
+{
+  "description": "Example format for providing accurate Caribbean land mass data",
+  "format": "GeoJSON or simplified coordinate arrays",
+  "example_geojson": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Cuba"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [-82.4, 23.2],
+            [-83.0, 23.1],
+            [-84.95, 21.8],
+            [-74.2, 19.8],
+            [-82.4, 23.2]
+          ]]
+        }
+      }
+    ]
+  },
+  "example_simple": {
+    "landMasses": [
+      {
+        "name": "Cuba",
+        "points": [
+          {"lat": 23.2, "lon": -82.4},
+          {"lat": 23.1, "lon": -83.0},
+          {"lat": 21.8, "lon": -84.95},
+          {"lat": 19.8, "lon": -74.2}
+        ]
+      },
+      {
+        "name": "Jamaica",
+        "points": [
+          {"lat": 18.52, "lon": -78.4},
+          {"lat": 17.7, "lon": -76.2},
+          {"lat": 18.52, "lon": -78.4}
+        ]
+      }
+    ]
+  },
+  "note": "You can provide either GeoJSON format or a simple JSON array with lat/lon points. Upload the file and I'll use it to render accurate land masses!"
+}
