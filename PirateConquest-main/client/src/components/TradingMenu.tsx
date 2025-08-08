@@ -134,12 +134,12 @@ function TradingMenu() {
                 </CardContent>
               </Card>
 
-              {selectedPort.supplies.treasure > 0 && (
+              {player.ship.cargo.treasure > 0 && (
                 <Card className="bg-gray-800/50 border-gray-600">
                   <CardContent className="p-4">
                     <h4 className="text-lg text-amber-400 mb-3">Sell Treasure</h4>
                     <p className="text-sm mb-3">
-                      Available treasure: {selectedPort.supplies.treasure}
+                      Available treasure: {player.ship.cargo.treasure}
                     </p>
                     
                     <div className="flex items-center space-x-2 mb-3">
@@ -153,12 +153,12 @@ function TradingMenu() {
                         -1
                       </Button>
                       <span className="mx-4 min-w-[60px] text-center">
-                        {Math.min(amounts.treasure, selectedPort.supplies.treasure)}
+                        {Math.min(amounts.treasure, player.ship.cargo.treasure)}
                       </span>
                       <Button
                         onClick={() => setAmounts(prev => ({ 
                           ...prev, 
-                          treasure: Math.min(selectedPort.supplies.treasure, prev.treasure + 1) 
+                          treasure: Math.min(player.ship.cargo.treasure, prev.treasure + 1) 
                         }))}
                         className="bg-green-600 hover:bg-green-500 px-2 py-1 text-sm"
                       >
@@ -168,11 +168,11 @@ function TradingMenu() {
                     
                     <div className="flex justify-between items-center">
                       <span>
-                        Value: {10 * Math.min(amounts.treasure, selectedPort.supplies.treasure)} gold
+                        Value: {10 * Math.min(amounts.treasure, player.ship.cargo.treasure)} gold
                       </span>
                       <Button
                         onClick={() => sellTreasure(amounts.treasure)}
-                        disabled={selectedPort.supplies.treasure <= 0}
+                        disabled={player.ship.cargo.treasure <= 0}
                         className="bg-amber-600 hover:bg-amber-500 disabled:bg-gray-600"
                       >
                         Sell

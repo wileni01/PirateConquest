@@ -1,11 +1,15 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { GameState, Ship, Port, Cannonball, GameMode } from "../types";
+import { GameState, Ship, Port, Cannonball, GameMode, Mission } from "../types";
 import { generateInitialPorts, createPlayerShip } from "../gameLogic";
 import { GameDate, WindData, getHistoricalWinds, calculateSailingTime, calculateBearing, PIRATE_LOCATIONS, advanceDate } from "../windSystem";
+import { toast } from "sonner";
 
 interface PirateGameState extends GameState {
   gameState: GameMode;
+  // Presentation/UI flags (non-gameplay)
+  cameraMode: 'follow' | 'tactical';
+  isStrategicMapOverlayOpen: boolean;
   selectedPort?: Port;
   currentDate: GameDate;
   currentWinds: WindData;
@@ -19,8 +23,13 @@ interface PirateGameState extends GameState {
   // Actions
   startGame: () => void;
   setGameState: (state: GameMode) => void;
+  setCameraMode: (mode: 'follow' | 'tactical') => void;
+  toggleStrategicMapOverlay: () => void;
+   saveGame: () => void;
+   loadGame: () => void;
   updatePlayerPosition: (position: [number, number, number], rotation: number) => void;
-  fireCannonball: (shipId: string, direction: [number, number, number]) => void;
+    fireCannonball: (shipId: string, direction: [number, number, number]) => void;
+    fireBroadside: (shipId: string, side: 'port' | 'starboard') => void;
   updateCannonballs: (deltaTime: number) => void;
   checkCollisions: () => void;
   enterPort: (portId: string) => void;
@@ -35,12 +44,17 @@ interface PirateGameState extends GameState {
   updateTimeOfDay: () => void;
   sailToIsland: (islandId: string) => void;
   updateSailing: (deltaTime: number) => void;
+   applyDailyUpkeep: () => void;
   buyGoods: (goodId: string, quantity: number, price: number) => void;
   sellGoods: (goodId: string, quantity: number) => void;
   repairShip: () => void;
   buyShip: (shipType: string) => void;
   sellShip: (shipId: string) => void;
-  acceptMission: (missionId: string) => void;
+  acceptMission: (mission: Mission) => void;
+   completeMission: (missionId: string, success?: boolean) => void;
+   purchaseLetterOfMarque: (faction: 'spanish' | 'english' | 'french' | 'dutch' | 'danish') => void;
+   dividePlunder: () => void;
+   bribeGovernor: (amount: number) => void;
 }
 
 const initialGameDate: GameDate = { year: 1692, month: 3, day: 15 };
@@ -74,6 +88,8 @@ const initialState: GameState = {
   currentPort: undefined,
   weather: 'clear',
   timeOfDay: 'day',
+  activeMissions: [],
+  lettersOfMarque: [],
 };
 
 export const usePirateGame = create<PirateGameState>()(
@@ -89,14 +105,83 @@ export const usePirateGame = create<PirateGameState>()(
     sailingDestination: undefined,
     sailingStartPosition: [0, 0, 0],
     sailingEndPosition: [0, 0, 0],
+    cameraMode: 'tactical',
+    isStrategicMapOverlayOpen: false,
 
     startGame: () => {
       console.log("Starting pirate adventure!");
-      set({ gameState: 'sailing' });
+      const state = get();
+      // Start near current port: place player a short distance off the harbor
+      const port = state.currentPort || state.ports[0];
+      const pos: [number, number, number] = [
+        port.position[0] + 8,
+        0,
+        port.position[2] + 8,
+      ];
+      set((s) => ({
+        gameState: 'sailing',
+        player: {
+          ...s.player,
+          ship: { ...s.player.ship, position: pos, rotation: Math.atan2(1,1) },
+        },
+      }));
     },
 
     setGameState: (gameState: GameMode) => {
       set({ gameState });
+    },
+
+    setCameraMode: (mode: 'follow' | 'tactical') => {
+      set({ cameraMode: mode });
+    },
+
+    toggleStrategicMapOverlay: () => {
+      set((state) => ({ isStrategicMapOverlayOpen: !state.isStrategicMapOverlayOpen }));
+    },
+
+    saveGame: () => {
+      const state = get();
+      try {
+        const serializable = {
+          ...state,
+          // functions removed implicitly; also avoid circular refs
+          // Ensure dates are serialized
+          player: {
+            ...state.player,
+            buriedTreasure: state.player.buriedTreasure.map(t => ({
+              ...t,
+              buried: t.buried instanceof Date ? t.buried.toISOString() : t.buried,
+            })),
+          },
+        } as any;
+        localStorage.setItem('pirate_save', JSON.stringify(serializable));
+        console.log('Game saved');
+        toast.success('Game saved');
+      } catch (e) {
+        console.warn('Save failed', e);
+        toast.error('Save failed');
+      }
+    },
+
+    loadGame: () => {
+      try {
+        const raw = localStorage.getItem('pirate_save');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        // Hydrate any dates
+        if (data?.player?.buriedTreasure) {
+          data.player.buriedTreasure = data.player.buriedTreasure.map((t: any) => ({
+            ...t,
+            buried: new Date(t.buried),
+          }));
+        }
+        set(data);
+        console.log('Game loaded');
+        toast.success('Game loaded');
+      } catch (e) {
+        console.warn('Load failed', e);
+        toast.error('Load failed');
+      }
     },
 
     restartGame: () => {
@@ -139,9 +224,13 @@ export const usePirateGame = create<PirateGameState>()(
 
       const cannonball: Cannonball = {
         id: `cannonball_${now}_${Math.random()}`,
-        position: [ship.position[0], ship.position[1] + 1, ship.position[2]],
-        velocity: [direction[0] * 15, 0, direction[2] * 15],
-        damage: 25,
+        position: [
+          ship.position[0] + Math.sin(ship.rotation) * 3,
+          ship.position[1] + 1,
+          ship.position[2] + Math.cos(ship.rotation) * 3,
+        ],
+        velocity: [direction[0] * 18, 0, direction[2] * 18],
+        damage: 18,
         shooterId: shipId,
         createdAt: now,
       };
@@ -172,6 +261,72 @@ export const usePirateGame = create<PirateGameState>()(
       console.log(`Ship ${shipId} fired cannonball!`);
     },
 
+    fireBroadside: (shipId: string, side: 'port' | 'starboard') => {
+      const state = get();
+      const ship = shipId === state.player.ship.id 
+        ? state.player.ship 
+        : state.ships.find(s => s.id === shipId);
+
+      if (!ship) return;
+      const now = Date.now();
+      const cooldownMs = 5000; // slower reload for broadsides
+      const lastSideTime = side === 'port' ? (ship.lastFiredPort || 0) : (ship.lastFiredStarboard || 0);
+      if (now - lastSideTime < cooldownMs) return;
+
+      // Ammunition check: each broadside fires half the cannons
+      const numShots = Math.max(1, Math.floor((ship.cannons / 2)));
+      const ammoNeeded = numShots;
+      if (shipId === state.player.ship.id && state.player.supplies.ammunition < ammoNeeded) {
+        return;
+      }
+
+      const sideAngle = side === 'port' ? -Math.PI / 2 : Math.PI / 2;
+      const baseAngle = ship.rotation + sideAngle;
+      const spread = 0.12; // slight spread between cannons
+
+      const newBalls: Cannonball[] = [];
+      for (let i = 0; i < numShots; i++) {
+        const angle = baseAngle + (i - (numShots - 1) / 2) * spread;
+        const dir: [number, number, number] = [Math.sin(angle), 0, Math.cos(angle)];
+        const lateralOffset = side === 'port' ? -1.2 : 1.2;
+        const alongOffset = 1 - i * 0.8;
+        const worldOffsetX = Math.sin(ship.rotation) * alongOffset + Math.cos(ship.rotation) * lateralOffset;
+        const worldOffsetZ = Math.cos(ship.rotation) * alongOffset - Math.sin(ship.rotation) * lateralOffset;
+        newBalls.push({
+          id: `broadside_${now}_${i}_${Math.random()}`,
+          position: [ship.position[0] + worldOffsetX, ship.position[1] + 0.5, ship.position[2] + worldOffsetZ],
+          velocity: [dir[0] * 16, 0, dir[2] * 16],
+          damage: 12,
+          shooterId: shipId,
+          createdAt: now,
+        });
+      }
+
+      set((state) => {
+        const newState = { ...state } as any;
+        newState.cannonballs = [...state.cannonballs, ...newBalls];
+        if (shipId === state.player.ship.id) {
+          newState.player = {
+            ...state.player,
+            supplies: {
+              ...state.player.supplies,
+              ammunition: Math.max(0, state.player.supplies.ammunition - ammoNeeded),
+            },
+            ship: {
+              ...state.player.ship,
+              [side === 'port' ? 'lastFiredPort' : 'lastFiredStarboard']: now,
+            },
+          };
+        } else {
+          newState.ships = state.ships.map(s => s.id === shipId ? {
+            ...s,
+            [side === 'port' ? 'lastFiredPort' : 'lastFiredStarboard']: now,
+          } : s);
+        }
+        return newState;
+      });
+    },
+
     updateCannonballs: (deltaTime: number) => {
       set((state) => ({
         cannonballs: state.cannonballs
@@ -179,38 +334,38 @@ export const usePirateGame = create<PirateGameState>()(
             ...ball,
             position: [
               ball.position[0] + ball.velocity[0] * deltaTime,
-              ball.position[1],
+              Math.max(0, ball.position[1] - 0.8 * deltaTime),
               ball.position[2] + ball.velocity[2] * deltaTime,
             ] as [number, number, number],
           }))
           .filter(ball => {
             const age = Date.now() - ball.createdAt;
             const distance = Math.sqrt(ball.position[0] ** 2 + ball.position[2] ** 2);
-            return age < 5000 && distance < 200; // Remove after 5 seconds or if too far
+            // remove if below water (y==0) for > 0.3s or too old/far
+            const fellInWater = ball.position[1] <= 0 && age > 300;
+            return age < 5000 && distance < 220 && !fellInWater;
           }),
       }));
     },
 
     checkCollisions: () => {
-      const state = get();
-      
-      state.cannonballs.forEach(ball => {
+      const snapshot = get();
+      snapshot.cannonballs.forEach(ball => {
         // Check collision with player ship
-        if (ball.shooterId !== state.player.ship.id) {
-          const playerShip = state.player.ship;
-          const distance = Math.sqrt(
-            (ball.position[0] - playerShip.position[0]) ** 2 +
-            (ball.position[2] - playerShip.position[2]) ** 2
+        if (ball.shooterId !== snapshot.player.ship.id) {
+          const playerShip = snapshot.player.ship;
+          const distance = Math.hypot(
+            ball.position[0] - playerShip.position[0],
+            ball.position[2] - playerShip.position[2]
           );
-          
           if (distance < 2) {
-            console.log("Player ship hit!");
             set((state) => ({
               player: {
                 ...state.player,
                 ship: {
                   ...state.player.ship,
                   health: Math.max(0, state.player.ship.health - ball.damage),
+                  lastHitAt: Date.now(),
                 },
               },
               cannonballs: state.cannonballs.filter(b => b.id !== ball.id),
@@ -218,44 +373,62 @@ export const usePirateGame = create<PirateGameState>()(
           }
         }
 
-        // Check collision with enemy ships
-        state.ships.forEach(ship => {
-          if (ball.shooterId !== ship.id) {
-            const distance = Math.sqrt(
-              (ball.position[0] - ship.position[0]) ** 2 +
-              (ball.position[2] - ship.position[2]) ** 2
-            );
-            
-            if (distance < 2) {
-              console.log(`Ship ${ship.id} hit!`);
-              set((state) => ({
-                ships: state.ships.map(s => 
-                  s.id === ship.id 
-                    ? { ...s, health: Math.max(0, s.health - ball.damage) }
-                    : s
-                ).filter(s => s.health > 0), // Remove destroyed ships
-                cannonballs: state.cannonballs.filter(b => b.id !== ball.id),
-              }));
-              
-              // Add gold, reputation, and infamy for destroying enemy ships
-              if (ball.shooterId === state.player.ship.id && ship.isEnemy) {
-                const loot = ship.cargo;
-                set((state) => ({
-                  player: {
-                    ...state.player,
-                    gold: state.player.gold + 200,
-                    reputation: state.player.reputation + 10,
-                    infamy: state.player.infamy + 5,
-                    supplies: {
-                      food: state.player.supplies.food + loot.food,
-                      rum: state.player.supplies.rum + loot.rum,
-                      ammunition: state.player.supplies.ammunition + loot.ammunition,
+        // Check collision with other ships
+        snapshot.ships.forEach(hitShip => {
+          if (ball.shooterId === hitShip.id) return;
+          const distance = Math.hypot(
+            ball.position[0] - hitShip.position[0],
+            ball.position[2] - hitShip.position[2]
+          );
+          if (distance < 2) {
+            const newHealth = Math.max(0, hitShip.health - ball.damage);
+            set((state) => {
+              const updatedShips = state.ships
+                .map(s => s.id === hitShip.id ? { ...s, health: newHealth, lastHitAt: Date.now() } : s)
+                .filter(s => s.health > 0);
+
+              let updatedPlayer = state.player;
+              if (ball.shooterId === state.player.ship.id && hitShip.isEnemy && newHealth <= 0) {
+                const loot = hitShip.cargo;
+                const targetFaction = hitShip.faction;
+                const hasMarque = (state.lettersOfMarque || []).includes(targetFaction as any);
+                const repDelta = hasMarque ? 8 : -5;
+                const infamyDelta = hasMarque ? 3 : 10;
+                updatedPlayer = {
+                  ...state.player,
+                  gold: state.player.gold + 200,
+                  reputation: state.player.reputation + repDelta,
+                  infamy: state.player.infamy + infamyDelta,
+                  supplies: {
+                    food: state.player.supplies.food + loot.food,
+                    rum: state.player.supplies.rum + loot.rum,
+                    ammunition: state.player.supplies.ammunition + loot.ammunition,
+                  },
+                  ship: {
+                    ...state.player.ship,
+                    cargo: {
+                      ...state.player.ship.cargo,
+                      treasure: state.player.ship.cargo.treasure + loot.treasure,
                     },
                   },
-                }));
-                console.log(`Enemy ship destroyed! Looted: ${loot.food} food, ${loot.rum} rum, ${loot.ammunition} ammo`);
+                };
               }
-            }
+
+              // Cinematic callouts (non-gameplay)
+              if (ball.shooterId === state.player.ship.id && hitShip.isEnemy) {
+                const before = hitShip.health / hitShip.maxHealth;
+                const after = newHealth / hitShip.maxHealth;
+                if (before > 0.7 && after <= 0.7) toast.message('Enemy hull struck!');
+                if (before > 0.4 && after <= 0.4) toast.message('Enemy taking on water!');
+                if (before > 0.1 && after <= 0.1) toast.message('Enemy ship ablaze!');
+              }
+
+              return {
+                ships: updatedShips,
+                cannonballs: state.cannonballs.filter(b => b.id !== ball.id),
+                player: updatedPlayer,
+              } as any;
+            });
           }
         });
       });
@@ -290,11 +463,18 @@ export const usePirateGame = create<PirateGameState>()(
       
       if (port) {
         console.log(`Entering port: ${port.name}`);
+        // Complete delivery missions that target this port
+        const toComplete = (state.activeMissions || []).filter(m => m.type === 'delivery' && m.targetPortId === port.id && m.status === 'active');
+        if (toComplete.length > 0) {
+          toComplete.forEach(m => get().completeMission(m.id, true));
+        }
         set({ 
           currentPort: port,
           selectedPort: port,
           gameState: 'port' 
         });
+        // Autosave on port entry
+        get().saveGame();
       }
     },
 
@@ -305,6 +485,8 @@ export const usePirateGame = create<PirateGameState>()(
         selectedPort: undefined,
         gameState: 'sailing' 
       });
+      // Autosave on departure
+      get().saveGame();
     },
 
     buySupplies: (type: 'food' | 'rum' | 'ammunition', amount: number) => {
@@ -332,28 +514,23 @@ export const usePirateGame = create<PirateGameState>()(
     sellTreasure: (amount: number) => {
       const state = get();
       if (!state.currentPort) return;
-
-      const availableTreasure = Math.min(amount, state.currentPort.supplies.treasure);
-      const value = availableTreasure * 10; // 10 gold per treasure
-      
+      const available = state.player.ship.cargo.treasure;
+      const toSell = Math.max(0, Math.min(amount, available));
+      if (toSell <= 0) return;
+      const value = toSell * 10; // 10 gold per treasure
       set((state) => ({
         player: {
           ...state.player,
           gold: state.player.gold + value,
+          ship: {
+            ...state.player.ship,
+            cargo: {
+              ...state.player.ship.cargo,
+              treasure: Math.max(0, state.player.ship.cargo.treasure - toSell),
+            },
+          },
         },
-        ports: state.ports.map(port =>
-          port.id === state.currentPort?.id
-            ? {
-                ...port,
-                supplies: {
-                  ...port.supplies,
-                  treasure: port.supplies.treasure - availableTreasure,
-                },
-              }
-            : port
-        ),
       }));
-      console.log(`Sold ${availableTreasure} treasure for ${value} gold`);
     },
 
     updateAI: (deltaTime: number) => {
@@ -368,8 +545,27 @@ export const usePirateGame = create<PirateGameState>()(
           const dx = playerPos[0] - ship.position[0];
           const dz = playerPos[2] - ship.position[2];
           const distance = Math.sqrt(dx * dx + dz * dz);
+          const lowMorale = ship.morale < 25 || ship.health < ship.maxHealth * 0.3;
+          const wantsToFlee = lowMorale && distance < 25;
           
-          if (distance > 15) {
+          if (wantsToFlee) {
+            // Flee from player
+            const moveSpeed = ship.speed * deltaTime * 1.2;
+            const dirX = -dx / Math.max(distance, 0.001);
+            const dirZ = -dz / Math.max(distance, 0.001);
+            return {
+              ...ship,
+              position: [
+                ship.position[0] + dirX * moveSpeed,
+                ship.position[1],
+                ship.position[2] + dirZ * moveSpeed,
+              ] as [number, number, number],
+              rotation: Math.atan2(dirX, dirZ),
+              morale: Math.max(0, ship.morale - 0.1),
+            };
+          }
+
+          if (distance > 24) {
             // Move towards player
             const moveSpeed = ship.speed * deltaTime;
             const dirX = dx / distance;
@@ -384,13 +580,24 @@ export const usePirateGame = create<PirateGameState>()(
               ] as [number, number, number],
               rotation: Math.atan2(dirX, dirZ),
             };
-          } else if (distance < 12) {
-            // Fire at player
+          } else if (distance <= 24 && distance >= 12) {
+            // AI attempts to align for broadside
+            const angleToPlayer = Math.atan2(dx, dz);
+            const desired = angleToPlayer + Math.PI / 2; // try to bring player to starboard
+            const turn = Math.atan2(Math.sin(desired - ship.rotation), Math.cos(desired - ship.rotation));
+            const turnSpeed = 1.5 * deltaTime;
+            const newRot = ship.rotation + Math.max(-turnSpeed, Math.min(turnSpeed, turn));
             const now = Date.now();
-            if (now - ship.lastFired > 3000) { // 3 second cooldown for AI
-              const direction = [dx / distance, 0, dz / distance];
-              get().fireCannonball(ship.id, direction as [number, number, number]);
+            const canPort = now - (ship.lastFiredPort || 0) > 5000;
+            const canStar = now - (ship.lastFiredStarboard || 0) > 5000;
+            const deltaAngle = Math.atan2(Math.sin(angleToPlayer - ship.rotation), Math.cos(angleToPlayer - ship.rotation));
+            const playerOnStarboard = deltaAngle > 0; // right side
+            const shouldFire = Math.abs(Math.abs(deltaAngle) - Math.PI / 2) < 0.35;
+            if (shouldFire) {
+              if (playerOnStarboard && canStar) get().fireBroadside(ship.id, 'starboard');
+              if (!playerOnStarboard && canPort) get().fireBroadside(ship.id, 'port');
             }
+            return { ...ship, rotation: newRot };
           }
           
           return ship;
@@ -414,6 +621,8 @@ export const usePirateGame = create<PirateGameState>()(
         const playerCombatPower = playerShip.crew * (playerShip.morale / 100);
         const enemyCombatPower = enemyShip.crew * (enemyShip.morale / 100);
         
+        const targetFaction = enemyShip.faction;
+        const hasMarque = (state.lettersOfMarque || []).includes(targetFaction as any);
         if (playerCombatPower > enemyCombatPower) {
           // Victory! Capture the ship
           const capturedShip = { ...enemyShip, isEnemy: false };
@@ -424,12 +633,19 @@ export const usePirateGame = create<PirateGameState>()(
               ...state.player,
               capturedShips: [...state.player.capturedShips, capturedShip],
               gold: state.player.gold + 100,
-              reputation: state.player.reputation + 15,
-              infamy: state.player.infamy + 10,
+              reputation: state.player.reputation + (hasMarque ? 12 : -8),
+              infamy: state.player.infamy + (hasMarque ? 5 : 15),
               supplies: {
                 food: state.player.supplies.food + enemyShip.cargo.food,
                 rum: state.player.supplies.rum + enemyShip.cargo.rum,
                 ammunition: state.player.supplies.ammunition + enemyShip.cargo.ammunition,
+              },
+              ship: {
+                ...state.player.ship,
+                cargo: {
+                  ...state.player.ship.cargo,
+                  treasure: state.player.ship.cargo.treasure + enemyShip.cargo.treasure,
+                },
               },
             },
           }));
@@ -487,6 +703,10 @@ export const usePirateGame = create<PirateGameState>()(
       const currentIndex = times.indexOf(state.timeOfDay);
       const nextIndex = (currentIndex + 1) % times.length;
       set({ timeOfDay: times[nextIndex] });
+      if (times[nextIndex] === 'dawn') {
+        // Apply daily upkeep at dawn
+        get().applyDailyUpkeep();
+      }
     },
 
     sailToIsland: (islandId: string) => {
@@ -612,18 +832,147 @@ export const usePirateGame = create<PirateGameState>()(
     },
     
     buyShip: (shipType: string) => {
-      // This would add a ship to the player's fleet
-      console.log('Buying ship:', shipType);
+      set((state) => {
+        const catalog: Record<string, { price: number; crew: number; maxCrew: number; cannons: number; speed: number; maxHealth: number; cargoMax: number; type: Ship['type'] }> = {
+          sloop: { price: 5000, crew: 20, maxCrew: 40, cannons: 8, speed: 9, maxHealth: 250, cargoMax: 100, type: 'sloop' },
+          brigantine: { price: 12000, crew: 50, maxCrew: 80, cannons: 16, speed: 7, maxHealth: 400, cargoMax: 160, type: 'brigantine' },
+          frigate: { price: 25000, crew: 150, maxCrew: 220, cannons: 32, speed: 6, maxHealth: 700, cargoMax: 240, type: 'frigate' },
+          galleon: { price: 50000, crew: 300, maxCrew: 420, cannons: 48, speed: 4, maxHealth: 1000, cargoMax: 400, type: 'galleon' },
+        } as const;
+        const spec = catalog[shipType];
+        if (!spec) return state;
+        if (state.player.gold < spec.price) return state;
+        const oldShip = state.player.ship;
+        const newShip: Ship = {
+          id: 'player',
+          position: [...oldShip.position] as [number, number, number],
+          rotation: oldShip.rotation,
+          health: spec.maxHealth,
+          maxHealth: spec.maxHealth,
+          crew: Math.min(spec.crew, spec.maxCrew),
+          maxCrew: spec.maxCrew,
+          cannons: spec.cannons,
+          speed: spec.speed,
+          isPlayer: true,
+          type: spec.type,
+          isEnemy: false,
+          lastFired: 0,
+          lastFiredPort: 0,
+          lastFiredStarboard: 0,
+          morale: Math.min(oldShip.morale, 80),
+          maxMorale: oldShip.maxMorale,
+          faction: oldShip.faction,
+          cargo: { ...oldShip.cargo },
+          maxCargo: spec.cargoMax,
+        };
+        const newCargoMax = spec.cargoMax;
+        const adjustedCurrent = Math.min(state.player.cargo.current, newCargoMax);
+        toast.success(`Purchased ${shipType} for ${spec.price} gold`);
+        return {
+          player: {
+            ...state.player,
+            gold: state.player.gold - spec.price,
+            ship: newShip,
+            cargo: {
+              ...state.player.cargo,
+              max: newCargoMax,
+              current: adjustedCurrent,
+            },
+          },
+        } as any;
+      });
     },
     
     sellShip: (shipId: string) => {
-      // This would remove a ship from the player's fleet
-      console.log('Selling ship:', shipId);
+      set((state) => {
+        const ship = state.player.capturedShips.find(s => s.id === shipId);
+        if (!ship) return state;
+        // Simple valuation: base on cannons, health, size
+        const baseValue = 500 + ship.cannons * 100 + (ship.maxHealth / 2);
+        toast.success(`Prize sold for ${Math.round(baseValue)} gold`);
+        return {
+          player: {
+            ...state.player,
+            gold: state.player.gold + Math.round(baseValue),
+            capturedShips: state.player.capturedShips.filter(s => s.id !== shipId),
+            reputation: state.player.reputation + 5,
+          }
+        };
+      });
+      get().saveGame();
     },
     
-    acceptMission: (missionId: string) => {
-      console.log('Accepting mission:', missionId);
-      // This would add a mission to the player's active missions
+    acceptMission: (mission: Mission) => {
+      console.log('Accepting mission:', mission.id);
+      set((state) => ({
+        activeMissions: [...(state.activeMissions || []), mission],
+        player: { ...state.player, reputation: state.player.reputation + 2 },
+      }));
+      get().saveGame();
+      toast.success(`Mission accepted: ${mission.title}`);
+    },
+
+    completeMission: (missionId: string, success: boolean = true) => {
+      const state = get();
+      const mission = state.activeMissions?.find(m => m.id === missionId);
+      if (!mission) return;
+      set((state) => ({
+        activeMissions: state.activeMissions?.map(m => m.id === missionId ? { ...m, status: success ? 'completed' : 'failed' } : m) || [],
+        player: success ? {
+          ...state.player,
+          gold: state.player.gold + mission.reward,
+          reputation: state.player.reputation + (mission.type === 'combat' ? 12 : 8),
+        } : state.player,
+      }));
+      toast[success ? 'success' : 'error'](`Mission ${success ? 'completed' : 'failed'}: ${mission.title}${success ? ` (+${mission.reward}g)` : ''}`);
+    },
+
+    purchaseLetterOfMarque: (faction) => {
+      set((state) => {
+        const cost = 1000; // base cost; could vary by faction/rep later
+        if (state.player.gold < cost) return state;
+        const current = new Set(state.lettersOfMarque || []);
+        current.add(faction);
+        toast.success(`Letter of Marque purchased for ${faction}`);
+        return {
+          player: { ...state.player, gold: state.player.gold - cost },
+          lettersOfMarque: Array.from(current),
+        } as any;
+      });
+    },
+
+    dividePlunder: () => {
+      // Pay crew wages, reset morale, reduce infamy slightly
+      set((state) => {
+        const crewCount = state.player.ship.crew;
+        const wages = crewCount * 5; // 5 gold per crew
+        const canPay = state.player.gold >= wages;
+        toast.success(`Divided the plunder. Wages paid: ${wages}g`);
+        return {
+          player: {
+            ...state.player,
+            gold: Math.max(0, state.player.gold - wages),
+            ship: {
+              ...state.player.ship,
+              morale: canPay ? Math.min(state.player.ship.maxMorale, state.player.ship.morale + 30) : state.player.ship.morale,
+            },
+            reputation: state.player.reputation + (canPay ? 5 : 0),
+            infamy: Math.max(0, state.player.infamy - 5),
+          },
+        };
+      });
+    },
+
+    bribeGovernor: (amount: number) => {
+      set((state) => {
+        if (!state.currentPort || state.player.gold < amount) return state;
+        toast.success(`Bribed governor (${state.currentPort.name}) for ${amount}g`);
+        return {
+          player: { ...state.player, gold: state.player.gold - amount },
+          ports: state.ports.map(p => p.id === state.currentPort?.id ? { ...p, governor: { ...p.governor, attitude: 'neutral' } } : p),
+          currentPort: { ...state.currentPort, governor: { ...state.currentPort.governor, attitude: 'neutral' } },
+        } as any;
+      });
     },
 
     updateSailing: (deltaTime: number) => {
@@ -680,6 +1029,37 @@ export const usePirateGame = create<PirateGameState>()(
           sailingDestination: undefined,
         });
       }
+    },
+
+    applyDailyUpkeep: () => {
+      set((state) => {
+        const crew = state.player.ship.crew;
+        const foodConsumed = Math.ceil(crew / 5);
+        const rumConsumed = Math.ceil(crew / 10);
+        const hasRations = state.player.supplies.food >= foodConsumed;
+        const hasRum = state.player.supplies.rum >= rumConsumed;
+
+        const moraleDelta = (hasRations ? 2 : -5) + (hasRum ? 1 : 0);
+
+        const newMorale = Math.max(0, Math.min(state.player.ship.maxMorale, state.player.ship.morale + moraleDelta));
+        const mutiny = newMorale <= 5 && Math.random() < 0.05; // 5% daily if morale critically low
+
+        const shipAfterMutiny = mutiny
+          ? { ...state.player.ship, morale: 20, crew: Math.max(1, state.player.ship.crew - Math.ceil(state.player.ship.crew * 0.1)) }
+          : { ...state.player.ship, morale: newMorale };
+
+        return {
+          player: {
+            ...state.player,
+            supplies: {
+              ...state.player.supplies,
+              food: Math.max(0, state.player.supplies.food - foodConsumed),
+              rum: Math.max(0, state.player.supplies.rum - rumConsumed),
+            },
+            ship: shipAfterMutiny,
+          },
+        };
+      });
     },
   }))
 );

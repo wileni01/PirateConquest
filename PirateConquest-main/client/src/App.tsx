@@ -10,6 +10,12 @@ import TradingMenu from "./components/TradingMenu";
 import MapView from "./components/MapView";
 import { PortScreen } from "./components/PortScreen";
 import "@fontsource/inter";
+import { Toaster } from "./components/ui/sonner";
+import MinimapOverlay from "./components/MinimapOverlay";
+import StrategicMapOverlay from "./components/StrategicMapOverlay";
+import DynamicLighting from "./components/DynamicLighting";
+import { startPerfHarnessIfRequested } from "./lib/perf";
+import PerfOverlay from "./components/PerfOverlay";
 
 // Define control keys for the pirate game
 const controls = [
@@ -18,6 +24,8 @@ const controls = [
   { name: "leftward", keys: ["KeyA", "ArrowLeft"] },
   { name: "rightward", keys: ["KeyD", "ArrowRight"] },
   { name: "fire", keys: ["Space"] },
+  { name: "broadsidePort", keys: ["KeyQ"] },
+  { name: "broadsideStarboard", keys: ["KeyR"] },
   { name: "board", keys: ["KeyE"] },
   { name: "escape", keys: ["Escape"] },
   { name: "bury", keys: ["KeyB"] },
@@ -38,6 +46,7 @@ function App() {
     music.volume = 0.3;
     setBackgroundMusic(music);
     setShowCanvas(true);
+    startPerfHarnessIfRequested();
   }, [setBackgroundMusic]);
 
   return (
@@ -69,21 +78,17 @@ function App() {
               >
                 <color attach="background" args={["#1e40af"]} />
                 
-                {/* Lighting */}
-                <ambientLight intensity={0.4} />
-                <directionalLight
-                  position={[10, 20, 5]}
-                  intensity={1}
-                  castShadow
-                  shadow-mapSize-width={2048}
-                  shadow-mapSize-height={2048}
-                />
+                <DynamicLighting />
 
                 <Suspense fallback={null}>
                   <Game />
                 </Suspense>
               </Canvas>
+              <MinimapOverlay />
+              <StrategicMapOverlay />
               <GameUI />
+              <PerfOverlay />
+              <Toaster />
             </>
           )}
         </KeyboardControls>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { Ship as ShipType } from "../lib/types";
@@ -12,6 +12,7 @@ interface ShipProps {
 function Ship({ ship, isPlayer }: ShipProps) {
   const groupRef = useRef<THREE.Group>(null);
   const texture = useTexture("/textures/wood.jpg");
+  const smokeTexture = useTexture("/textures/sky.png");
   
   useFrame(() => {
     if (groupRef.current) {
@@ -27,12 +28,17 @@ function Ship({ ship, isPlayer }: ShipProps) {
   const shipColor = isPlayer ? "#8B4513" : ship.isEnemy ? "#800000" : "#654321";
   const sailColor = isPlayer ? "#FFFFFF" : ship.isEnemy ? "#000000" : "#F5F5DC";
 
+  // Damage visuals based on health
+  const damageRatio = 1 - Math.max(0, Math.min(1, ship.health / ship.maxHealth));
+  const tornSailOpacity = useMemo(() => 0.9 - damageRatio * 0.6, [damageRatio]);
+  const hullDarken = useMemo(() => 1 - damageRatio * 0.4, [damageRatio]);
+
   return (
     <group ref={groupRef}>
       {/* Ship hull */}
       <mesh castShadow receiveShadow>
         <boxGeometry args={[3, 0.8, 6]} />
-        <meshStandardMaterial map={texture} color={shipColor} />
+        <meshStandardMaterial map={texture} color={shipColor} opacity={1} />
       </mesh>
       
       {/* Ship deck */}
@@ -50,8 +56,26 @@ function Ship({ ship, isPlayer }: ShipProps) {
       {/* Main sail */}
       <mesh position={[0, 2, -0.5]} castShadow>
         <boxGeometry args={[0.1, 3, 2]} />
-        <meshStandardMaterial color={sailColor} transparent opacity={0.9} />
+        <meshStandardMaterial color={sailColor} transparent opacity={tornSailOpacity} />
       </mesh>
+
+      {/* Smoke/fire when heavily damaged */}
+      {damageRatio > 0.5 && (
+        <group position={[0, 1.2, 0]}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <sprite key={i} scale={[0.8 + i * 0.1, 0.8 + i * 0.1, 1]} position={[ (i-2)*0.1, i*0.25, 0 ]}>
+              <spriteMaterial
+                attach="material"
+                transparent
+                opacity={0.5 + 0.4 * Math.random()}
+                map={smokeTexture as any}
+                color={new THREE.Color(0.2, 0.2, 0.2)}
+                depthWrite={false}
+              />
+            </sprite>
+          ))}
+        </group>
+      )}
       
       {/* Cannons indicator */}
       {Array.from({ length: ship.cannons / 2 }).map((_, i) => (
@@ -76,6 +100,28 @@ function Ship({ ship, isPlayer }: ShipProps) {
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[3 * (ship.health / ship.maxHealth), 0.3]} />
           <meshBasicMaterial color="#00FF00" />
+        </mesh>
+      </group>
+
+      {/* Side cooldown indicators */}
+      <group position={[0, 3.5, 0]}>
+        {/* Port */}
+        <mesh position={[-1.8, 0, 0]}>
+          <planeGeometry args={[0.6, 0.18]} />
+          <meshBasicMaterial color="#111111" />
+        </mesh>
+        <mesh position={[-1.8, 0, 0.01]}>
+          <planeGeometry args={[0.6 * Math.min(1, Math.max(0, (Date.now() - (ship.lastFiredPort || 0)) / 5000)), 0.18]} />
+          <meshBasicMaterial color="#9ca3af" />
+        </mesh>
+        {/* Starboard */}
+        <mesh position={[1.8, 0, 0]}>
+          <planeGeometry args={[0.6, 0.18]} />
+          <meshBasicMaterial color="#111111" />
+        </mesh>
+        <mesh position={[1.8, 0, 0.01]}>
+          <planeGeometry args={[0.6 * Math.min(1, Math.max(0, (Date.now() - (ship.lastFiredStarboard || 0)) / 5000)), 0.18]} />
+          <meshBasicMaterial color="#9ca3af" />
         </mesh>
       </group>
       

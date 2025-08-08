@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
+import { Toaster } from "./ui/sonner";
 
 // Define key Caribbean locations for missions
 const CARIBBEAN_LOCATIONS = [
@@ -68,12 +69,20 @@ export function PortScreen() {
     player,
     currentPort,
     setGameState,
+    exitPort,
     buyGoods,
     sellGoods,
     repairShip,
     buyShip,
     sellShip,
-    acceptMission
+    acceptMission,
+    purchaseLetterOfMarque,
+    dividePlunder,
+    saveGame,
+    loadGame,
+    lettersOfMarque,
+    activeMissions,
+    bribeGovernor
   } = usePirateGame() as any; // Type assertion to avoid TypeScript errors
   
   const [activeTab, setActiveTab] = useState("trade");
@@ -96,6 +105,18 @@ export function PortScreen() {
       price *= 1.3; // Military goods more expensive in pirate havens
     }
     
+    // Player reputation/infamy influence
+    const rep = player.reputation;
+    const inf = player.infamy;
+    price *= 1 - Math.min(0.15, rep / 1000); // up to 15% discount for high rep
+    price *= 1 + Math.min(0.15, inf / 1000); // up to 15% surcharge for high infamy
+
+    // Letter of marque discount for aligned faction ports
+    const marqueDiscount = 0.9;
+    if ((lettersOfMarque || []).includes(currentPort.faction)) {
+      price *= marqueDiscount;
+    }
+
     // Supply/demand simulation
     const supplyModifier = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
     price *= supplyModifier;
@@ -112,33 +133,42 @@ export function PortScreen() {
   
   // Generate available missions based on governor attitude
   const generateMissions = () => {
-    const missions = [];
+    const missions: any[] = [];
     
     if (currentPort.governor.attitude === 'friendly') {
       missions.push({
-        id: 'escort',
+        id: `escort_${Date.now()}`,
         title: 'Escort Merchant Convoy',
         description: 'Protect our merchants from pirates',
         reward: 2000,
-        type: 'escort'
+        type: 'escort',
+        originPortId: currentPort.id,
+        targetPortId: CARIBBEAN_LOCATIONS[Math.floor(Math.random() * CARIBBEAN_LOCATIONS.length)].id,
+        status: 'active'
       });
     }
     
+    const randomTarget = CARIBBEAN_LOCATIONS[Math.floor(Math.random() * CARIBBEAN_LOCATIONS.length)];
     missions.push({
-      id: 'delivery',
+      id: `delivery_${Date.now()}`,
       title: 'Deliver Urgent Dispatches',
-      description: `Deliver messages to ${CARIBBEAN_LOCATIONS[Math.floor(Math.random() * CARIBBEAN_LOCATIONS.length)].name}`,
+      description: `Deliver messages to ${randomTarget.name}`,
       reward: 1000,
-      type: 'delivery'
+      type: 'delivery',
+      originPortId: currentPort.id,
+      targetPortId: randomTarget.id,
+      status: 'active'
     });
     
     if (player.reputation > 50) {
       missions.push({
-        id: 'hunt',
+        id: `hunt_${Date.now()}`,
         title: 'Hunt Notorious Pirate',
         description: 'Eliminate a threat to our shipping',
         reward: 5000,
-        type: 'combat'
+        type: 'combat',
+        originPortId: currentPort.id,
+        status: 'active'
       });
     }
     
@@ -150,6 +180,7 @@ export function PortScreen() {
   return (
     <div className="min-h-screen max-h-screen bg-gradient-to-b from-amber-900/20 to-amber-950/20 p-4 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
+        <Toaster />
         {/* Port Header */}
         <Card className="mb-4 bg-black/80 border-amber-600">
           <CardHeader>
@@ -161,7 +192,7 @@ export function PortScreen() {
                 </p>
               </div>
               <Button 
-                onClick={() => setGameState('sailing')}
+                onClick={() => exitPort()}
                 className="bg-blue-600 hover:bg-blue-500"
               >
                 Leave Port
@@ -192,6 +223,22 @@ export function PortScreen() {
                 <span className="text-gray-400">Your Gold:</span>
                 <p className="text-yellow-400 font-bold">{player.gold} pieces</p>
               </div>
+              <div className="col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                <Button onClick={saveGame} className="bg-amber-700 hover:bg-amber-600">Save</Button>
+                <Button onClick={loadGame} className="bg-amber-700 hover:bg-amber-600">Load</Button>
+                <Button onClick={() => dividePlunder()} className="bg-green-700 hover:bg-green-600">Divide Plunder</Button>
+                <Button 
+                  onClick={() => purchaseLetterOfMarque(currentPort.faction)}
+                  className="bg-purple-700 hover:bg-purple-600"
+                >
+                  Letter of Marque ({currentPort.faction})
+                </Button>
+                {currentPort.governor.attitude === 'hostile' && (
+                  <Button onClick={() => bribeGovernor(currentPort.governor.bribes || 200)} className="bg-red-700 hover:bg-red-600">
+                    Bribe Governor ({currentPort.governor.bribes || 200}g)
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -210,6 +257,9 @@ export function PortScreen() {
             </TabsTrigger>
             <TabsTrigger value="tavern" className="data-[state=active]:bg-amber-600">
               Tavern
+            </TabsTrigger>
+            <TabsTrigger value="missions" className="data-[state=active]:bg-amber-600">
+              Missions
             </TabsTrigger>
           </TabsList>
           
@@ -307,18 +357,18 @@ export function PortScreen() {
                     <div>
                       <div className="flex justify-between mb-2">
                         <span className="text-gray-400">Hull Integrity:</span>
-                        <span className="text-amber-300">{player.health}/{player.maxHealth}</span>
+                        <span className="text-amber-300">{player.ship.health}/{player.ship.maxHealth}</span>
                       </div>
-                      <Progress value={(player.health / player.maxHealth) * 100} className="h-3" />
+                      <Progress value={(player.ship.health / player.ship.maxHealth) * 100} className="h-3" />
                     </div>
                     
                     <div className="p-4 bg-amber-900/20 rounded">
                       <p className="text-sm text-gray-300 mb-2">
-                        Repair Cost: {Math.round((player.maxHealth - player.health) * 2)} gold
+                        Repair Cost: {Math.round((player.ship.maxHealth - player.ship.health) * 2)} gold
                       </p>
                       <Button 
                         onClick={() => repairShip()}
-                        disabled={player.health === player.maxHealth}
+                        disabled={player.ship.health === player.ship.maxHealth}
                         className="w-full bg-green-600 hover:bg-green-500"
                       >
                         Repair Ship
@@ -361,6 +411,38 @@ export function PortScreen() {
                   </ScrollArea>
                 </CardContent>
               </Card>
+
+              <Card className="bg-black/80 border-amber-600 col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-amber-400">Harbor Master: Sell Prize Ships</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {player.capturedShips.length === 0 && (
+                    <p className="text-sm text-gray-300">No captured ships to sell.</p>
+                  )}
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {player.capturedShips.map((ship: any) => (
+                      <div key={ship.id} className="p-3 bg-amber-900/20 rounded">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-amber-300 font-semibold capitalize">{ship.type}</h4>
+                          <Badge className="bg-yellow-600">Cannons: {ship.cannons}</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+                          <div>Crew: {ship.crew}</div>
+                          <div>Hull: {ship.health}/{ship.maxHealth}</div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-2 bg-red-700 hover:bg-red-600"
+                          onClick={() => sellShip(ship.id)}
+                        >
+                          Sell Prize
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
           
@@ -394,7 +476,7 @@ export function PortScreen() {
                       <Button 
                         size="sm"
                         className="bg-green-600 hover:bg-green-500"
-                        onClick={() => acceptMission(mission.id)}
+                        onClick={() => acceptMission(mission)}
                       >
                         Accept Mission
                       </Button>
@@ -402,6 +484,34 @@ export function PortScreen() {
                     ))}
                   </div>
                 </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Missions Tab - Active missions overview */}
+          <TabsContent value="missions">
+            <Card className="bg-black/80 border-amber-600">
+              <CardHeader>
+                <CardTitle className="text-amber-400">Active Missions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(!activeMissions || activeMissions.length === 0) && (
+                  <p className="text-sm text-gray-300">No active missions.</p>
+                )}
+                <div className="space-y-2">
+                  {(activeMissions || []).map((m: any) => (
+                    <div key={m.id} className="p-3 bg-amber-900/20 rounded">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-amber-300 font-semibold">{m.title}</div>
+                          <div className="text-xs text-gray-300">{m.description}</div>
+                          <div className="text-xs text-gray-400 mt-1">Type: {m.type} • Reward: {m.reward}g • Status: {m.status}</div>
+                        </div>
+                        <Badge className="bg-yellow-600">{m.reward} gold</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

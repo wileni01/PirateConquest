@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePirateGame } from "../lib/stores/usePirateGame";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -89,27 +89,40 @@ const CARIBBEAN_LOCATIONS = [
 
 // Calculate the centroid and optimal bounds after locations are defined
 const calculateCentroid = () => {
-  // Include all locations for proper coverage
-  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat);
-  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon);
-  
-  const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
-  const avgLon = lons.reduce((a, b) => a + b, 0) / lons.length;
-  
-  // Calculate the range needed with moderate padding
-  const latRange = Math.max(...lats) - Math.min(...lats);
-  const lonRange = Math.max(...lons) - Math.min(...lons);
-  
-  // Moderate padding to show all ports with some breathing room
-  const padding = 0.08;
-  
+  // Include all locations but trim outliers (use 5th-95th percentiles)
+  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat).sort((a, b) => a - b);
+  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon).sort((a, b) => a - b);
+
+  const quantile = (arr: number[], q: number) => {
+    if (arr.length === 0) return 0;
+    const pos = (arr.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    const next = Math.min(arr.length - 1, base + 1);
+    return arr[base] + rest * (arr[next] - arr[base]);
+  };
+
+  const latMin = quantile(lats, 0.05);
+  const latMax = quantile(lats, 0.95);
+  const lonMin = quantile(lons, 0.05);
+  const lonMax = quantile(lons, 0.95);
+
+  const avgLat = (latMin + latMax) / 2;
+  const avgLon = (lonMin + lonMax) / 2;
+
+  const latRange = latMax - latMin;
+  const lonRange = lonMax - lonMin;
+
+  // Padding to show all core Caribbean ports with breathing room
+  const padding = 0.06;
+
   return {
     center: { lat: avgLat, lon: avgLon },
     bounds: {
-      north: Math.max(...lats) + (latRange * padding),
-      south: Math.min(...lats) - (latRange * padding),
-      west: Math.min(...lons) - (lonRange * padding),
-      east: Math.max(...lons) + (lonRange * padding)
+      north: latMax + (latRange * padding),
+      south: latMin - (latRange * padding),
+      west: lonMin - (lonRange * padding),
+      east: lonMax + (lonRange * padding)
     }
   };
 };
@@ -118,7 +131,7 @@ const calculateCentroid = () => {
 const centroidConfig = calculateCentroid();
 mapBounds = centroidConfig.bounds;
 
-// Function to detect label collisions and adjust positions
+// Function to detect label collisions and adjust positions (labels and markers)
 const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
   // First, map locations with their base positions
   const locationsWithCoords = locations.map(location => ({
@@ -126,7 +139,9 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
     ...latLonToMapCoords(location.lat, location.lon),
     labelOffsetX: 0,
     labelOffsetY: 5,
-    useLeaderLine: false
+    useLeaderLine: false,
+    markerOffsetXPct: 0,
+    markerOffsetYPct: 0,
   }));
 
   // Sort by Y position to process from top to bottom
@@ -179,12 +194,18 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
         loc2.labelOffsetX = 50;
         loc1.labelOffsetY = 0;
         loc2.labelOffsetY = 0;
+        // Nudge markers apart horizontally (percent units)
+        loc1.markerOffsetXPct = -1.2;
+        loc2.markerOffsetXPct = 1.2;
       } else if (Math.abs(dy) < 3) {
         // Horizontally aligned
         loc1.labelOffsetX = 0;
         loc1.labelOffsetY = -20;
         loc2.labelOffsetX = 0;
         loc2.labelOffsetY = 20;
+        // Nudge markers apart vertically (percent units)
+        loc1.markerOffsetYPct = -1.0;
+        loc2.markerOffsetYPct = 1.0;
       } else {
         // Diagonal
         const angle = Math.atan2(dy, dx);
@@ -192,6 +213,11 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
         loc1.labelOffsetY = -Math.sin(angle) * 20;
         loc2.labelOffsetX = Math.cos(angle) * 40;
         loc2.labelOffsetY = Math.sin(angle) * 20;
+        const r = 1.2;
+        loc1.markerOffsetXPct = -Math.cos(angle) * r;
+        loc1.markerOffsetYPct = -Math.sin(angle) * r;
+        loc2.markerOffsetXPct = Math.cos(angle) * r;
+        loc2.markerOffsetYPct = Math.sin(angle) * r;
       }
     } else if (cluster.length > 2) {
       // Multiple locations - arrange in a circle
@@ -204,6 +230,10 @@ const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
         locationsWithCoords[i].labelOffsetX = Math.cos(angle) * radius;
         locationsWithCoords[i].labelOffsetY = Math.sin(angle) * radius * 0.7;
         locationsWithCoords[i].useLeaderLine = true;
+        // Slightly offset markers in percent units to prevent overlap
+        const markerRadiusPct = 1.2 + (cluster.length - 3) * 0.3;
+        locationsWithCoords[i].markerOffsetXPct = Math.cos(angle) * markerRadiusPct;
+        locationsWithCoords[i].markerOffsetYPct = Math.sin(angle) * markerRadiusPct;
       });
     }
   }
@@ -354,13 +384,9 @@ const LAND_MASSES = [
   ]},
 ];
 
-// Convert land masses to map coordinates
-const RENDERED_LAND_MASSES = LAND_MASSES.map(landMass => ({
-  ...landMass,
-  points: landMass.points.map(point => latLonToMapCoords(point.lat, point.lon))
-}));
+// Note: rendered land masses are computed inside the component to allow runtime overrides
 
-function MapView() {
+function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
   const { 
     player, 
     ships, 
@@ -387,6 +413,69 @@ function MapView() {
   const [playerMapPosition, setPlayerMapPosition] = useState({ x: 250, y: 300 });
   const [encounterShips, setEncounterShips] = useState<typeof ships>([]);
   const [showEncounter, setShowEncounter] = useState(false);
+  const [customLandMasses, setCustomLandMasses] = useState<any[] | null>(null);
+
+  // Optionally load external landmass data (GeoJSON or simple JSON) for higher accuracy
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const tStart = performance.now();
+      const tryUrls = [
+        '/caribbean-landmasses.json',
+        '/caribbean-landmasses-example.json',
+      ];
+      for (const url of tryUrls) {
+        try {
+          const resp = await fetch(url);
+          if (!resp.ok) continue;
+          const data = await resp.json();
+          if (cancelled) return;
+          // GeoJSON FeatureCollection
+          if (data?.type === 'FeatureCollection' && Array.isArray(data.features)) {
+            const masses: any[] = [];
+            data.features.forEach((feat: any, idx: number) => {
+              const name = feat?.properties?.name || `Landmass ${idx + 1}`;
+              const geom = feat?.geometry;
+              if (!geom) return;
+              const toPoints = (coords: number[][]) => coords.map(([lon, lat]) => ({ lat, lon }));
+              if (geom.type === 'Polygon' && Array.isArray(geom.coordinates?.[0])) {
+                masses.push({ name, points: toPoints(geom.coordinates[0]) });
+              } else if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
+                geom.coordinates.forEach((poly: any, pIdx: number) => {
+                  if (Array.isArray(poly?.[0])) {
+                    masses.push({ name: `${name} ${pIdx + 1}` , points: toPoints(poly[0]) });
+                  }
+                });
+              }
+            });
+            if (masses.length) {
+              setCustomLandMasses(masses);
+              try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.features.length); } catch {}
+              return;
+            }
+          }
+          // Simple format { landMasses: [ { name, points:[{lat,lon}...] } ] }
+          if (Array.isArray(data?.landMasses)) {
+            setCustomLandMasses(data.landMasses);
+            try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.landMasses.length); } catch {}
+            return;
+          }
+        } catch (_) {
+          // continue to next URL
+        }
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const renderedLandMasses = useMemo(() => {
+    const source = customLandMasses ?? LAND_MASSES;
+    return source.map((landMass: any) => ({
+      ...landMass,
+      points: landMass.points.map((point: any) => latLonToMapCoords(point.lat, point.lon))
+    }));
+  }, [customLandMasses]);
   
   // Update sailing progress
   useEffect(() => {
@@ -487,11 +576,11 @@ function MapView() {
     }
   };
 
-  if (gameState !== 'map') return null;
+  if (!forceRender && gameState !== 'map') return null;
 
   return (
     <div className="h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-600 p-4 overflow-hidden">
-      <div className="max-w-7xl mx-auto h-full flex flex-col">
+      <div className="max-w-none mx-0 h-full flex flex-col">
         {/* Header */}
         <Card className="mb-4 bg-black/80 border-amber-600 text-white flex-shrink-0">
           <CardHeader className="py-3">
@@ -525,14 +614,14 @@ function MapView() {
                 </div>
 
                 {/* Land masses */}
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid slice" style={{ pointerEvents: 'none' }}>
                   <defs>
                     <pattern id="landTexture" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
                       <rect width="4" height="4" fill="#8b7355"/>
                       <circle cx="2" cy="2" r="0.5" fill="#7a6248"/>
                     </pattern>
                   </defs>
-                  {RENDERED_LAND_MASSES.map((landMass, index) => (
+                  {renderedLandMasses.map((landMass, index) => (
                     <g key={index}>
                       {/* Shadow for depth */}
                       <polygon
@@ -563,7 +652,7 @@ function MapView() {
                 </svg>
 
                 {/* Grid lines for navigation */}
-                <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
+                <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid slice" style={{ pointerEvents: 'none' }}>
                   {/* Vertical lines (longitude) */}
                   {Array.from({ length: 10 }, (_, i) => (
                     <line
@@ -593,15 +682,20 @@ function MapView() {
                 </svg>
 
                 {/* Locations */}
-                {MAPPED_LOCATIONS.map(location => (
+                {MAPPED_LOCATIONS.map(location => {
+                  const markerOffsetX = (location as any).markerOffsetXPct || 0;
+                  const markerOffsetY = (location as any).markerOffsetYPct || 0;
+                  const leftPct = (location.x || 0) + markerOffsetX;
+                  const topPct = (location.y || 0) + markerOffsetY;
+                  return (
                   <div
                     key={location.id}
                     className={`absolute cursor-pointer transition-all duration-200 hover:scale-110 ${
                       selectedIsland === location.id ? 'ring-2 ring-amber-400' : ''
                     }`}
                     style={{
-                      left: `${location.x}%`,
-                      top: `${location.y}%`,
+                      left: `${leftPct}%`,
+                      top: `${topPct}%`,
                       transform: 'translate(-50%, -50%)'
                     }}
                     onClick={() => setSelectedIsland(location.id)}
@@ -616,14 +710,14 @@ function MapView() {
                       location.faction === 'danish' ? 'border-cyan-400 bg-cyan-600' :
                       'border-gray-400 bg-gray-600'
                     } ${
-                      location.size === 'large' ? 'w-12 h-12' :
-                      location.size === 'medium' ? 'w-10 h-10' :
-                      'w-8 h-8'
+                      location.size === 'large' ? 'w-10 h-10' :
+                      location.size === 'medium' ? 'w-8 h-8' :
+                      'w-6 h-6'
                     } flex items-center justify-center shadow-lg`}>
                       <span className={`text-white ${
-                        location.size === 'large' ? 'text-xl' :
-                        location.size === 'medium' ? 'text-lg' :
-                        'text-base'
+                        location.size === 'large' ? 'text-lg' :
+                        location.size === 'medium' ? 'text-base' :
+                        'text-sm'
                       }`}>
                         {location.type === 'major_port' ? '🏛️' :
                          location.type === 'pirate_haven' ? '🏴‍☠️' :
@@ -662,7 +756,7 @@ function MapView() {
                       className="absolute text-amber-200 whitespace-nowrap bg-black/90 px-3 py-1.5 rounded-md font-semibold pointer-events-none shadow-xl border border-amber-600/30"
                       style={{
                         left: '50%',
-                        top: `${45 + ((location as any).labelOffsetY || 5)}px`,
+                        top: `${38 + ((location as any).labelOffsetY || 5)}px`,
                         transform: `translateX(calc(-50% + ${(location as any).labelOffsetX || 0}px))`,
                         fontSize: '12px',
                         zIndex: 20
@@ -671,7 +765,8 @@ function MapView() {
                       {location.name}
                     </div>
                   </div>
-                ))}
+                );
+                })}
 
                 {/* Player ship */}
                 <div
@@ -856,7 +951,7 @@ function MapView() {
                   onClick={() => setGameState('sailing')}
                   className="w-full bg-blue-600 hover:bg-blue-500 text-sm py-1"
                 >
-                  Set Sail
+                  Set Sail (Enter Battle View)
                 </Button>
                 <Button 
                   onClick={() => setGameState('menu')}

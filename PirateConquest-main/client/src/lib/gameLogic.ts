@@ -12,22 +12,25 @@ export function createPlayerShip(): Ship {
     id: 'player',
     position: latLonTo3D(17.93, -76.84), // Start at Port Royal with real coordinates
     rotation: 0,
-    health: 100,
-    maxHealth: 100,
-    crew: 20,
-    maxCrew: 30,
+    health: 250,
+    maxHealth: 250,
+    crew: 30,
+    maxCrew: 40,
     cannons: 8,
     speed: 8,
     isPlayer: true,
     type: 'sloop',
     isEnemy: false,
     lastFired: 0,
+    lastFiredPort: 0,
+    lastFiredStarboard: 0,
     morale: 80,
     maxMorale: 100,
+    faction: 'english',
     cargo: {
       food: 0,
       rum: 0,
-      ammunition: 0,
+      ammunition: 60,
       treasure: 0,
     },
     maxCargo: 100,
@@ -39,22 +42,25 @@ export function createEnemyShip(position: [number, number, number]): Ship {
     id: `enemy_${Math.random().toString(36).substr(2, 9)}`,
     position,
     rotation: Math.random() * Math.PI * 2,
-    health: 80,
-    maxHealth: 80,
-    crew: 15,
-    maxCrew: 20,
+    health: 150,
+    maxHealth: 150,
+    crew: 18,
+    maxCrew: 24,
     cannons: 6,
     speed: 6,
     isPlayer: false,
     type: 'sloop',
     isEnemy: true,
     lastFired: 0,
+    lastFiredPort: 0,
+    lastFiredStarboard: 0,
     morale: 60,
     maxMorale: 100,
+    faction: Math.random() < 0.5 ? 'spanish' : 'english',
     cargo: {
       food: 10 + Math.floor(Math.random() * 20),
       rum: 5 + Math.floor(Math.random() * 10),
-      ammunition: 20 + Math.floor(Math.random() * 30),
+      ammunition: 30 + Math.floor(Math.random() * 30),
       treasure: Math.floor(Math.random() * 15),
     },
     maxCargo: 80,
@@ -113,11 +119,11 @@ export function generateInitialPorts(): Port[] {
 
 export function spawnEnemyShips(playerPosition: [number, number, number]): Ship[] {
   const ships: Ship[] = [];
-  const numShips = 3 + Math.floor(Math.random() * 3);
+  const numShips = 1 + Math.floor(Math.random() * 2);
   
   for (let i = 0; i < numShips; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const distance = 30 + Math.random() * 50;
+    const distance = 60 + Math.random() * 60;
     const position: [number, number, number] = [
       playerPosition[0] + Math.cos(angle) * distance,
       0,
