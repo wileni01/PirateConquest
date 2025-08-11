@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { usePirateGame } from "../lib/stores/usePirateGame";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -14,18 +14,24 @@ const MAP_BOUNDS = {
   east: -55     // Lesser Antilles
 };
 
-// Temporary placeholder for map bounds
+// Temporary placeholder for map bounds (fallback; replaced at runtime)
 let mapBounds = {
   north: 32,
   south: 8,
   west: -98,
-  east: -58
+  east: -58,
 };
 
 // Convert real lat/lon to map coordinates with better scaling
-const latLonToMapCoords = (lat: number, lon: number, mapWidth: number = 100, mapHeight: number = 70) => {
+const latLonToMapCoords = (
+  lat: number,
+  lon: number,
+  mapWidth: number = 100,
+  mapHeight: number = 70,
+  bounds: { north: number; south: number; west: number; east: number } = mapBounds
+) => {
   // Use calculated bounds centered on port locations
-  const { north, south, west, east } = mapBounds;
+  const { north, south, west, east } = bounds;
   
   // Add 5% margin to prevent ports from being at the very edge
   const margin = 0.05;
@@ -71,7 +77,7 @@ const CARIBBEAN_LOCATIONS = [
   // North American Coast
   { id: 'charleston', name: 'Charleston', lat: 32.78, lon: -79.93, size: 'medium', type: 'major_port', faction: 'english' },
   { id: 'st_augustine', name: 'St. Augustine', lat: 29.90, lon: -81.31, size: 'small', type: 'port', faction: 'spanish' },
-  { id: 'key_west', name: 'Key West', lat: 24.56, lon: -81.78, size: 'small', type: 'island', faction: 'neutral' },
+  { id: 'key_west', name: 'Key West', lat: 24.56, lon: -81.78, size: 'small', type: 'port', faction: 'english' },
   { id: 'tampa', name: 'Tampa', lat: 27.95, lon: -82.46, size: 'small', type: 'port', faction: 'spanish' },
   { id: 'savannah', name: 'Savannah', lat: 32.08, lon: -81.09, size: 'small', type: 'port', faction: 'english' },
   
@@ -131,118 +137,147 @@ const calculateCentroid = () => {
 const centroidConfig = calculateCentroid();
 mapBounds = centroidConfig.bounds;
 
-// Function to detect label collisions and adjust positions (labels and markers)
-const adjustLabelPositions = (locations: typeof CARIBBEAN_LOCATIONS) => {
-  // First, map locations with their base positions
-  const locationsWithCoords = locations.map(location => ({
-    ...location,
-    ...latLonToMapCoords(location.lat, location.lon),
-    labelOffsetX: 0,
-    labelOffsetY: 5,
-    useLeaderLine: false,
-    markerOffsetXPct: 0,
-    markerOffsetYPct: 0,
-  }));
+// Label placement system: greedy candidate search with collision avoidance and leader lines
+type MapDims = { widthPx: number; heightPx: number };
 
-  // Sort by Y position to process from top to bottom
-  locationsWithCoords.sort((a, b) => a.y - b.y);
+function placeLabels(locations: typeof CARIBBEAN_LOCATIONS, dims: MapDims) {
+  const charPx = 7; // estimated per-character width
+  const padX = 10;
+  const padY = 6;
+  const labelHeight = 20; // px
 
-  // Enhanced collision detection with multiple passes
-  const labelRadius = 10; // Adjusted detection radius for smaller icons
-  
-  // Group nearby locations into clusters
-  const clusters = [];
-  const processed = new Set();
-  
-  for (let i = 0; i < locationsWithCoords.length; i++) {
-    if (processed.has(i)) continue;
-    
-    const cluster = [i];
-    processed.add(i);
-    
-    // Find all locations within cluster radius
-    for (let j = i + 1; j < locationsWithCoords.length; j++) {
-      if (processed.has(j)) continue;
-      
-      const dx = Math.abs(locationsWithCoords[i].x - locationsWithCoords[j].x);
-      const dy = Math.abs(locationsWithCoords[i].y - locationsWithCoords[j].y);
-      
-      if (dx < labelRadius && dy < labelRadius * 0.8) {
-        cluster.push(j);
-        processed.add(j);
+  const priority = (l: any) => (l.size === 'large' ? 3 : l.size === 'medium' ? 2 : 1);
+
+  const locs = locations
+    .map((location) => ({
+      ...location,
+      ...latLonToMapCoords(location.lat, location.lon),
+      labelOffsetX: 0,
+      labelOffsetY: 0,
+      useLeaderLine: false,
+      markerOffsetXPct: 0,
+      markerOffsetYPct: 0,
+    }))
+    .sort((a, b) => priority(b) - priority(a));
+
+  const placed: Array<{ x: number; y: number; w: number; h: number }> = [];
+
+  const pctToPx = (xPct: number, yPct: number) => ({
+    xPx: (xPct / 100) * dims.widthPx,
+    yPx: (yPct / 100) * dims.heightPx,
+  });
+
+  function intersects(a: any, b: any) {
+    return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
+  }
+
+  function candidates(anchorPx: { xPx: number; yPx: number }, w: number, h: number) {
+    const r = 28; // px radial distance from marker
+    return [
+      { dx: 0, dy: -r, align: 'center', v: 'top' }, // N
+      { dx: r * 0.8, dy: -r * 0.8, align: 'left', v: 'top' }, // NE
+      { dx: r, dy: 0, align: 'left', v: 'middle' }, // E
+      { dx: r * 0.8, dy: r * 0.8, align: 'left', v: 'bottom' }, // SE
+      { dx: 0, dy: r, align: 'center', v: 'bottom' }, // S
+      { dx: -r * 0.8, dy: r * 0.8, align: 'right', v: 'bottom' }, // SW
+      { dx: -r, dy: 0, align: 'right', v: 'middle' }, // W
+      { dx: -r * 0.8, dy: -r * 0.8, align: 'right', v: 'top' }, // NW
+    ].map((c) => {
+      let x = anchorPx.xPx + c.dx;
+      let y = anchorPx.yPx + c.dy;
+      if (c.align === 'center') x -= w / 2;
+      if (c.align === 'right') x -= w;
+      if (c.v === 'middle') y -= h / 2;
+      if (c.v === 'bottom') y -= h;
+      return { ...c, box: { x, y, w, h } };
+    });
+  }
+
+  for (const loc of locs) {
+    const text = loc.name || 'Port';
+    const w = Math.max(40, text.length * charPx + padX * 2);
+    const h = labelHeight + padY * 2;
+    const anchor = pctToPx(loc.x, loc.y);
+    const cands = candidates(anchor, w, h);
+    let chosen = cands[0];
+    let hasCollision = true;
+    for (const c of cands) {
+      const collides = placed.some((p) => intersects(p, c.box));
+      if (!collides) {
+        chosen = c;
+        hasCollision = false;
+        break;
       }
     }
-    
-    if (cluster.length > 1) {
-      clusters.push(cluster);
-    }
-  }
-  
-  // Process each cluster
-  for (const cluster of clusters) {
-    if (cluster.length === 2) {
-      // Two locations - simple offset
-      const [i, j] = cluster;
-      const loc1 = locationsWithCoords[i];
-      const loc2 = locationsWithCoords[j];
-      const dx = loc2.x - loc1.x;
-      const dy = loc2.y - loc1.y;
-      
-      if (Math.abs(dx) < 3) {
-        // Vertically aligned
-        loc1.labelOffsetX = -50;
-        loc2.labelOffsetX = 50;
-        loc1.labelOffsetY = 0;
-        loc2.labelOffsetY = 0;
-        // Nudge markers apart horizontally (percent units)
-        loc1.markerOffsetXPct = -1.2;
-        loc2.markerOffsetXPct = 1.2;
-      } else if (Math.abs(dy) < 3) {
-        // Horizontally aligned
-        loc1.labelOffsetX = 0;
-        loc1.labelOffsetY = -20;
-        loc2.labelOffsetX = 0;
-        loc2.labelOffsetY = 20;
-        // Nudge markers apart vertically (percent units)
-        loc1.markerOffsetYPct = -1.0;
-        loc2.markerOffsetYPct = 1.0;
-      } else {
-        // Diagonal
-        const angle = Math.atan2(dy, dx);
-        loc1.labelOffsetX = -Math.cos(angle) * 40;
-        loc1.labelOffsetY = -Math.sin(angle) * 20;
-        loc2.labelOffsetX = Math.cos(angle) * 40;
-        loc2.labelOffsetY = Math.sin(angle) * 20;
-        const r = 1.2;
-        loc1.markerOffsetXPct = -Math.cos(angle) * r;
-        loc1.markerOffsetYPct = -Math.sin(angle) * r;
-        loc2.markerOffsetXPct = Math.cos(angle) * r;
-        loc2.markerOffsetYPct = Math.sin(angle) * r;
+    if (hasCollision) {
+      // choose candidate with minimal overlap area
+      let best = cands[0];
+      let bestScore = Infinity;
+      for (const c of cands) {
+        let overlap = 0;
+        for (const p of placed) {
+          const ix = Math.max(0, Math.min(c.box.x + c.box.w, p.x + p.w) - Math.min(c.box.x, p.x));
+          const iy = Math.max(0, Math.min(c.box.y + c.box.h, p.y + p.h) - Math.min(c.box.y, p.y));
+          overlap += Math.min(ix, c.box.w) * Math.min(iy, c.box.h);
+        }
+        const score = overlap + Math.hypot(c.dx, c.dy) * 10; // penalize long leaders
+        if (score < bestScore) {
+          bestScore = score;
+          best = c;
+        }
       }
-    } else if (cluster.length > 2) {
-      // Multiple locations - arrange in a circle
-      const centerX = cluster.reduce((sum, i) => sum + locationsWithCoords[i].x, 0) / cluster.length;
-      const centerY = cluster.reduce((sum, i) => sum + locationsWithCoords[i].y, 0) / cluster.length;
-      
-      cluster.forEach((i, index) => {
-        const angle = (index / cluster.length) * Math.PI * 2 - Math.PI / 2;
-        const radius = 70 + (cluster.length - 3) * 15;
-        locationsWithCoords[i].labelOffsetX = Math.cos(angle) * radius;
-        locationsWithCoords[i].labelOffsetY = Math.sin(angle) * radius * 0.7;
-        locationsWithCoords[i].useLeaderLine = true;
-        // Slightly offset markers in percent units to prevent overlap
-        const markerRadiusPct = 1.2 + (cluster.length - 3) * 0.3;
-        locationsWithCoords[i].markerOffsetXPct = Math.cos(angle) * markerRadiusPct;
-        locationsWithCoords[i].markerOffsetYPct = Math.sin(angle) * markerRadiusPct;
-      });
+      chosen = best;
+      loc.useLeaderLine = true;
+    }
+    placed.push(chosen.box);
+    // Convert to pixel offsets relative to marker container
+    loc.labelOffsetX = chosen.box.x - (anchor.xPx - w / 2);
+    loc.labelOffsetY = chosen.box.y - (anchor.yPx + 38); // label baseline at +38px
+  }
+
+  // Slight nudge of markers in dense regions
+  for (let i = 0; i < locs.length; i++) {
+    for (let j = i + 1; j < locs.length; j++) {
+      const a = locs[i];
+      const b = locs[j];
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1.0) {
+        const nx = dx / (dist || 1);
+        const ny = dy / (dist || 1);
+        a.markerOffsetXPct += nx * 0.5;
+        a.markerOffsetYPct += ny * 0.4;
+        b.markerOffsetXPct -= nx * 0.5;
+        b.markerOffsetYPct -= ny * 0.4;
+      }
     }
   }
-  
-  return locationsWithCoords;
+
+  return locs;
+}
+
+// Compute bounds from landmass points (with margin)
+const computeBoundsFromLandMasses = (masses: Array<{ points: { lat: number; lon: number }[] }>) => {
+  let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
+  for (const m of masses) {
+    for (const p of m.points) {
+      if (p.lat < minLat) minLat = p.lat;
+      if (p.lat > maxLat) maxLat = p.lat;
+      if (p.lon < minLon) minLon = p.lon;
+      if (p.lon > maxLon) maxLon = p.lon;
+    }
+  }
+  // Apply gentle padding
+  const padLat = (maxLat - minLat) * 0.05;
+  const padLon = (maxLon - minLon) * 0.05;
+  return {
+    north: maxLat + padLat,
+    south: minLat - padLat,
+    west: minLon - padLon,
+    east: maxLon + padLon,
+  };
 };
-
-// Map all locations with smart label positioning
-const MAPPED_LOCATIONS = adjustLabelPositions(CARIBBEAN_LOCATIONS);
 
 // Land masses for visual representation with accurate geography
 const LAND_MASSES = [
@@ -414,6 +449,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
   const [encounterShips, setEncounterShips] = useState<typeof ships>([]);
   const [showEncounter, setShowEncounter] = useState(false);
   const [customLandMasses, setCustomLandMasses] = useState<any[] | null>(null);
+  const [dynamicBounds, setDynamicBounds] = useState<typeof mapBounds | null>(null);
 
   // Optionally load external landmass data (GeoJSON or simple JSON) for higher accuracy
   useEffect(() => {
@@ -450,6 +486,11 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
             });
             if (masses.length) {
               setCustomLandMasses(masses);
+              try {
+                const b = computeBoundsFromLandMasses(masses);
+                setDynamicBounds(b);
+                mapBounds = b; // keep legacy helper in sync
+              } catch {}
               try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.features.length); } catch {}
               return;
             }
@@ -457,6 +498,11 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
           // Simple format { landMasses: [ { name, points:[{lat,lon}...] } ] }
           if (Array.isArray(data?.landMasses)) {
             setCustomLandMasses(data.landMasses);
+            try {
+              const b = computeBoundsFromLandMasses(data.landMasses);
+              setDynamicBounds(b);
+              mapBounds = b;
+            } catch {}
             try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.landMasses.length); } catch {}
             return;
           }
@@ -469,13 +515,43 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
     return () => { cancelled = true; };
   }, []);
 
+  // Decide bounds: prefer landmass-driven; else centroid-based defaults
+  const bounds = useMemo(() => {
+    if (customLandMasses && customLandMasses.length > 0) {
+      return computeBoundsFromLandMasses(customLandMasses as any);
+    }
+    return centroidConfig.bounds;
+  }, [customLandMasses]);
+
+  // Keep global helper synced
+  useEffect(() => {
+    mapBounds = bounds;
+  }, [bounds]);
+
   const renderedLandMasses = useMemo(() => {
     const source = customLandMasses ?? LAND_MASSES;
     return source.map((landMass: any) => ({
       ...landMass,
-      points: landMass.points.map((point: any) => latLonToMapCoords(point.lat, point.lon))
+      points: landMass.points.map((point: any) => latLonToMapCoords(point.lat, point.lon, 100, 70, bounds)),
     }));
-  }, [customLandMasses]);
+  }, [customLandMasses, bounds]);
+
+  // Map all locations with smart label positioning using current bounds and actual viewport size
+  const [dims, setDims] = useState<{ widthPx: number; heightPx: number }>({ widthPx: 1200, heightPx: 840 });
+  useEffect(() => {
+    const el = document.getElementById('chart-map-root');
+    if (el) setDims({ widthPx: el.clientWidth, heightPx: el.clientHeight });
+    const onResize = () => {
+      const e2 = document.getElementById('chart-map-root');
+      if (e2) setDims({ widthPx: e2.clientWidth, heightPx: e2.clientHeight });
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const MAPPED_LOCATIONS = useMemo(() => {
+    return placeLabels(CARIBBEAN_LOCATIONS.map((l) => ({ ...l })), dims);
+  }, [bounds, dims]);
   
   // Update sailing progress
   useEffect(() => {
@@ -493,7 +569,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
     // Reverse the latLonTo3D conversion
     const lon = (worldPos[0] / 20) - 77.5;
     const lat = 20 - (worldPos[2] / 20);
-    return latLonToMapCoords(lat, lon);
+    return latLonToMapCoords(lat, lon, 100, 70, bounds);
   };
 
   // Handle clicking on a location to enter port
@@ -579,7 +655,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
   if (!forceRender && gameState !== 'map') return null;
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-600 p-4 overflow-hidden">
+    <div id="chart-map-root" className="h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-600 p-4 overflow-hidden">
       <div className="max-w-none mx-0 h-full flex flex-col">
         {/* Header */}
         <Card className="mb-4 bg-black/80 border-amber-600 text-white flex-shrink-0">
@@ -682,7 +758,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
                 </svg>
 
                 {/* Locations */}
-                {MAPPED_LOCATIONS.map(location => {
+                  {MAPPED_LOCATIONS.map(location => {
                   const markerOffsetX = (location as any).markerOffsetXPct || 0;
                   const markerOffsetY = (location as any).markerOffsetYPct || 0;
                   const leftPct = (location.x || 0) + markerOffsetX;

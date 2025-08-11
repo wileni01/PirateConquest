@@ -5,6 +5,7 @@ import { usePirateGame } from "../lib/stores/usePirateGame";
 import { useAudio } from "../lib/stores/useAudio";
 import { spawnEnemyShips } from "../lib/gameLogic";
 import Ocean from "./Ocean";
+import Islands from "./Islands";
 import Ship from "./Ship";
 import Port from "./Port";
 import Cannonball from "./Cannonball";
@@ -226,6 +227,8 @@ function Game() {
   return (
     <>
       <Ocean />
+      {/* Feature-flagged dynamic islands (LOD + culling) */}
+      <Islands />
       <CinematicBattleController />
       
       {/* Player ship */}

@@ -1,0 +1,4740 @@
+{
+  "version": 1,
+  "source": "caribbean-landmasses.json",
+  "vertices": {
+    "offsetBytes": 0,
+    "count": 1848
+  },
+  "indices": {
+    "offsetBytes": 7392,
+    "count": 1674
+  },
+  "pieces": [
+    {
+      "name": "Florida",
+      "lod": 0,
+      "bbox": [
+        -87.3,
+        24.55,
+        -80.12,
+        30.7
+      ],
+      "vOffset": 0,
+      "vCount": 29,
+      "iOffset": 0,
+      "iCount": 78
+    },
+    {
+      "name": "Florida",
+      "lod": 1,
+      "bbox": [
+        -87.3,
+        24.55,
+        -80.12,
+        30.7
+      ],
+      "vOffset": 58,
+      "vCount": 18,
+      "iOffset": 78,
+      "iCount": 45
+    },
+    {
+      "name": "Florida",
+      "lod": 2,
+      "bbox": [
+        -87.3,
+        24.55,
+        -80.12,
+        30.7
+      ],
+      "vOffset": 94,
+      "vCount": 13,
+      "iOffset": 123,
+      "iCount": 30
+    },
+    {
+      "name": "Yucatan Peninsula",
+      "lod": 0,
+      "bbox": [
+        -91.6,
+        18.5,
+        -87.3,
+        21.65
+      ],
+      "vOffset": 120,
+      "vCount": 18,
+      "iOffset": 153,
+      "iCount": 45
+    },
+    {
+      "name": "Yucatan Peninsula",
+      "lod": 1,
+      "bbox": [
+        -91.6,
+        18.5,
+        -87.3,
+        21.65
+      ],
+      "vOffset": 156,
+      "vCount": 12,
+      "iOffset": 198,
+      "iCount": 27
+    },
+    {
+      "name": "Yucatan Peninsula",
+      "lod": 2,
+      "bbox": [
+        -91.6,
+        18.5,
+        -87.3,
+        21.65
+      ],
+      "vOffset": 180,
+      "vCount": 9,
+      "iOffset": 225,
+      "iCount": 18
+    },
+    {
+      "name": "Central America (Caribbean coast)",
+      "lod": 0,
+      "bbox": [
+        -88.5,
+        8.3,
+        -77.95,
+        18
+      ],
+      "vOffset": 198,
+      "vCount": 38,
+      "iOffset": 243,
+      "iCount": 105
+    },
+    {
+      "name": "Central America (Caribbean coast)",
+      "lod": 1,
+      "bbox": [
+        -88.5,
+        8.3,
+        -77.95,
+        18
+      ],
+      "vOffset": 274,
+      "vCount": 22,
+      "iOffset": 348,
+      "iCount": 57
+    },
+    {
+      "name": "Central America (Caribbean coast)",
+      "lod": 2,
+      "bbox": [
+        -88.5,
+        8.3,
+        -77.95,
+        18
+      ],
+      "vOffset": 318,
+      "vCount": 14,
+      "iOffset": 405,
+      "iCount": 33
+    },
+    {
+      "name": "South America (Venezuela & Colombia coast)",
+      "lod": 0,
+      "bbox": [
+        -72.2,
+        8.2,
+        -60.1,
+        12.5
+      ],
+      "vOffset": 346,
+      "vCount": 24,
+      "iOffset": 438,
+      "iCount": 63
+    },
+    {
+      "name": "South America (Venezuela & Colombia coast)",
+      "lod": 1,
+      "bbox": [
+        -72.2,
+        8.2,
+        -60.1,
+        12.5
+      ],
+      "vOffset": 394,
+      "vCount": 14,
+      "iOffset": 501,
+      "iCount": 33
+    },
+    {
+      "name": "South America (Venezuela & Colombia coast)",
+      "lod": 2,
+      "bbox": [
+        -72.2,
+        8.2,
+        -60.1,
+        12.5
+      ],
+      "vOffset": 422,
+      "vCount": 12,
+      "iOffset": 534,
+      "iCount": 27
+    },
+    {
+      "name": "Cuba",
+      "lod": 0,
+      "bbox": [
+        -84.95,
+        20.05,
+        -74.15,
+        23.25
+      ],
+      "vOffset": 446,
+      "vCount": 21,
+      "iOffset": 561,
+      "iCount": 54
+    },
+    {
+      "name": "Cuba",
+      "lod": 1,
+      "bbox": [
+        -84.95,
+        20.05,
+        -74.15,
+        23.25
+      ],
+      "vOffset": 488,
+      "vCount": 17,
+      "iOffset": 615,
+      "iCount": 42
+    },
+    {
+      "name": "Cuba",
+      "lod": 2,
+      "bbox": [
+        -84.95,
+        20.05,
+        -74.15,
+        23.25
+      ],
+      "vOffset": 522,
+      "vCount": 10,
+      "iOffset": 657,
+      "iCount": 21
+    },
+    {
+      "name": "Isla de la Juventud (Cuba)",
+      "lod": 0,
+      "bbox": [
+        -82.95,
+        21.55,
+        -82.35,
+        21.95
+      ],
+      "vOffset": 542,
+      "vCount": 6,
+      "iOffset": 678,
+      "iCount": 9
+    },
+    {
+      "name": "Isla de la Juventud (Cuba)",
+      "lod": 1,
+      "bbox": [
+        -82.95,
+        21.55,
+        -82.35,
+        21.95
+      ],
+      "vOffset": 554,
+      "vCount": 6,
+      "iOffset": 687,
+      "iCount": 9
+    },
+    {
+      "name": "Isla de la Juventud (Cuba)",
+      "lod": 2,
+      "bbox": [
+        -82.95,
+        21.55,
+        -82.35,
+        21.95
+      ],
+      "vOffset": 566,
+      "vCount": 4,
+      "iOffset": 696,
+      "iCount": 3
+    },
+    {
+      "name": "Jamaica",
+      "lod": 0,
+      "bbox": [
+        -78.37,
+        17.85,
+        -76.2,
+        18.52
+      ],
+      "vOffset": 574,
+      "vCount": 8,
+      "iOffset": 699,
+      "iCount": 15
+    },
+    {
+      "name": "Jamaica",
+      "lod": 1,
+      "bbox": [
+        -78.37,
+        17.85,
+        -76.2,
+        18.52
+      ],
+      "vOffset": 590,
+      "vCount": 5,
+      "iOffset": 714,
+      "iCount": 6
+    },
+    {
+      "name": "Jamaica",
+      "lod": 2,
+      "bbox": [
+        -78.37,
+        17.85,
+        -76.2,
+        18.52
+      ],
+      "vOffset": 600,
+      "vCount": 9,
+      "iOffset": 720,
+      "iCount": 18
+    },
+    {
+      "name": "Cayman Islands (Grand Cayman)",
+      "lod": 0,
+      "bbox": [
+        -81.41,
+        19.15,
+        -81.05,
+        19.45
+      ],
+      "vOffset": 618,
+      "vCount": 6,
+      "iOffset": 738,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Grand Cayman)",
+      "lod": 1,
+      "bbox": [
+        -81.41,
+        19.15,
+        -81.05,
+        19.45
+      ],
+      "vOffset": 630,
+      "vCount": 6,
+      "iOffset": 747,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Grand Cayman)",
+      "lod": 2,
+      "bbox": [
+        -81.41,
+        19.15,
+        -81.05,
+        19.45
+      ],
+      "vOffset": 642,
+      "vCount": 4,
+      "iOffset": 756,
+      "iCount": 3
+    },
+    {
+      "name": "Cayman Islands (Cayman Brac)",
+      "lod": 0,
+      "bbox": [
+        -79.96,
+        19.68,
+        -79.76,
+        19.78
+      ],
+      "vOffset": 650,
+      "vCount": 6,
+      "iOffset": 759,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Cayman Brac)",
+      "lod": 1,
+      "bbox": [
+        -79.96,
+        19.68,
+        -79.76,
+        19.78
+      ],
+      "vOffset": 662,
+      "vCount": 6,
+      "iOffset": 768,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Cayman Brac)",
+      "lod": 2,
+      "bbox": [
+        -79.96,
+        19.68,
+        -79.76,
+        19.78
+      ],
+      "vOffset": 674,
+      "vCount": 6,
+      "iOffset": 777,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Little Cayman)",
+      "lod": 0,
+      "bbox": [
+        -80.1,
+        19.67,
+        -79.95,
+        19.76
+      ],
+      "vOffset": 686,
+      "vCount": 6,
+      "iOffset": 786,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Little Cayman)",
+      "lod": 1,
+      "bbox": [
+        -80.1,
+        19.67,
+        -79.95,
+        19.76
+      ],
+      "vOffset": 698,
+      "vCount": 6,
+      "iOffset": 795,
+      "iCount": 9
+    },
+    {
+      "name": "Cayman Islands (Little Cayman)",
+      "lod": 2,
+      "bbox": [
+        -80.1,
+        19.67,
+        -79.95,
+        19.76
+      ],
+      "vOffset": 710,
+      "vCount": 6,
+      "iOffset": 804,
+      "iCount": 9
+    },
+    {
+      "name": "Hispaniola (Haiti & Dominican Republic)",
+      "lod": 0,
+      "bbox": [
+        -74.45,
+        18,
+        -68.3,
+        20.05
+      ],
+      "vOffset": 722,
+      "vCount": 19,
+      "iOffset": 813,
+      "iCount": 39
+    },
+    {
+      "name": "Hispaniola (Haiti & Dominican Republic)",
+      "lod": 1,
+      "bbox": [
+        -74.45,
+        18,
+        -68.3,
+        20.05
+      ],
+      "vOffset": 760,
+      "vCount": 14,
+      "iOffset": 852,
+      "iCount": 27
+    },
+    {
+      "name": "Hispaniola (Haiti & Dominican Republic)",
+      "lod": 2,
+      "bbox": [
+        -74.45,
+        18,
+        -68.3,
+        20.05
+      ],
+      "vOffset": 788,
+      "vCount": 9,
+      "iOffset": 879,
+      "iCount": 15
+    },
+    {
+      "name": "Puerto Rico",
+      "lod": 0,
+      "bbox": [
+        -67.25,
+        18.23,
+        -65.27,
+        18.55
+      ],
+      "vOffset": 806,
+      "vCount": 10,
+      "iOffset": 894,
+      "iCount": 21
+    },
+    {
+      "name": "Puerto Rico",
+      "lod": 1,
+      "bbox": [
+        -67.25,
+        18.23,
+        -65.27,
+        18.55
+      ],
+      "vOffset": 826,
+      "vCount": 7,
+      "iOffset": 915,
+      "iCount": 12
+    },
+    {
+      "name": "Puerto Rico",
+      "lod": 2,
+      "bbox": [
+        -67.25,
+        18.23,
+        -65.27,
+        18.55
+      ],
+      "vOffset": 840,
+      "vCount": 4,
+      "iOffset": 927,
+      "iCount": 3
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 0,
+      "bbox": [
+        -64.99,
+        18.28,
+        -64.86,
+        18.38
+      ],
+      "vOffset": 848,
+      "vCount": 6,
+      "iOffset": 930,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 1,
+      "bbox": [
+        -64.99,
+        18.28,
+        -64.86,
+        18.38
+      ],
+      "vOffset": 860,
+      "vCount": 6,
+      "iOffset": 939,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 2,
+      "bbox": [
+        -64.99,
+        18.28,
+        -64.86,
+        18.38
+      ],
+      "vOffset": 872,
+      "vCount": 6,
+      "iOffset": 948,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 0,
+      "bbox": [
+        -64.79,
+        18.28,
+        -64.69,
+        18.36
+      ],
+      "vOffset": 884,
+      "vCount": 6,
+      "iOffset": 957,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 1,
+      "bbox": [
+        -64.79,
+        18.28,
+        -64.69,
+        18.36
+      ],
+      "vOffset": 896,
+      "vCount": 6,
+      "iOffset": 966,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 2,
+      "bbox": [
+        -64.79,
+        18.28,
+        -64.69,
+        18.36
+      ],
+      "vOffset": 908,
+      "vCount": 6,
+      "iOffset": 975,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 0,
+      "bbox": [
+        -64.9,
+        17.64,
+        -64.62,
+        17.8
+      ],
+      "vOffset": 920,
+      "vCount": 6,
+      "iOffset": 984,
+      "iCount": 9
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 1,
+      "bbox": [
+        -64.9,
+        17.64,
+        -64.62,
+        17.8
+      ],
+      "vOffset": 932,
+      "vCount": 4,
+      "iOffset": 993,
+      "iCount": 3
+    },
+    {
+      "name": "US Virgin Islands",
+      "lod": 2,
+      "bbox": [
+        -64.9,
+        17.64,
+        -64.62,
+        17.8
+      ],
+      "vOffset": 940,
+      "vCount": 6,
+      "iOffset": 996,
+      "iCount": 9
+    },
+    {
+      "name": "Turks & Caicos (Caicos Islands)",
+      "lod": 0,
+      "bbox": [
+        -72.2,
+        21.55,
+        -71.55,
+        22
+      ],
+      "vOffset": 952,
+      "vCount": 7,
+      "iOffset": 1005,
+      "iCount": 12
+    },
+    {
+      "name": "Turks & Caicos (Caicos Islands)",
+      "lod": 1,
+      "bbox": [
+        -72.2,
+        21.55,
+        -71.55,
+        22
+      ],
+      "vOffset": 966,
+      "vCount": 7,
+      "iOffset": 1017,
+      "iCount": 12
+    },
+    {
+      "name": "Turks & Caicos (Caicos Islands)",
+      "lod": 2,
+      "bbox": [
+        -72.2,
+        21.55,
+        -71.55,
+        22
+      ],
+      "vOffset": 980,
+      "vCount": 5,
+      "iOffset": 1029,
+      "iCount": 6
+    },
+    {
+      "name": "Turks & Caicos (Grand Turk)",
+      "lod": 0,
+      "bbox": [
+        -71.2,
+        21.42,
+        -71.1,
+        21.5
+      ],
+      "vOffset": 990,
+      "vCount": 5,
+      "iOffset": 1035,
+      "iCount": 6
+    },
+    {
+      "name": "Turks & Caicos (Grand Turk)",
+      "lod": 1,
+      "bbox": [
+        -71.2,
+        21.42,
+        -71.1,
+        21.5
+      ],
+      "vOffset": 1000,
+      "vCount": 7,
+      "iOffset": 1041,
+      "iCount": 12
+    },
+    {
+      "name": "Turks & Caicos (Grand Turk)",
+      "lod": 2,
+      "bbox": [
+        -71.2,
+        21.42,
+        -71.1,
+        21.5
+      ],
+      "vOffset": 1014,
+      "vCount": 7,
+      "iOffset": 1053,
+      "iCount": 12
+    },
+    {
+      "name": "Bahamas (Grand Bahama)",
+      "lod": 0,
+      "bbox": [
+        -79.1,
+        26.45,
+        -78.2,
+        27
+      ],
+      "vOffset": 1028,
+      "vCount": 8,
+      "iOffset": 1065,
+      "iCount": 15
+    },
+    {
+      "name": "Bahamas (Grand Bahama)",
+      "lod": 1,
+      "bbox": [
+        -79.1,
+        26.45,
+        -78.2,
+        27
+      ],
+      "vOffset": 1044,
+      "vCount": 8,
+      "iOffset": 1080,
+      "iCount": 15
+    },
+    {
+      "name": "Bahamas (Grand Bahama)",
+      "lod": 2,
+      "bbox": [
+        -79.1,
+        26.45,
+        -78.2,
+        27
+      ],
+      "vOffset": 1060,
+      "vCount": 5,
+      "iOffset": 1095,
+      "iCount": 6
+    },
+    {
+      "name": "Bahamas (Abaco)",
+      "lod": 0,
+      "bbox": [
+        -77.45,
+        26.5,
+        -77,
+        26.85
+      ],
+      "vOffset": 1070,
+      "vCount": 7,
+      "iOffset": 1101,
+      "iCount": 12
+    },
+    {
+      "name": "Bahamas (Abaco)",
+      "lod": 1,
+      "bbox": [
+        -77.45,
+        26.5,
+        -77,
+        26.85
+      ],
+      "vOffset": 1084,
+      "vCount": 5,
+      "iOffset": 1113,
+      "iCount": 6
+    },
+    {
+      "name": "Bahamas (Abaco)",
+      "lod": 2,
+      "bbox": [
+        -77.45,
+        26.5,
+        -77,
+        26.85
+      ],
+      "vOffset": 1094,
+      "vCount": 7,
+      "iOffset": 1119,
+      "iCount": 12
+    },
+    {
+      "name": "Bahamas (Andros)",
+      "lod": 0,
+      "bbox": [
+        -78.2,
+        25,
+        -77.6,
+        25.8
+      ],
+      "vOffset": 1108,
+      "vCount": 8,
+      "iOffset": 1131,
+      "iCount": 15
+    },
+    {
+      "name": "Bahamas (Andros)",
+      "lod": 1,
+      "bbox": [
+        -78.2,
+        25,
+        -77.6,
+        25.8
+      ],
+      "vOffset": 1124,
+      "vCount": 8,
+      "iOffset": 1146,
+      "iCount": 15
+    },
+    {
+      "name": "Bahamas (Andros)",
+      "lod": 2,
+      "bbox": [
+        -78.2,
+        25,
+        -77.6,
+        25.8
+      ],
+      "vOffset": 1140,
+      "vCount": 5,
+      "iOffset": 1161,
+      "iCount": 6
+    },
+    {
+      "name": "Bahamas (Eleuthera)",
+      "lod": 0,
+      "bbox": [
+        -76.7,
+        25.15,
+        -76.47,
+        25.55
+      ],
+      "vOffset": 1150,
+      "vCount": 6,
+      "iOffset": 1167,
+      "iCount": 9
+    },
+    {
+      "name": "Bahamas (Eleuthera)",
+      "lod": 1,
+      "bbox": [
+        -76.7,
+        25.15,
+        -76.47,
+        25.55
+      ],
+      "vOffset": 1162,
+      "vCount": 5,
+      "iOffset": 1176,
+      "iCount": 6
+    },
+    {
+      "name": "Bahamas (Eleuthera)",
+      "lod": 2,
+      "bbox": [
+        -76.7,
+        25.15,
+        -76.47,
+        25.55
+      ],
+      "vOffset": 1172,
+      "vCount": 6,
+      "iOffset": 1182,
+      "iCount": 9
+    },
+    {
+      "name": "New Providence (Bahamas)",
+      "lod": 0,
+      "bbox": [
+        -77.5,
+        25.05,
+        -77.25,
+        25.15
+      ],
+      "vOffset": 1184,
+      "vCount": 6,
+      "iOffset": 1191,
+      "iCount": 9
+    },
+    {
+      "name": "New Providence (Bahamas)",
+      "lod": 1,
+      "bbox": [
+        -77.5,
+        25.05,
+        -77.25,
+        25.15
+      ],
+      "vOffset": 1196,
+      "vCount": 7,
+      "iOffset": 1200,
+      "iCount": 12
+    },
+    {
+      "name": "New Providence (Bahamas)",
+      "lod": 2,
+      "bbox": [
+        -77.5,
+        25.05,
+        -77.25,
+        25.15
+      ],
+      "vOffset": 1210,
+      "vCount": 7,
+      "iOffset": 1212,
+      "iCount": 12
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 0,
+      "bbox": [
+        -61.95,
+        16.97,
+        -61.7,
+        17.24
+      ],
+      "vOffset": 1224,
+      "vCount": 6,
+      "iOffset": 1224,
+      "iCount": 9
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 1,
+      "bbox": [
+        -61.95,
+        16.97,
+        -61.7,
+        17.24
+      ],
+      "vOffset": 1236,
+      "vCount": 6,
+      "iOffset": 1233,
+      "iCount": 9
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 2,
+      "bbox": [
+        -61.95,
+        16.97,
+        -61.7,
+        17.24
+      ],
+      "vOffset": 1248,
+      "vCount": 6,
+      "iOffset": 1242,
+      "iCount": 9
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 0,
+      "bbox": [
+        -61.98,
+        17.55,
+        -61.7,
+        17.75
+      ],
+      "vOffset": 1260,
+      "vCount": 6,
+      "iOffset": 1251,
+      "iCount": 9
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 1,
+      "bbox": [
+        -61.98,
+        17.55,
+        -61.7,
+        17.75
+      ],
+      "vOffset": 1272,
+      "vCount": 4,
+      "iOffset": 1260,
+      "iCount": 3
+    },
+    {
+      "name": "Antigua & Barbuda",
+      "lod": 2,
+      "bbox": [
+        -61.98,
+        17.55,
+        -61.7,
+        17.75
+      ],
+      "vOffset": 1280,
+      "vCount": 6,
+      "iOffset": 1263,
+      "iCount": 9
+    },
+    {
+      "name": "Guadeloupe",
+      "lod": 0,
+      "bbox": [
+        -61.7,
+        16.15,
+        -61.45,
+        16.45
+      ],
+      "vOffset": 1292,
+      "vCount": 6,
+      "iOffset": 1272,
+      "iCount": 9
+    },
+    {
+      "name": "Guadeloupe",
+      "lod": 1,
+      "bbox": [
+        -61.7,
+        16.15,
+        -61.45,
+        16.45
+      ],
+      "vOffset": 1304,
+      "vCount": 6,
+      "iOffset": 1281,
+      "iCount": 9
+    },
+    {
+      "name": "Guadeloupe",
+      "lod": 2,
+      "bbox": [
+        -61.7,
+        16.15,
+        -61.45,
+        16.45
+      ],
+      "vOffset": 1316,
+      "vCount": 6,
+      "iOffset": 1290,
+      "iCount": 9
+    },
+    {
+      "name": "Dominica",
+      "lod": 0,
+      "bbox": [
+        -61.5,
+        15.33,
+        -61.25,
+        15.6
+      ],
+      "vOffset": 1328,
+      "vCount": 6,
+      "iOffset": 1299,
+      "iCount": 9
+    },
+    {
+      "name": "Dominica",
+      "lod": 1,
+      "bbox": [
+        -61.5,
+        15.33,
+        -61.25,
+        15.6
+      ],
+      "vOffset": 1340,
+      "vCount": 5,
+      "iOffset": 1308,
+      "iCount": 6
+    },
+    {
+      "name": "Dominica",
+      "lod": 2,
+      "bbox": [
+        -61.5,
+        15.33,
+        -61.25,
+        15.6
+      ],
+      "vOffset": 1350,
+      "vCount": 6,
+      "iOffset": 1314,
+      "iCount": 9
+    },
+    {
+      "name": "Martinique",
+      "lod": 0,
+      "bbox": [
+        -61.2,
+        14.55,
+        -60.9,
+        14.92
+      ],
+      "vOffset": 1362,
+      "vCount": 6,
+      "iOffset": 1323,
+      "iCount": 9
+    },
+    {
+      "name": "Martinique",
+      "lod": 1,
+      "bbox": [
+        -61.2,
+        14.55,
+        -60.9,
+        14.92
+      ],
+      "vOffset": 1374,
+      "vCount": 6,
+      "iOffset": 1332,
+      "iCount": 9
+    },
+    {
+      "name": "Martinique",
+      "lod": 2,
+      "bbox": [
+        -61.2,
+        14.55,
+        -60.9,
+        14.92
+      ],
+      "vOffset": 1386,
+      "vCount": 4,
+      "iOffset": 1341,
+      "iCount": 3
+    },
+    {
+      "name": "St. Lucia",
+      "lod": 0,
+      "bbox": [
+        -61.12,
+        13.85,
+        -60.92,
+        14.05
+      ],
+      "vOffset": 1394,
+      "vCount": 6,
+      "iOffset": 1344,
+      "iCount": 9
+    },
+    {
+      "name": "St. Lucia",
+      "lod": 1,
+      "bbox": [
+        -61.12,
+        13.85,
+        -60.92,
+        14.05
+      ],
+      "vOffset": 1406,
+      "vCount": 5,
+      "iOffset": 1353,
+      "iCount": 6
+    },
+    {
+      "name": "St. Lucia",
+      "lod": 2,
+      "bbox": [
+        -61.12,
+        13.85,
+        -60.92,
+        14.05
+      ],
+      "vOffset": 1416,
+      "vCount": 6,
+      "iOffset": 1359,
+      "iCount": 9
+    },
+    {
+      "name": "St. Vincent",
+      "lod": 0,
+      "bbox": [
+        -61.32,
+        13.1,
+        -61.1,
+        13.35
+      ],
+      "vOffset": 1428,
+      "vCount": 6,
+      "iOffset": 1368,
+      "iCount": 9
+    },
+    {
+      "name": "St. Vincent",
+      "lod": 1,
+      "bbox": [
+        -61.32,
+        13.1,
+        -61.1,
+        13.35
+      ],
+      "vOffset": 1440,
+      "vCount": 5,
+      "iOffset": 1377,
+      "iCount": 6
+    },
+    {
+      "name": "St. Vincent",
+      "lod": 2,
+      "bbox": [
+        -61.32,
+        13.1,
+        -61.1,
+        13.35
+      ],
+      "vOffset": 1450,
+      "vCount": 6,
+      "iOffset": 1383,
+      "iCount": 9
+    },
+    {
+      "name": "Grenada",
+      "lod": 0,
+      "bbox": [
+        -61.9,
+        12,
+        -61.6,
+        12.2
+      ],
+      "vOffset": 1462,
+      "vCount": 6,
+      "iOffset": 1392,
+      "iCount": 9
+    },
+    {
+      "name": "Grenada",
+      "lod": 1,
+      "bbox": [
+        -61.9,
+        12,
+        -61.6,
+        12.2
+      ],
+      "vOffset": 1474,
+      "vCount": 5,
+      "iOffset": 1401,
+      "iCount": 6
+    },
+    {
+      "name": "Grenada",
+      "lod": 2,
+      "bbox": [
+        -61.9,
+        12,
+        -61.6,
+        12.2
+      ],
+      "vOffset": 1484,
+      "vCount": 6,
+      "iOffset": 1407,
+      "iCount": 9
+    },
+    {
+      "name": "Barbados",
+      "lod": 0,
+      "bbox": [
+        -59.65,
+        13.1,
+        -59.4,
+        13.3
+      ],
+      "vOffset": 1496,
+      "vCount": 6,
+      "iOffset": 1416,
+      "iCount": 9
+    },
+    {
+      "name": "Barbados",
+      "lod": 1,
+      "bbox": [
+        -59.65,
+        13.1,
+        -59.4,
+        13.3
+      ],
+      "vOffset": 1508,
+      "vCount": 4,
+      "iOffset": 1425,
+      "iCount": 3
+    },
+    {
+      "name": "Barbados",
+      "lod": 2,
+      "bbox": [
+        -59.65,
+        13.1,
+        -59.4,
+        13.3
+      ],
+      "vOffset": 1516,
+      "vCount": 6,
+      "iOffset": 1428,
+      "iCount": 9
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 0,
+      "bbox": [
+        -62.9,
+        17.35,
+        -62.68,
+        17.52
+      ],
+      "vOffset": 1528,
+      "vCount": 6,
+      "iOffset": 1437,
+      "iCount": 9
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 1,
+      "bbox": [
+        -62.9,
+        17.35,
+        -62.68,
+        17.52
+      ],
+      "vOffset": 1540,
+      "vCount": 5,
+      "iOffset": 1446,
+      "iCount": 6
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 2,
+      "bbox": [
+        -62.9,
+        17.35,
+        -62.68,
+        17.52
+      ],
+      "vOffset": 1550,
+      "vCount": 6,
+      "iOffset": 1452,
+      "iCount": 9
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 0,
+      "bbox": [
+        -62.65,
+        17.08,
+        -62.52,
+        17.22
+      ],
+      "vOffset": 1562,
+      "vCount": 6,
+      "iOffset": 1461,
+      "iCount": 9
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 1,
+      "bbox": [
+        -62.65,
+        17.08,
+        -62.52,
+        17.22
+      ],
+      "vOffset": 1574,
+      "vCount": 6,
+      "iOffset": 1470,
+      "iCount": 9
+    },
+    {
+      "name": "St. Kitts & Nevis",
+      "lod": 2,
+      "bbox": [
+        -62.65,
+        17.08,
+        -62.52,
+        17.22
+      ],
+      "vOffset": 1586,
+      "vCount": 6,
+      "iOffset": 1479,
+      "iCount": 9
+    },
+    {
+      "name": "Montserrat",
+      "lod": 0,
+      "bbox": [
+        -62.25,
+        16.68,
+        -62.12,
+        16.8
+      ],
+      "vOffset": 1598,
+      "vCount": 6,
+      "iOffset": 1488,
+      "iCount": 9
+    },
+    {
+      "name": "Montserrat",
+      "lod": 1,
+      "bbox": [
+        -62.25,
+        16.68,
+        -62.12,
+        16.8
+      ],
+      "vOffset": 1610,
+      "vCount": 6,
+      "iOffset": 1497,
+      "iCount": 9
+    },
+    {
+      "name": "Montserrat",
+      "lod": 2,
+      "bbox": [
+        -62.25,
+        16.68,
+        -62.12,
+        16.8
+      ],
+      "vOffset": 1622,
+      "vCount": 6,
+      "iOffset": 1506,
+      "iCount": 9
+    },
+    {
+      "name": "Anguilla",
+      "lod": 0,
+      "bbox": [
+        -63.22,
+        18.18,
+        -63,
+        18.3
+      ],
+      "vOffset": 1634,
+      "vCount": 6,
+      "iOffset": 1515,
+      "iCount": 9
+    },
+    {
+      "name": "Anguilla",
+      "lod": 1,
+      "bbox": [
+        -63.22,
+        18.18,
+        -63,
+        18.3
+      ],
+      "vOffset": 1646,
+      "vCount": 4,
+      "iOffset": 1524,
+      "iCount": 3
+    },
+    {
+      "name": "Anguilla",
+      "lod": 2,
+      "bbox": [
+        -63.22,
+        18.18,
+        -63,
+        18.3
+      ],
+      "vOffset": 1654,
+      "vCount": 7,
+      "iOffset": 1527,
+      "iCount": 12
+    },
+    {
+      "name": "Aruba",
+      "lod": 0,
+      "bbox": [
+        -70.14,
+        12.45,
+        -69.88,
+        12.63
+      ],
+      "vOffset": 1668,
+      "vCount": 6,
+      "iOffset": 1539,
+      "iCount": 9
+    },
+    {
+      "name": "Aruba",
+      "lod": 1,
+      "bbox": [
+        -70.14,
+        12.45,
+        -69.88,
+        12.63
+      ],
+      "vOffset": 1680,
+      "vCount": 4,
+      "iOffset": 1548,
+      "iCount": 3
+    },
+    {
+      "name": "Aruba",
+      "lod": 2,
+      "bbox": [
+        -70.14,
+        12.45,
+        -69.88,
+        12.63
+      ],
+      "vOffset": 1688,
+      "vCount": 6,
+      "iOffset": 1551,
+      "iCount": 9
+    },
+    {
+      "name": "Curaçao",
+      "lod": 0,
+      "bbox": [
+        -69.2,
+        12.05,
+        -68.8,
+        12.39
+      ],
+      "vOffset": 1700,
+      "vCount": 6,
+      "iOffset": 1560,
+      "iCount": 9
+    },
+    {
+      "name": "Curaçao",
+      "lod": 1,
+      "bbox": [
+        -69.2,
+        12.05,
+        -68.8,
+        12.39
+      ],
+      "vOffset": 1712,
+      "vCount": 6,
+      "iOffset": 1569,
+      "iCount": 9
+    },
+    {
+      "name": "Curaçao",
+      "lod": 2,
+      "bbox": [
+        -69.2,
+        12.05,
+        -68.8,
+        12.39
+      ],
+      "vOffset": 1724,
+      "vCount": 6,
+      "iOffset": 1578,
+      "iCount": 9
+    },
+    {
+      "name": "Bonaire",
+      "lod": 0,
+      "bbox": [
+        -68.45,
+        12.05,
+        -68.15,
+        12.27
+      ],
+      "vOffset": 1736,
+      "vCount": 6,
+      "iOffset": 1587,
+      "iCount": 9
+    },
+    {
+      "name": "Bonaire",
+      "lod": 1,
+      "bbox": [
+        -68.45,
+        12.05,
+        -68.15,
+        12.27
+      ],
+      "vOffset": 1748,
+      "vCount": 5,
+      "iOffset": 1596,
+      "iCount": 6
+    },
+    {
+      "name": "Bonaire",
+      "lod": 2,
+      "bbox": [
+        -68.45,
+        12.05,
+        -68.15,
+        12.27
+      ],
+      "vOffset": 1758,
+      "vCount": 6,
+      "iOffset": 1602,
+      "iCount": 9
+    },
+    {
+      "name": "Trinidad",
+      "lod": 0,
+      "bbox": [
+        -61.94,
+        10.1,
+        -60.95,
+        10.83
+      ],
+      "vOffset": 1770,
+      "vCount": 9,
+      "iOffset": 1611,
+      "iCount": 18
+    },
+    {
+      "name": "Trinidad",
+      "lod": 1,
+      "bbox": [
+        -61.94,
+        10.1,
+        -60.95,
+        10.83
+      ],
+      "vOffset": 1788,
+      "vCount": 6,
+      "iOffset": 1629,
+      "iCount": 9
+    },
+    {
+      "name": "Trinidad",
+      "lod": 2,
+      "bbox": [
+        -61.94,
+        10.1,
+        -60.95,
+        10.83
+      ],
+      "vOffset": 1800,
+      "vCount": 4,
+      "iOffset": 1638,
+      "iCount": 3
+    },
+    {
+      "name": "Tobago",
+      "lod": 0,
+      "bbox": [
+        -60.78,
+        11.16,
+        -60.6,
+        11.32
+      ],
+      "vOffset": 1808,
+      "vCount": 6,
+      "iOffset": 1641,
+      "iCount": 9
+    },
+    {
+      "name": "Tobago",
+      "lod": 1,
+      "bbox": [
+        -60.78,
+        11.16,
+        -60.6,
+        11.32
+      ],
+      "vOffset": 1820,
+      "vCount": 7,
+      "iOffset": 1650,
+      "iCount": 12
+    },
+    {
+      "name": "Tobago",
+      "lod": 2,
+      "bbox": [
+        -60.78,
+        11.16,
+        -60.6,
+        11.32
+      ],
+      "vOffset": 1834,
+      "vCount": 7,
+      "iOffset": 1662,
+      "iCount": 12
+    }
+  ],
+  "grid": {
+    "cellSizeDeg": 1,
+    "cells": [
+      {
+        "key": "-88,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-88,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-87,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-86,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-85,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-84,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-83,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-82,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,24",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,25",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,26",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,27",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,28",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,29",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-81,30",
+        "indices": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "key": "-92,18",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-92,19",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-92,20",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-92,21",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-91,18",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-91,19",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-91,20",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-91,21",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-90,18",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-90,19",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-90,20",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-90,21",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-89,18",
+        "indices": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,19",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-89,20",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-89,21",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-88,18",
+        "indices": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,19",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-88,20",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-88,21",
+        "indices": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "key": "-89,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-89,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-88,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-87,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-86,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-85,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-84,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-83,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-82,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-81,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,17",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-80,18",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-79,17",
+        "indices": [
+          6,
+          7,
+          8,
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-79,18",
+        "indices": [
+          6,
+          7,
+          8,
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-78,8",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,9",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,10",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,11",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,12",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,13",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,14",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,15",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,16",
+        "indices": [
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "key": "-78,17",
+        "indices": [
+          6,
+          7,
+          8,
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-78,18",
+        "indices": [
+          6,
+          7,
+          8,
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-73,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-73,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-73,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-73,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-73,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-72,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-72,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-72,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-72,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-72,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-71,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-71,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-71,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-71,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-71,12",
+        "indices": [
+          9,
+          10,
+          11,
+          105,
+          106,
+          107
+        ]
+      },
+      {
+        "key": "-70,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-70,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-70,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-70,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-70,12",
+        "indices": [
+          9,
+          10,
+          11,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110
+        ]
+      },
+      {
+        "key": "-69,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-69,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-69,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-69,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-69,12",
+        "indices": [
+          9,
+          10,
+          11,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113
+        ]
+      },
+      {
+        "key": "-68,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-68,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-68,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-68,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-68,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-67,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-67,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-67,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-67,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-67,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-66,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-66,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-66,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-66,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-66,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-65,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-65,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-65,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-65,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-65,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-64,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-64,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-64,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-64,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-64,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-63,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-63,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-63,10",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-63,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-63,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-62,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-62,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-62,10",
+        "indices": [
+          9,
+          10,
+          11,
+          114,
+          115,
+          116
+        ]
+      },
+      {
+        "key": "-62,11",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-62,12",
+        "indices": [
+          9,
+          10,
+          11,
+          87,
+          88,
+          89
+        ]
+      },
+      {
+        "key": "-61,8",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-61,9",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-61,10",
+        "indices": [
+          9,
+          10,
+          11,
+          114,
+          115,
+          116
+        ]
+      },
+      {
+        "key": "-61,11",
+        "indices": [
+          9,
+          10,
+          11,
+          117,
+          118,
+          119
+        ]
+      },
+      {
+        "key": "-61,12",
+        "indices": [
+          9,
+          10,
+          11
+        ]
+      },
+      {
+        "key": "-85,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-85,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-85,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-85,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-84,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-84,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-84,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-84,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-83,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-83,21",
+        "indices": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      },
+      {
+        "key": "-83,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-83,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-82,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-82,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-82,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-82,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-81,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-81,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-81,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-81,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-80,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-80,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-80,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-80,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-79,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-79,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-79,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-79,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-78,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-78,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-78,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-78,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-77,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-77,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-77,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-77,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-76,20",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-76,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-76,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-76,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-75,20",
+        "indices": [
+          12,
+          13,
+          14,
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-75,21",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-75,22",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-75,23",
+        "indices": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "key": "-77,17",
+        "indices": [
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-77,18",
+        "indices": [
+          18,
+          19,
+          20
+        ]
+      },
+      {
+        "key": "-82,19",
+        "indices": [
+          21,
+          22,
+          23
+        ]
+      },
+      {
+        "key": "-80,19",
+        "indices": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      {
+        "key": "-81,19",
+        "indices": [
+          27,
+          28,
+          29
+        ]
+      },
+      {
+        "key": "-75,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-75,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-74,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-74,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-74,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-73,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-73,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-73,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-72,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-72,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-72,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-71,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-71,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-71,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-70,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-70,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-70,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-69,18",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-69,19",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-69,20",
+        "indices": [
+          30,
+          31,
+          32
+        ]
+      },
+      {
+        "key": "-68,18",
+        "indices": [
+          33,
+          34,
+          35
+        ]
+      },
+      {
+        "key": "-67,18",
+        "indices": [
+          33,
+          34,
+          35
+        ]
+      },
+      {
+        "key": "-66,18",
+        "indices": [
+          33,
+          34,
+          35
+        ]
+      },
+      {
+        "key": "-65,18",
+        "indices": [
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ]
+      },
+      {
+        "key": "-65,17",
+        "indices": [
+          42,
+          43,
+          44
+        ]
+      },
+      {
+        "key": "-73,21",
+        "indices": [
+          45,
+          46,
+          47
+        ]
+      },
+      {
+        "key": "-73,22",
+        "indices": [
+          45,
+          46,
+          47
+        ]
+      },
+      {
+        "key": "-72,21",
+        "indices": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ]
+      },
+      {
+        "key": "-72,22",
+        "indices": [
+          45,
+          46,
+          47
+        ]
+      },
+      {
+        "key": "-80,26",
+        "indices": [
+          51,
+          52,
+          53
+        ]
+      },
+      {
+        "key": "-80,27",
+        "indices": [
+          51,
+          52,
+          53
+        ]
+      },
+      {
+        "key": "-79,26",
+        "indices": [
+          51,
+          52,
+          53
+        ]
+      },
+      {
+        "key": "-79,27",
+        "indices": [
+          51,
+          52,
+          53
+        ]
+      },
+      {
+        "key": "-78,26",
+        "indices": [
+          54,
+          55,
+          56
+        ]
+      },
+      {
+        "key": "-77,26",
+        "indices": [
+          54,
+          55,
+          56
+        ]
+      },
+      {
+        "key": "-79,25",
+        "indices": [
+          57,
+          58,
+          59
+        ]
+      },
+      {
+        "key": "-78,25",
+        "indices": [
+          57,
+          58,
+          59,
+          63,
+          64,
+          65
+        ]
+      },
+      {
+        "key": "-77,25",
+        "indices": [
+          60,
+          61,
+          62
+        ]
+      },
+      {
+        "key": "-62,16",
+        "indices": [
+          66,
+          67,
+          68,
+          72,
+          73,
+          74
+        ]
+      },
+      {
+        "key": "-62,17",
+        "indices": [
+          66,
+          67,
+          68,
+          69,
+          70,
+          71
+        ]
+      },
+      {
+        "key": "-62,15",
+        "indices": [
+          75,
+          76,
+          77
+        ]
+      },
+      {
+        "key": "-62,14",
+        "indices": [
+          78,
+          79,
+          80,
+          81,
+          82,
+          83
+        ]
+      },
+      {
+        "key": "-61,14",
+        "indices": [
+          78,
+          79,
+          80,
+          81,
+          82,
+          83
+        ]
+      },
+      {
+        "key": "-62,13",
+        "indices": [
+          81,
+          82,
+          83,
+          84,
+          85,
+          86
+        ]
+      },
+      {
+        "key": "-61,13",
+        "indices": [
+          81,
+          82,
+          83
+        ]
+      },
+      {
+        "key": "-60,13",
+        "indices": [
+          90,
+          91,
+          92
+        ]
+      },
+      {
+        "key": "-63,17",
+        "indices": [
+          93,
+          94,
+          95,
+          96,
+          97,
+          98
+        ]
+      },
+      {
+        "key": "-63,16",
+        "indices": [
+          99,
+          100,
+          101
+        ]
+      },
+      {
+        "key": "-64,18",
+        "indices": [
+          102,
+          103,
+          104
+        ]
+      },
+      {
+        "key": "-63,18",
+        "indices": [
+          102,
+          103,
+          104
+        ]
+      }
+    ]
+  }
+}

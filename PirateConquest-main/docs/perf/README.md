@@ -13,3 +13,18 @@ How to run perf baseline
    - CSVs will be written under ./perf/*.csv and filenames printed.
 
 
+Islands LOD (feature-flagged)
+
+- Build assets:
+  - npm run islands:build
+- Enable at runtime:
+  - http://localhost:5000/?LOD_ISLANDS=1&perf=1
+- Disable (rollback):
+  - omit the LOD_ISLANDS param (default off)
+
+Before/After quick comparison (World sail)
+
+- Before (no LOD): drawCalls ~35.5
+- After (LOD on, merged, culled): drawCalls ~26.3
+
+
