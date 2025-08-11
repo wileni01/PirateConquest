@@ -1,4 +1,5 @@
 import { Ship, Port } from "./types";
+import { CARIBBEAN_PORTS } from "../../data/ports.caribbean";
 
 // Convert lat/lon to 3D world coordinates (matching the one in usePirateGame)
 function latLonTo3D(lat: number, lon: number): [number, number, number] {
@@ -69,30 +70,57 @@ export function createEnemyShip(position: [number, number, number]): Ship {
 
 export function generateInitialPorts(): Port[] {
   const portData = [
-    { name: "Port Royal", faction: 'english', governor: "Sir William Beeston", type: 'major_port' },
-    { name: "Tortuga", faction: 'pirate', governor: "Captain Bellamy", type: 'pirate_haven' },
+    { name: "Port Royal (Jamaica)", faction: 'english', governor: "Sir William Beeston", type: 'major_port' },
+    { name: "Tortuga (Île de la Tortue)", faction: 'pirate', governor: "Captain Bellamy", type: 'pirate_haven' },
     { name: "Nassau", faction: 'pirate', governor: "Blackbeard", type: 'pirate_haven' },
     { name: "Havana", faction: 'spanish', governor: "Don Carlos Menendez", type: 'major_port' },
     { name: "Cartagena", faction: 'spanish', governor: "Capitán Rodriguez", type: 'treasure_port' },
     { name: "Santo Domingo", faction: 'spanish', governor: "Almirante Santos", type: 'major_port' },
-    { name: "Kingston", faction: 'english', governor: "Lord Pemberton", type: 'port' },
-    { name: "Bridgetown", faction: 'english', governor: "Admiral Clarke", type: 'port' },
+    { name: "Barbados (Bridgetown)", faction: 'english', governor: "Admiral Clarke", type: 'port' },
     { name: "Port-au-Prince", faction: 'french', governor: "Capitaine Dubois", type: 'port' },
     { name: "Campeche", faction: 'neutral', governor: "Señor Vásquez", type: 'port' }
   ];
 
+  const asciiLower = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+  const stripParen = (s: string) => s.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+  const nameCandidates = (s: string) => {
+    const a = asciiLower(s);
+    const b = asciiLower(stripParen(s));
+    return new Set([a, b]);
+  };
+  const portsByName = CARIBBEAN_PORTS.map((p) => ({
+    raw: p.name,
+    nameSet: nameCandidates(p.name),
+    lat: p.lat,
+    lon: p.lon,
+  }));
+
+  function findLatLonFor(name: string): { lat: number; lon: number } | null {
+    const cands = nameCandidates(name);
+    for (const rec of portsByName) {
+      for (const c1 of cands) {
+        for (const c2 of rec.nameSet) {
+          if (c1 === c2 || c1.includes(c2) || c2.includes(c1)) {
+            return { lat: rec.lat, lon: rec.lon };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   return portData.map((port, index) => {
-    const angle = (index / portData.length) * Math.PI * 2;
-    const radius = 60 + Math.random() * 40;
-    
+    const match = findLatLonFor(port.name);
+    const position = match ? latLonTo3D(match.lat, match.lon) : ((): [number, number, number] => {
+      const angle = (index / portData.length) * Math.PI * 2;
+      const radius = 60 + Math.random() * 40;
+      return [Math.cos(angle) * radius, 0, Math.sin(angle) * radius];
+    })();
+
     return {
       id: `port_${index}`,
       name: port.name,
-      position: [
-        Math.cos(angle) * radius,
-        0,
-        Math.sin(angle) * radius
-      ] as [number, number, number],
+      position,
       faction: port.faction as any,
       type: port.type as any,
       supplies: {
