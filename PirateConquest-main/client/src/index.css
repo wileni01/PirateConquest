@@ -28,3 +28,7 @@ canvas {
   height: 100% !important;
   touch-action: none;
 }
+
+.map-wrap { width: 100%; }
+.caribbean-svg { display: block; width: 100%; height: auto; }
+.land path, .cities circle, .cities text { vector-effect: non-scaling-stroke; }
