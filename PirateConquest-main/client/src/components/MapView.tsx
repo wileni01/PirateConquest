@@ -5,43 +5,16 @@ import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { formatDate, getWindDescription } from "../lib/windSystem";
+import { projectLatLon, uvToViewBox, CARIBBEAN_BOUNDS } from "../lib/geo";
+import { CARIBBEAN_PORTS } from "../../data/ports.caribbean";
 
-// Caribbean map bounds (longitude/latitude)
-const MAP_BOUNDS = {
-  north: 32,    // North Carolina
-  south: 8,     // Venezuela
-  west: -100,   // Gulf of Mexico
-  east: -55     // Lesser Antilles
+// Deterministic lat/lon to viewBox coordinates using cosine-corrected equirectangular projection
+const latLonToMapCoords = (lat: number, lon: number) => {
+  const { u, v } = projectLatLon({ lat, lon }, CARIBBEAN_BOUNDS);
+  return uvToViewBox(u, v, 100, 70);
 };
 
-// Temporary placeholder for map bounds (fallback; replaced at runtime)
-let mapBounds = {
-  north: 32,
-  south: 8,
-  west: -98,
-  east: -58,
-};
-
-// Convert real lat/lon to map coordinates with better scaling
-const latLonToMapCoords = (
-  lat: number,
-  lon: number,
-  mapWidth: number = 100,
-  mapHeight: number = 70,
-  bounds: { north: number; south: number; west: number; east: number } = mapBounds
-) => {
-  // Use calculated bounds centered on port locations
-  const { north, south, west, east } = bounds;
-  
-  // Add 5% margin to prevent ports from being at the very edge
-  const margin = 0.05;
-  const x = margin * mapWidth + ((lon - west) / (east - west)) * mapWidth * (1 - 2 * margin);
-  const y = margin * mapHeight + ((north - lat) / (north - south)) * mapHeight * (1 - 2 * margin);
-  
-  return { x: Math.max(0, Math.min(mapWidth, x)), y: Math.max(0, Math.min(mapHeight, y)) };
-};
-
-// Historical Caribbean and Gulf of Mexico pirate locations with real coordinates
+// Historical Caribbean and Gulf of Mexico pirate locations with metadata (we will normalize lat/lon from dataset)
 const CARIBBEAN_LOCATIONS = [
   // Major Caribbean Pirate Havens
   { id: 'port_royal', name: 'Port Royal', lat: 17.93, lon: -76.84, size: 'large', type: 'major_port', faction: 'english' },
@@ -93,49 +66,26 @@ const CARIBBEAN_LOCATIONS = [
   { id: 'acapulco', name: 'Acapulco', lat: 16.86, lon: -99.88, size: 'medium', type: 'treasure_port', faction: 'spanish' },
 ];
 
-// Calculate the centroid and optimal bounds after locations are defined
-const calculateCentroid = () => {
-  // Include all locations but trim outliers (use 5th-95th percentiles)
-  const lats = CARIBBEAN_LOCATIONS.map(loc => loc.lat).sort((a, b) => a - b);
-  const lons = CARIBBEAN_LOCATIONS.map(loc => loc.lon).sort((a, b) => a - b);
+// Normalize names for matching (strip parentheticals, accents to ASCII lower-case)
+function normalizeName(name: string) {
+  const base = name.replace(/\s*\([^)]*\)\s*/g, "");
+  return base.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+}
 
-  const quantile = (arr: number[], q: number) => {
-    if (arr.length === 0) return 0;
-    const pos = (arr.length - 1) * q;
-    const base = Math.floor(pos);
-    const rest = pos - base;
-    const next = Math.min(arr.length - 1, base + 1);
-    return arr[base] + rest * (arr[next] - arr[base]);
-  };
+// Merge coordinates from canonical dataset
+const DATASET_BY_NAME = new Map(
+  CARIBBEAN_PORTS.map(p => [normalizeName(p.name), p])
+);
 
-  const latMin = quantile(lats, 0.05);
-  const latMax = quantile(lats, 0.95);
-  const lonMin = quantile(lons, 0.05);
-  const lonMax = quantile(lons, 0.95);
+function mergeLocationCoords<T extends { name: string; lat: number; lon: number }>(loc: T): T {
+  const key = normalizeName(loc.name);
+  const match = DATASET_BY_NAME.get(key);
+  if (match) return { ...loc, lat: match.lat, lon: match.lon } as T;
+  return loc;
+}
 
-  const avgLat = (latMin + latMax) / 2;
-  const avgLon = (lonMin + lonMax) / 2;
-
-  const latRange = latMax - latMin;
-  const lonRange = lonMax - lonMin;
-
-  // Padding to show all core Caribbean ports with breathing room
-  const padding = 0.06;
-
-  return {
-    center: { lat: avgLat, lon: avgLon },
-    bounds: {
-      north: latMax + (latRange * padding),
-      south: latMin - (latRange * padding),
-      west: lonMin - (lonRange * padding),
-      east: lonMax + (lonRange * padding)
-    }
-  };
-};
-
-// Update map bounds based on centroid calculation
-const centroidConfig = calculateCentroid();
-mapBounds = centroidConfig.bounds;
+// Fixed geographic bounds used everywhere
+const FIXED_BOUNDS = CARIBBEAN_BOUNDS;
 
 // Label placement system: greedy candidate search with collision avoidance and leader lines
 type MapDims = { widthPx: number; heightPx: number };
@@ -257,27 +207,7 @@ function placeLabels(locations: typeof CARIBBEAN_LOCATIONS, dims: MapDims) {
   return locs;
 }
 
-// Compute bounds from landmass points (with margin)
-const computeBoundsFromLandMasses = (masses: Array<{ points: { lat: number; lon: number }[] }>) => {
-  let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-  for (const m of masses) {
-    for (const p of m.points) {
-      if (p.lat < minLat) minLat = p.lat;
-      if (p.lat > maxLat) maxLat = p.lat;
-      if (p.lon < minLon) minLon = p.lon;
-      if (p.lon > maxLon) maxLon = p.lon;
-    }
-  }
-  // Apply gentle padding
-  const padLat = (maxLat - minLat) * 0.05;
-  const padLon = (maxLon - minLon) * 0.05;
-  return {
-    north: maxLat + padLat,
-    south: minLat - padLat,
-    west: minLon - padLon,
-    east: maxLon + padLon,
-  };
-};
+// No dynamic bounds: always use fixed CARIBBEAN_BOUNDS
 
 // Land masses for visual representation with accurate geography
 const LAND_MASSES = [
@@ -449,7 +379,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
   const [encounterShips, setEncounterShips] = useState<typeof ships>([]);
   const [showEncounter, setShowEncounter] = useState(false);
   const [customLandMasses, setCustomLandMasses] = useState<any[] | null>(null);
-  const [dynamicBounds, setDynamicBounds] = useState<typeof mapBounds | null>(null);
+  // Fixed bounds only
 
   // Optionally load external landmass data (GeoJSON or simple JSON) for higher accuracy
   useEffect(() => {
@@ -457,6 +387,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
     const load = async () => {
       const tStart = performance.now();
       const tryUrls = [
+        '/caribbean-landmasses.geojson',
         '/caribbean-landmasses.json',
         '/caribbean-landmasses-example.json',
       ];
@@ -486,11 +417,6 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
             });
             if (masses.length) {
               setCustomLandMasses(masses);
-              try {
-                const b = computeBoundsFromLandMasses(masses);
-                setDynamicBounds(b);
-                mapBounds = b; // keep legacy helper in sync
-              } catch {}
               try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.features.length); } catch {}
               return;
             }
@@ -498,11 +424,6 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
           // Simple format { landMasses: [ { name, points:[{lat,lon}...] } ] }
           if (Array.isArray(data?.landMasses)) {
             setCustomLandMasses(data.landMasses);
-            try {
-              const b = computeBoundsFromLandMasses(data.landMasses);
-              setDynamicBounds(b);
-              mapBounds = b;
-            } catch {}
             try { const { markGeoJsonLoad } = await import('../lib/perf'); markGeoJsonLoad(url, performance.now() - tStart, data.landMasses.length); } catch {}
             return;
           }
@@ -515,26 +436,16 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
     return () => { cancelled = true; };
   }, []);
 
-  // Decide bounds: prefer landmass-driven; else centroid-based defaults
-  const bounds = useMemo(() => {
-    if (customLandMasses && customLandMasses.length > 0) {
-      return computeBoundsFromLandMasses(customLandMasses as any);
-    }
-    return centroidConfig.bounds;
-  }, [customLandMasses]);
-
-  // Keep global helper synced
-  useEffect(() => {
-    mapBounds = bounds;
-  }, [bounds]);
+  // Fixed bounds
+  const bounds = FIXED_BOUNDS;
 
   const renderedLandMasses = useMemo(() => {
     const source = customLandMasses ?? LAND_MASSES;
     return source.map((landMass: any) => ({
       ...landMass,
-      points: landMass.points.map((point: any) => latLonToMapCoords(point.lat, point.lon, 100, 70, bounds)),
+      points: landMass.points.map((point: any) => latLonToMapCoords(point.lat, point.lon)),
     }));
-  }, [customLandMasses, bounds]);
+  }, [customLandMasses]);
 
   // Map all locations with smart label positioning using current bounds and actual viewport size
   const [dims, setDims] = useState<{ widthPx: number; heightPx: number }>({ widthPx: 1200, heightPx: 840 });
@@ -550,8 +461,9 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
   }, []);
 
   const MAPPED_LOCATIONS = useMemo(() => {
-    return placeLabels(CARIBBEAN_LOCATIONS.map((l) => ({ ...l })), dims);
-  }, [bounds, dims]);
+    const merged = CARIBBEAN_LOCATIONS.map((l) => mergeLocationCoords({ ...l }));
+    return placeLabels(merged, dims);
+  }, [dims]);
   
   // Update sailing progress
   useEffect(() => {
@@ -569,7 +481,7 @@ function MapView({ forceRender = false }: { forceRender?: boolean } = {}) {
     // Reverse the latLonTo3D conversion
     const lon = (worldPos[0] / 20) - 77.5;
     const lat = 20 - (worldPos[2] / 20);
-    return latLonToMapCoords(lat, lon, 100, 70, bounds);
+    return latLonToMapCoords(lat, lon);
   };
 
   // Handle clicking on a location to enter port

@@ -10,7 +10,8 @@
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "perf:scenarios": "node scripts/perf/scenarios.js http://localhost:5000",
-    "islands:build": "node scripts/islands/build.js"
+    "islands:build": "node scripts/islands/build.js",
+    "build:caribbean-land": "node scripts/build-caribbean-land.js"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
@@ -124,7 +125,8 @@
     "vite": "^5.4.19",
     "puppeteer": "^22.13.1",
     "earcut": "^2.2.4",
-    "simplify-js": "^1.2.4"
+    "simplify-js": "^1.2.4",
+    "mapshaper": "^0.6.115"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
